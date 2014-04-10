@@ -34,7 +34,12 @@ bool CTextProcess::OnDrawClipboard()
 	// 클립보드 얻어오기 실패 (또는 맞지 않는 규격)
 	if (hClipData == NULL)
 	{
-		MessageBox(0, 0, 0, 0);
+		Cl.TextRenderer->Paint(); 
+		CloseClipboard();
+		ChangeClipboardChain(hWnds.Main, NULL);
+		hWnds.Clip = SetClipboardViewer(hWnds.Main);
+
+		MessageBox(0, L"클립보드 얻어오기 실패", 0, 0);
 		return false;
 	}
 
@@ -48,7 +53,7 @@ bool CTextProcess::OnDrawClipboard()
 	// 메모리 할당 실패
 	if (szBuff == NULL)
 	{
-		MessageBox(0, 0, 0, 0);
+		MessageBox(0, L"메모리 할당 실패", 0, 0);
 		return false;
 	}
 
@@ -63,7 +68,7 @@ bool CTextProcess::OnDrawClipboard()
 	// 메모리 할당 실패
 	if (lpszBuff == NULL)
 	{
-		MessageBox(0, 0, 0, 0);
+		MessageBox(0, L"메모리 할당 실패", 0, 0);
 		return false;
 	}
 
