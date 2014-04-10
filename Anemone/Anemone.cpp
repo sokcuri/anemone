@@ -1,4 +1,4 @@
-// Anemone.cpp : ÀÀ¿ë ÇÁ·Î±×·¥¿¡ ´ëÇÑ ÁøÀÔÁ¡À» Á¤ÀÇÇÕ´Ï´Ù.
+ï»¿// Anemone.cpp : ì‘ìš© í”„ë¡œê·¸ëž¨ì— ëŒ€í•œ ì§„ìž…ì ì„ ì •ì˜í•©ë‹ˆë‹¤.
 //
 
 #include "stdafx.h"
@@ -6,13 +6,13 @@
 
 #define MAX_LOADSTRING 100
 
-// Àü¿ª º¯¼ö:
-TCHAR szTitle[MAX_LOADSTRING];					// Á¦¸ñ Ç¥½ÃÁÙ ÅØ½ºÆ®ÀÔ´Ï´Ù.
-TCHAR szWindowClass[MAX_LOADSTRING];			// ±âº» Ã¢ Å¬·¡½º ÀÌ¸§ÀÔ´Ï´Ù.
+// ì „ì—­ ë³€ìˆ˜:
+TCHAR szTitle[MAX_LOADSTRING];					// ì œëª© í‘œì‹œì¤„ í…ìŠ¤íŠ¸ìž…ë‹ˆë‹¤.
+TCHAR szWindowClass[MAX_LOADSTRING];			// ê¸°ë³¸ ì°½ í´ëž˜ìŠ¤ ì´ë¦„ìž…ë‹ˆë‹¤.
 _hWnds hWnds;
 _Class Cl;
 
-// ÀÌ ÄÚµå ¸ðµâ¿¡ µé¾î ÀÖ´Â ÇÔ¼öÀÇ Á¤¹æÇâ ¼±¾ðÀÔ´Ï´Ù.
+// ì´ ì½”ë“œ ëª¨ë“ˆì— ë“¤ì–´ ìžˆëŠ” í•¨ìˆ˜ì˜ ì •ë°©í–¥ ì„ ì–¸ìž…ë‹ˆë‹¤.
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -28,23 +28,23 @@ int APIENTRY _tWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: ¿©±â¿¡ ÄÚµå¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+ 	// TODO: ì—¬ê¸°ì— ì½”ë“œë¥¼ ìž…ë ¥í•©ë‹ˆë‹¤.
 	MSG msg;
 	HACCEL hAccelTable;
 
-	// Àü¿ª ¹®ÀÚ¿­À» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ì „ì—­ ë¬¸ìžì—´ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_ANEMONE, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-	// ÀÀ¿ë ÇÁ·Î±×·¥ ÃÊ±âÈ­¸¦ ¼öÇàÇÕ´Ï´Ù.
+	// ì‘ìš© í”„ë¡œê·¸ëž¨ ì´ˆê¸°í™”ë¥¼ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 	if (!InitInstance(hInstance, false))
 	{
 		return FALSE;
 	}
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_ANEMONE));
 
-	// ·¹Áö½ºÆ®¸®¿¡¼­ ¹ø¿ª¿£Áø °æ·Î ¾ò¾î¿À±â
+	// ë ˆì§€ìŠ¤íŠ¸ë¦¬ì—ì„œ ë²ˆì—­ì—”ì§„ ê²½ë¡œ ì–»ì–´ì˜¤ê¸°
 	HKEY key;
 	DWORD dwType = REG_SZ;
 	DWORD dwSize = 255;
@@ -54,27 +54,27 @@ int APIENTRY _tWinMain(
 
 	if (RegQueryValueEx(key, L"FilePath", 0, &dwType, (LPBYTE)szPath, &dwSize) != ERROR_SUCCESS)
 	{
-		MessageBox(0, L"ÀÌÁöÆ®·£½º°¡ ¼³Ä¡µÇÁö ¾Ê¾Ò°Å³ª ·¹Áö½ºÆ®¸®¿¡¼­ ÀÌÁöÆ®·£½º °æ·Î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.\r\nÀÌÁöÆ®·£½º°¡ ¼³Ä¡µÇ¾î ÀÖ¾î¾ß ¾Æ³×¸ð³× ½ÇÇàÀÌ °¡´ÉÇÕ´Ï´Ù.\r\nÀÌÁöÆ®·£½º°¡ ¼³Ä¡µÇ¾î ÀÖ´Ù¸é INI ÆÄÀÏÀÇ ÀÌÁöÆ®·£½º °æ·Î¸¦ ¼³Á¤ÇØ ÁÖ¼¼¿ä.", 0, MB_ICONERROR);
+		MessageBox(0, L"ì´ì§€íŠ¸ëžœìŠ¤ê°€ ì„¤ì¹˜ë˜ì§€ ì•Šì•˜ê±°ë‚˜ ë ˆì§€ìŠ¤íŠ¸ë¦¬ì—ì„œ ì´ì§€íŠ¸ëžœìŠ¤ ê²½ë¡œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\r\nì´ì§€íŠ¸ëžœìŠ¤ê°€ ì„¤ì¹˜ë˜ì–´ ìžˆì–´ì•¼ ì•„ë„¤ëª¨ë„¤ ì‹¤í–‰ì´ ê°€ëŠ¥í•©ë‹ˆë‹¤.\r\nì´ì§€íŠ¸ëžœìŠ¤ê°€ ì„¤ì¹˜ë˜ì–´ ìžˆë‹¤ë©´ INI íŒŒì¼ì˜ ì´ì§€íŠ¸ëžœìŠ¤ ê²½ë¡œë¥¼ ì„¤ì •í•´ ì£¼ì„¸ìš”.", 0, MB_ICONERROR);
 		return false;
 	}
 
-	// ¹ø¿ª¿£Áø ÃÊ±âÈ­
+	// ë²ˆì—­ì—”ì§„ ì´ˆê¸°í™”
 	std::wstring szEnginePath = szPath;
 	Cl.TransEngine = new CTransEngine();
 
 	if (!Cl.TransEngine->Init(szEnginePath))
 	{
-		MessageBox(0, L"ÀÌÁöÆ®·£½º ¿£Áø ÃÊ±âÈ­°¡ ½ÇÆÐÇß½À´Ï´Ù.", 0, MB_ICONERROR);
+		MessageBox(0, L"ì´ì§€íŠ¸ëžœìŠ¤ ì—”ì§„ ì´ˆê¸°í™”ê°€ ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.", 0, MB_ICONERROR);
 		return false;
 	}
 	/*
 	char buf[1024];
 	char *n_str;
 
-	// °¡²û ¹ø¿ª½ÇÆÐÇÏ´Â ¹®Á¦°¡ ÀÖ¾î¼­ ¼¼¹ø µ¹¸²
+	// ê°€ë” ë²ˆì—­ì‹¤íŒ¨í•˜ëŠ” ë¬¸ì œê°€ ìžˆì–´ì„œ ì„¸ë²ˆ ëŒë¦¼
 	for (int k = 0; k < 3; k++)
 	{
-		n_str = (char *)TransEngine.J2K_TranslateMMNT(0, "u‚æ‚ë‚µ‚¯‚ê‚Î¡“x‚Ql‚Å‚¨˜b‚µ‚È‚Ç‚Å‚«‚È‚¢‚Å‚µ‚å‚¤‚©v");
+		n_str = (char *)TransEngine.J2K_TranslateMMNT(0, "ÂuÂ‚???ï£©Â‚???xÂ‚QÂlÂ‚??bÂ‚????????????v");
 		if (n_str[0] != 0x00) break;
 	}
 
@@ -86,21 +86,21 @@ int APIENTRY _tWinMain(
 	}
 	*/
 	
-	// ·»´õ·¯ ÃÊ±âÈ­
+	// ë Œë”ëŸ¬ ì´ˆê¸°í™”
 	Cl.TextRenderer = new CTextRenderer();
 	if (!Cl.TextRenderer->Init())
 	{
-		MessageBox(0, L"GDI+ ¿£Áø ÃÊ±âÈ­¸¦ ½ÇÆÐÇß½À´Ï´Ù.\r\n½Ã½ºÅÛÀÇ ¸®¼Ò½º°¡ ºÎÁ·ÇÒ °æ¿ì GDI+ ÃÊ±âÈ­°¡ ½ÇÆÐÇÒ ¼ö ÀÖ½À´Ï´Ù.\r\n½ÇÇàµÇ°í ÀÖ´Â ´Ù¸¥ ÇÁ·Î±×·¥µéÀ» Á¾·áÇÏ°í ´Ù½Ã ½ÇÇàÇÏ¼¼¿ä.", 0, MB_ICONERROR);
+		MessageBox(0, L"GDI+ ì—”ì§„ ì´ˆê¸°í™”ë¥¼ ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.\r\nì‹œìŠ¤í…œì˜ ë¦¬ì†ŒìŠ¤ê°€ ë¶€ì¡±í•  ê²½ìš° GDI+ ì´ˆê¸°í™”ê°€ ì‹¤íŒ¨í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.\r\nì‹¤í–‰ë˜ê³  ìžˆëŠ” ë‹¤ë¥¸ í”„ë¡œê·¸ëž¨ë“¤ì„ ì¢…ë£Œí•˜ê³  ë‹¤ì‹œ ì‹¤í–‰í•˜ì„¸ìš”.", 0, MB_ICONERROR);
 		return false;
 	}
 
-	// ÅØ½ºÆ® Ã³¸® Å¬·¡½º
+	// í…ìŠ¤íŠ¸ ì²˜ë¦¬ í´ëž˜ìŠ¤
 	Cl.TextProcess = new CTextProcess();
 
-	// À©µµ¿ì Ç¥½Ã
+	// ìœˆë„ìš° í‘œì‹œ
 	ShowWindow(hWnds.Main, true);
 
-	// ±âº» ¸Þ½ÃÁö ·çÇÁÀÔ´Ï´Ù.
+	// ê¸°ë³¸ ë©”ì‹œì§€ ë£¨í”„ìž…ë‹ˆë‹¤.
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
@@ -120,9 +120,9 @@ int APIENTRY _tWinMain(
 
 
 //
-//  ÇÔ¼ö: MyRegisterClass()
+//  í•¨ìˆ˜: MyRegisterClass()
 //
-//  ¸ñÀû: Ã¢ Å¬·¡½º¸¦ µî·ÏÇÕ´Ï´Ù.
+//  ëª©ì : ì°½ í´ëž˜ìŠ¤ë¥¼ ë“±ë¡í•©ë‹ˆë‹¤.
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
@@ -146,18 +146,18 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 //
-//   ÇÔ¼ö: InitInstance(HINSTANCE, int)
+//   í•¨ìˆ˜: InitInstance(HINSTANCE, int)
 //
-//   ¸ñÀû: ÀÎ½ºÅÏ½º ÇÚµéÀ» ÀúÀåÇÏ°í ÁÖ Ã¢À» ¸¸µì´Ï´Ù.
+//   ëª©ì : ì¸ìŠ¤í„´ìŠ¤ í•¸ë“¤ì„ ì €ìž¥í•˜ê³  ì£¼ ì°½ì„ ë§Œë“­ë‹ˆë‹¤.
 //
-//   ¼³¸í:
+//   ì„¤ëª…:
 //
-//        ÀÌ ÇÔ¼ö¸¦ ÅëÇØ ÀÎ½ºÅÏ½º ÇÚµéÀ» Àü¿ª º¯¼ö¿¡ ÀúÀåÇÏ°í
-//        ÁÖ ÇÁ·Î±×·¥ Ã¢À» ¸¸µç ´ÙÀ½ Ç¥½ÃÇÕ´Ï´Ù.
+//        ì´ í•¨ìˆ˜ë¥¼ í†µí•´ ì¸ìŠ¤í„´ìŠ¤ í•¸ë“¤ì„ ì „ì—­ ë³€ìˆ˜ì— ì €ìž¥í•˜ê³ 
+//        ì£¼ í”„ë¡œê·¸ëž¨ ì°½ì„ ë§Œë“  ë‹¤ìŒ í‘œì‹œí•©ë‹ˆë‹¤.
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hWnds.hInst = hInstance; // ÀÎ½ºÅÏ½º ÇÚµéÀ» Àü¿ª º¯¼ö¿¡ ÀúÀåÇÕ´Ï´Ù.
+   hWnds.hInst = hInstance; // ì¸ìŠ¤í„´ìŠ¤ í•¸ë“¤ì„ ì „ì—­ ë³€ìˆ˜ì— ì €ìž¥í•©ë‹ˆë‹¤.
 
    int cx = GetSystemMetrics(SM_CXSCREEN);
    int cy = GetSystemMetrics(SM_CYSCREEN);
@@ -180,13 +180,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 
 //
-//  ÇÔ¼ö: WndProc(HWND, UINT, WPARAM, LPARAM)
+//  í•¨ìˆ˜: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
-//  ¸ñÀû:  ÁÖ Ã¢ÀÇ ¸Þ½ÃÁö¸¦ Ã³¸®ÇÕ´Ï´Ù.
+//  ëª©ì :  ì£¼ ì°½ì˜ ë©”ì‹œì§€ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
 //
-//  WM_COMMAND	- ÀÀ¿ë ÇÁ·Î±×·¥ ¸Þ´º¸¦ Ã³¸®ÇÕ´Ï´Ù.
-//  WM_PAINT	- ÁÖ Ã¢À» ±×¸³´Ï´Ù.
-//  WM_DESTROY	- Á¾·á ¸Þ½ÃÁö¸¦ °Ô½ÃÇÏ°í ¹ÝÈ¯ÇÕ´Ï´Ù.
+//  WM_COMMAND	- ì‘ìš© í”„ë¡œê·¸ëž¨ ë©”ë‰´ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+//  WM_PAINT	- ì£¼ ì°½ì„ ê·¸ë¦½ë‹ˆë‹¤.
+//  WM_DESTROY	- ì¢…ë£Œ ë©”ì‹œì§€ë¥¼ ê²Œì‹œí•˜ê³  ë°˜í™˜í•©ë‹ˆë‹¤.
 //
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -201,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
-		// ¸Þ´º ¼±ÅÃÀ» ±¸¹® ºÐ¼®ÇÕ´Ï´Ù.
+		// ë©”ë‰´ ì„ íƒì„ êµ¬ë¬¸ ë¶„ì„í•©ë‹ˆë‹¤.
 		switch (wmId)
 		{
 		case IDM_ABOUT:
@@ -296,7 +296,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-// Á¤º¸ ´ëÈ­ »óÀÚÀÇ ¸Þ½ÃÁö Ã³¸®±âÀÔ´Ï´Ù.
+// ì •ë³´ ëŒ€í™” ìƒìžì˜ ë©”ì‹œì§€ ì²˜ë¦¬ê¸°ìž…ë‹ˆë‹¤.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);

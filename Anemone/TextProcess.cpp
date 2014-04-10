@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 #include "TextProcess.h"
 
 
@@ -31,7 +31,7 @@ bool CTextProcess::OnDrawClipboard()
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
 	
-	// Å¬¸³º¸µå ¾ò¾î¿À±â ½ÇÆĞ (¶Ç´Â ¸ÂÁö ¾Ê´Â ±Ô°İ)
+	// í´ë¦½ë³´ë“œ ì–»ì–´ì˜¤ê¸° ì‹¤íŒ¨ (ë˜ëŠ” ë§ì§€ ì•ŠëŠ” ê·œê²©)
 	if (hClipData == NULL)
 	{
 		MessageBox(0, 0, 0, 0);
@@ -45,7 +45,7 @@ bool CTextProcess::OnDrawClipboard()
 	nBufLen = WideCharToMultiByte(932, 0, szContextOrg.c_str(), -1, NULL, NULL, NULL, NULL);
 	szBuff = (char *)malloc((nBufLen+2)*2);
 
-	// ¸Ş¸ğ¸® ÇÒ´ç ½ÇÆĞ
+	// ë©”ëª¨ë¦¬ í• ë‹¹ ì‹¤íŒ¨
 	if (szBuff == NULL)
 	{
 		MessageBox(0, 0, 0, 0);
@@ -60,7 +60,7 @@ bool CTextProcess::OnDrawClipboard()
 	nBufLen = MultiByteToWideChar(949, 0, szBuff2, -1, NULL, NULL);
 	lpszBuff = (wchar_t *)malloc((nBufLen+2)*2);
 
-	// ¸Ş¸ğ¸® ÇÒ´ç ½ÇÆĞ
+	// ë©”ëª¨ë¦¬ í• ë‹¹ ì‹¤íŒ¨
 	if (lpszBuff == NULL)
 	{
 		MessageBox(0, 0, 0, 0);
@@ -88,6 +88,6 @@ bool CTextProcess::OnDrawClipboard()
 
 CTextProcess::~CTextProcess()
 {
-	// Å¬¸³º¸µå °¨½Ã Á¾·á
+	// í´ë¦½ë³´ë“œ ê°ì‹œ ì¢…ë£Œ
 	EndWatchClip();
 }

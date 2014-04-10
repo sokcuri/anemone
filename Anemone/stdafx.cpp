@@ -1,21 +1,21 @@
-// stdafx.cpp : Ç¥ÁØ Æ÷ÇÔ ÆÄÀÏ¸¸ µé¾î ÀÖ´Â ¼Ò½º ÆÄÀÏÀÔ´Ï´Ù.
-// Anemone.pch´Â ¹Ì¸® ÄÄÆÄÀÏµÈ Çì´õ°¡ µË´Ï´Ù.
-// stdafx.obj¿¡´Â ¹Ì¸® ÄÄÆÄÀÏµÈ Çü½Ä Á¤º¸°¡ Æ÷ÇÔµË´Ï´Ù.
+ï»¿// stdafx.cpp : í‘œì¤€ í¬í•¨ íŒŒì¼ë§Œ ë“¤ì–´ ìžˆëŠ” ì†ŒìŠ¤ íŒŒì¼ìž…ë‹ˆë‹¤.
+// Anemone.pchëŠ” ë¯¸ë¦¬ ì»´íŒŒì¼ëœ í—¤ë”ê°€ ë©ë‹ˆë‹¤.
+// stdafx.objì—ëŠ” ë¯¸ë¦¬ ì»´íŒŒì¼ëœ í˜•ì‹ ì •ë³´ê°€ í¬í•¨ë©ë‹ˆë‹¤.
 
 #include "stdafx.h"
 
-// TODO: ÇÊ¿äÇÑ Ãß°¡ Çì´õ´Â
-// ÀÌ ÆÄÀÏÀÌ ¾Æ´Ñ STDAFX.H¿¡¼­ ÂüÁ¶ÇÕ´Ï´Ù.
+// TODO: í•„ìš”í•œ ì¶”ê°€ í—¤ë”ëŠ”
+// ì´ íŒŒì¼ì´ ì•„ë‹Œ STDAFX.Hì—ì„œ ì°¸ì¡°í•©ë‹ˆë‹¤.
 
 /*
-IsWritableMemory : ÁÖ¾îÁø ¸Þ¸ð¸® ÁÖ¼ÒÀÇ »óÅÂ°¡ ¾²±â°¡´ÉÀÎÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö
+IsWritableMemory : ì£¼ì–´ì§„ ë©”ëª¨ë¦¬ ì£¼ì†Œì˜ ìƒíƒœê°€ ì“°ê¸°ê°€ëŠ¥ì¸ì§€ ì²´í¬í•˜ëŠ” í•¨ìˆ˜
 Param :
-LPVOID  pMemoryAddr : °Ë»çÇÏ°íÀÚ ÇÏ´Â ¸Þ¸ð¸®ÀÇ ÁÖ¼Ò
+LPVOID  pMemoryAddr : ê²€ì‚¬í•˜ê³ ìž í•˜ëŠ” ë©”ëª¨ë¦¬ì˜ ì£¼ì†Œ
 Return Value :
-ERROR_SUCCESS : ÀÎÀÚ·Î ÁÖ¾îÁø ÁÖ¼ÒÀÇ ¸Þ¸ð¸®°¡ Read/Write °¡´ÉÇÑ °æ¿ì
-±âÅ¸ °ª : Read/Write °¡´ÉÇÑ ¸Þ¸ð¸®°¡ ¾Æ´Ï¸é ÇØ´ç ÁÖ¼ÒÀÇ Protect Mode ¸¦
-³ªÅ¸³»´Â 0ÀÌ ¾Æ´Ñ °ªÀ» ¸®ÅÏÇÔ.
-http://msdn.microsoft.com/en-us/library/aa915370.aspx ÂüÁ¶
+ERROR_SUCCESS : ì¸ìžë¡œ ì£¼ì–´ì§„ ì£¼ì†Œì˜ ë©”ëª¨ë¦¬ê°€ Read/Write ê°€ëŠ¥í•œ ê²½ìš°
+ê¸°íƒ€ ê°’ : Read/Write ê°€ëŠ¥í•œ ë©”ëª¨ë¦¬ê°€ ì•„ë‹ˆë©´ í•´ë‹¹ ì£¼ì†Œì˜ Protect Mode ë¥¼
+ë‚˜íƒ€ë‚´ëŠ” 0ì´ ì•„ë‹Œ ê°’ì„ ë¦¬í„´í•¨.
+http://msdn.microsoft.com/en-us/library/aa915370.aspx ì°¸ì¡°
 */
 INT IsWritableMemory(LPVOID pMemoryAddr)
 {
@@ -24,7 +24,7 @@ INT IsWritableMemory(LPVOID pMemoryAddr)
 
 	nResult = VirtualQuery(pMemoryAddr, &MemInfo, sizeof(MemInfo));
 
-	if (nResult == 0) // Ä¿³Î ¿µ¿ªÀÎ °æ¿ì VirtualQuery ÀÚÃ¼°¡ FailÇÔ.  
+	if (nResult == 0) // ì»¤ë„ ì˜ì—­ì¸ ê²½ìš° VirtualQuery ìžì²´ê°€ Failí•¨.  
 	{
 		return -1;
 	}
@@ -40,14 +40,14 @@ INT IsWritableMemory(LPVOID pMemoryAddr)
 
 
 /*
-IsReadableMemory : ÁÖ¾îÁø ¸Þ¸ð¸® ÁÖ¼ÒÀÇ »óÅÂ°¡ ÂüÁ¶(Read)°¡´ÉÀÎÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö
+IsReadableMemory : ì£¼ì–´ì§„ ë©”ëª¨ë¦¬ ì£¼ì†Œì˜ ìƒíƒœê°€ ì°¸ì¡°(Read)ê°€ëŠ¥ì¸ì§€ ì²´í¬í•˜ëŠ” í•¨ìˆ˜
 Param :
-LPVOID  pMemoryAddr : °Ë»çÇÏ°íÀÚ ÇÏ´Â ¸Þ¸ð¸®ÀÇ ÁÖ¼Ò
+LPVOID  pMemoryAddr : ê²€ì‚¬í•˜ê³ ìž í•˜ëŠ” ë©”ëª¨ë¦¬ì˜ ì£¼ì†Œ
 Return Value :
-ERROR_SUCCESS : ÀÎÀÚ·Î ÁÖ¾îÁø ÁÖ¼ÒÀÇ ¸Þ¸ð¸®°¡ Read °¡´ÉÇÑ °æ¿ì
-±âÅ¸ °ª : Read °¡´ÉÇÑ ¸Þ¸ð¸®°¡ ¾Æ´Ï¸é ÇØ´ç ÁÖ¼ÒÀÇ State ¸¦
-³ªÅ¸³»´Â 0ÀÌ ¾Æ´Ñ °ªÀ» ¸®ÅÏÇÔ.
-http://msdn.microsoft.com/en-us/library/aa915370.aspx ÂüÁ¶
+ERROR_SUCCESS : ì¸ìžë¡œ ì£¼ì–´ì§„ ì£¼ì†Œì˜ ë©”ëª¨ë¦¬ê°€ Read ê°€ëŠ¥í•œ ê²½ìš°
+ê¸°íƒ€ ê°’ : Read ê°€ëŠ¥í•œ ë©”ëª¨ë¦¬ê°€ ì•„ë‹ˆë©´ í•´ë‹¹ ì£¼ì†Œì˜ State ë¥¼
+ë‚˜íƒ€ë‚´ëŠ” 0ì´ ì•„ë‹Œ ê°’ì„ ë¦¬í„´í•¨.
+http://msdn.microsoft.com/en-us/library/aa915370.aspx ì°¸ì¡°
 */
 INT IsReadableMemory(LPVOID pMemoryAddr)
 {
@@ -56,7 +56,7 @@ INT IsReadableMemory(LPVOID pMemoryAddr)
 
 	nResult = VirtualQuery(pMemoryAddr, &MemInfo, sizeof(MemInfo));
 
-	if (nResult == 0) // Ä¿³Î ¿µ¿ªÀÎ °æ¿ì VirtualQuery ÀÚÃ¼°¡ FailÇÔ.  
+	if (nResult == 0) // ì»¤ë„ ì˜ì—­ì¸ ê²½ìš° VirtualQuery ìžì²´ê°€ Failí•¨.  
 	{
 		return -1;
 	}

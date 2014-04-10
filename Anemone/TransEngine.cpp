@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "TransEngine.h"
 static CRITICAL_SECTION CriticalSection;
 int CTransEngine::ezt_addr[20];
@@ -13,7 +13,7 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 	// Load ezTrans Engine
 	std::wstring szEngineDLL = szEnginePath + L"\\J2KEngine.dll";
 	HMODULE hDLL = LoadLibrary(szEngineDLL.c_str());
-	if (!hDLL) MessageBox(0, L"ÀÌÁöÆ®·£½º ¹ø¿ª ¿£Áø ÃÊ±âÈ­ ½ÇÆĞ\r\n: LoadLibrary Failed", 0, MB_ICONERROR);
+	if (!hDLL) MessageBox(0, L"ì´ì§€íŠ¸ëœìŠ¤ ë²ˆì—­ ì—”ì§„ ì´ˆê¸°í™” ì‹¤íŒ¨\r\n: LoadLibrary Failed", 0, MB_ICONERROR);
 
 	// Load ezTrans Function
 	ezt_addr[0] = (int)GetProcAddress(hDLL, "J2K_FreeMem");
@@ -39,7 +39,7 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 	for (int i = 0; i <= 18; i++)
 	if (!ezt_addr[i]) 
 	{
-		MessageBox(0, L"ÀÌÁöÆ®·£½º ¹ø¿ª ¿£Áø ÃÊ±âÈ­ ½ÇÆĞ\r\n: ÇÔ¼ö Á¤º¸ ºÒ·¯¿À±â ½ÇÆĞ", 0, MB_ICONERROR);
+		MessageBox(0, L"ì´ì§€íŠ¸ëœìŠ¤ ë²ˆì—­ ì—”ì§„ ì´ˆê¸°í™” ì‹¤íŒ¨\r\n: í•¨ìˆ˜ ì •ë³´ ë¶ˆëŸ¬ì˜¤ê¸° ì‹¤íŒ¨", 0, MB_ICONERROR);
 		return false;
 	}
 

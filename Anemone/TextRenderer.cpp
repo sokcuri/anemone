@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+О╩©#include "StdAfx.h"
 #include "TextRenderer.h"
 
 
@@ -9,8 +9,8 @@ CTextRenderer::CTextRenderer()
 	szContextOrg = new std::wstring();
 	szContextTrans = new std::wstring();
 
-	*szContextOrg = L"ев╫╨ф╝ ╧╝юз©╜ют╢о╢ы ев╫╨ф╝ ев╫╨ф╝ ев╫╨ф╝!~!@$%^&*()_1234567890";
-	*szContextTrans = L"ев╫╨ф╝ ╧╝юз©╜ют╢о╢ы ев╫╨ф╝ ев╫╨ф╝ ев╫╨ф╝!~!@$%^&*()_1234567890";
+	*szContextOrg = L"М┘▄Л┼╓М┼╦ К╛╦Л·░Л≈╢Л·┘К▀┬К▀╓ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦!~!@$%^&*()_1234567890";
+	*szContextTrans = L"М┘▄Л┼╓М┼╦ К╛╦Л·░Л≈╢Л·┘К▀┬К▀╓ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦!~!@$%^&*()_1234567890";
 }
 
 bool CTextRenderer::Init()
@@ -41,7 +41,7 @@ bool CTextRenderer::Paint()
 	BYTE * pBits;
 	BITMAPINFOHEADER bmih;
 
-	// гь╩С╣╣╟║ ╧ы╡НаЖ ╬й╬р╢ы╦И ╨Яф╝╦йю╩ ╢ы╫ц юш╪╨гр гй©Д╟║ ╬Ью╫
+	// М∙╢Л┐│К▐└Й╟─ К╟■К─▄Л╖─ Л∙┼Л∙≤К▀╓К╘╢ К╧└М┼╦К╖╣Л²└ К▀╓Л▀° Л·▒Л└╠М∙═ М∙└Л ■Й╟─ Л≈├Л²▄
 	//if (cx != hBM_x || cy != hBM_y)
 	{
 		bmih.biSize = sizeof (BITMAPINFOHEADER);
@@ -71,10 +71,10 @@ bool CTextRenderer::Paint()
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
 
-	FontFamily fontFamily(L"ц╩╪рЁБ╪╜ц╪");
+	FontFamily fontFamily(L"Л╡╜Л├▄К┘└Л└°Л╡╢");
 	StringFormat strformat = StringFormat::GenericTypographic();
 	strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
-	//wchar_t pszbuf[] = L"ев╫╨ф╝ ╧╝юз©╜ют╢о╢ы ев╫╨ф╝ ев╫╨ф╝ ев╫╨ф╝!~!@$%^&*()_1234567890";
+	//wchar_t pszbuf[] = L"М┘▄Л┼╓М┼╦ К╛╦Л·░Л≈╢Л·┘К▀┬К▀╓ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦ М┘▄Л┼╓М┼╦!~!@$%^&*()_1234567890";
 	
 	{
 		GraphicsPath path;
