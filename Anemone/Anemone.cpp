@@ -9,8 +9,11 @@
 // 전역 변수:
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
+std::vector<_key_map> key_map;
+HINSTANCE hInst;
 _hWnds hWnds;
 _Class Cl;
+
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -44,22 +47,15 @@ int APIENTRY _tWinMain(
 	}
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_ANEMONE));
 
-	// 레지스트리에서 번역엔진 경로 얻어오기
-	HKEY key;
-	DWORD dwType = REG_SZ;
-	DWORD dwSize = 255;
+	std::wstring szEnginePath;
 
-	wchar_t *szPath = (wchar_t *)malloc(256*2);
-	RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\ChangShin\\ezTrans", 0, KEY_READ, &key);
-
-	if (RegQueryValueEx(key, L"FilePath", 0, &dwType, (LPBYTE)szPath, &dwSize) != ERROR_SUCCESS)
+	if (!GetEZTPathFromREG(szEnginePath))
 	{
 		MessageBox(0, L"이지트랜스가 설치되지 않았거나 레지스트리에서 이지트랜스 경로를 찾을 수 없습니다.\r\n이지트랜스가 설치되어 있어야 아네모네 실행이 가능합니다.\r\n이지트랜스가 설치되어 있다면 INI 파일의 이지트랜스 경로를 설정해 주세요.", 0, MB_ICONERROR);
 		return false;
 	}
 
 	// 번역엔진 초기화
-	std::wstring szEnginePath = szPath;
 	Cl.TransEngine = new CTransEngine();
 
 	if (!Cl.TransEngine->Init(szEnginePath))
@@ -97,6 +93,9 @@ int APIENTRY _tWinMain(
 	// 텍스트 처리 클래스
 	Cl.TextProcess = new CTextProcess();
 
+	// 단축키 클래스
+	Cl.Hotkey = new CHotkey();
+
 	// 윈도우 표시
 	ShowWindow(hWnds.Main, true);
 
@@ -110,9 +109,14 @@ int APIENTRY _tWinMain(
 		}
 	}
 
+	ShowWindow(hWnds.Main, false);
+
 	delete Cl.TransEngine;
 	delete Cl.TextRenderer;
 	delete Cl.TextProcess;
+	delete Cl.Hotkey;
+
+	MessageBox(hWnds.Main, L"프로그램이 종료되었습니다", L"알림", MB_ICONINFORMATION);
 
 	return (int) msg.wParam;
 }
@@ -157,7 +161,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hWnds.hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    int cx = GetSystemMetrics(SM_CXSCREEN);
    int cy = GetSystemMetrics(SM_CYSCREEN);
@@ -198,6 +202,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	{
 	}
+		break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
@@ -205,10 +210,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case IDM_ABOUT:
-			DialogBox(hWnds.hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
+			break;
+		case IDM_TERMINATE_ANEMONE:
+			PostQuitMessage(0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

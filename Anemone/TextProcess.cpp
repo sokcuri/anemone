@@ -36,8 +36,6 @@ bool CTextProcess::OnDrawClipboard()
 	{
 		Cl.TextRenderer->Paint(); 
 		CloseClipboard();
-		ChangeClipboardChain(hWnds.Main, NULL);
-		hWnds.Clip = SetClipboardViewer(hWnds.Main);
 
 		MessageBox(0, L"클립보드 얻어오기 실패", 0, 0);
 		return false;

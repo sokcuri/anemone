@@ -14,10 +14,16 @@
 // C 런타임 헤더 파일입니다.
 #include <ios>
 #include <tchar.h>
+#include <vector>
+
+#include "Library.h"
 
 #include "TransEngine.h"
 #include "TextRenderer.h"
 #include "TextProcess.h"
+#include "Hotkey.h"
+
+#include "Resource.h"
 
 // GDIPlus
 #include <GdiPlus.h>
@@ -27,10 +33,11 @@ using namespace Gdiplus;
 // STL
 #include <string>
 
+extern HINSTANCE hInst;
+
 // hWnd 모음
 struct _hWnds
 {
-	HINSTANCE hInst;
 	HWND Main;
 	HWND Setting;
 	HWND View;
@@ -44,6 +51,7 @@ struct _Class
 	CTextRenderer *TextRenderer;
 	CTransEngine *TransEngine;
 	CTextProcess *TextProcess;
+	CHotkey *Hotkey;
 };
 extern _Class Cl;
 
@@ -55,6 +63,17 @@ struct render_attr
 	int Size_C;
 	int Size_S;
 };
+
+struct _key_map
+{
+	bool Ctrl = false;
+	bool Alt = false;
+	bool Shift = false;
+	DWORD Code;
+	DWORD func;
+};
+
+extern std::vector<_key_map> key_map;
 
 static render_attr *rdName;
 static render_attr *rdOriginal;

@@ -50,11 +50,11 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 
 __declspec(naked) void CTransEngine::J2K_FreeMem(void *addr)
 {
-	__asm JMP ezt_addr + (4*0)
+	__asm JMP ezt_addr + (4 * 0)
 }
 __declspec(naked) void CTransEngine::J2K_GetPriorDict(void)
 {
-	__asm JMP ezt_addr + (4*1)
+	__asm JMP ezt_addr + (4 * 1)
 }
 __declspec(naked) void CTransEngine::J2K_GetProperty(void)
 {

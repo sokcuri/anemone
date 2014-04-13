@@ -46,10 +46,10 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	if (outlineInVisible) outlineTotalThick += outlineInThick;
 	if (outlineOutVisible) outlineTotalThick += outlineOutThick;
 
-	Font font(&fontFamily, fntSize, FontStyleRegular);
-	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat, &boundRect);
+	Font font(&fontFamily, (Gdiplus::REAL)fntSize, FontStyleRegular);
+	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &boundRect);
 	SolidBrush tempBrush(outlineOutColor);
-	graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat, &tempBrush);
+	graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
 
 	Gdiplus::REAL emSize = graphics->GetDpiY() * fntSize / 72;
 
@@ -68,14 +68,14 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 
 	if (outlineOutVisible)
 	{
-		Pen penOut(outlineOutColor, outlineTotalThick);
+		Pen penOut(outlineOutColor, (Gdiplus::REAL)outlineTotalThick);
 		penOut.SetLineJoin(LineJoinRound);
 		graphics->DrawPath(&penOut, &path);
 	}
 
 	if (outlineInVisible)
 	{
-		Pen pen(outlineInColor, outlineInThick);
+		Pen pen(outlineInColor, (Gdiplus::REAL)outlineInThick);
 		pen.SetLineJoin(LineJoinRound);
 		graphics->DrawPath(&pen, &path);
 	}
@@ -83,16 +83,13 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	SolidBrush brush(textColor);
 	graphics->FillPath(&brush, &path);
 
-	
-
-	return boundRect.Height + 30;
+	return (int)(boundRect.Height + 30);
 }
 
 bool CTextRenderer::Paint()
 {
 	PAINTSTRUCT ps;
 	HDC hDC, memDC;
-	HBITMAP hBM;
 	RECT rect;
 
 	hDC = BeginPaint(hWnds.Main, &ps);
@@ -107,18 +104,19 @@ bool CTextRenderer::Paint()
 	memDC = CreateCompatibleDC(hDC);
 
 	BYTE * pBits;
-	BITMAPINFOHEADER bmih;
 
 	// 해상도가 바뀌지 않았다면 비트맵을 다시 작성할 필요가 없음
-	//if (cx != hBM_x || cy != hBM_y)
+	if (cx != hBitmap_X || cy != hBitmap_Y)
 	{
+		// hBitmap_X, hBitmap_Y가 0이 아니면 hBitmap 반환
+		
+		if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
+
 		bmih.biSize = sizeof (BITMAPINFOHEADER);
-		//bmih.biWidth = r1.right-r1.left;
-		//bmih.biHeight = r1.bottom-r1.top;
 		bmih.biWidth = cx;
 		bmih.biHeight = cy;
 		bmih.biPlanes = 1;
-		bmih.biBitCount = 32; //
+		bmih.biBitCount = 32; 
 		bmih.biCompression = BI_RGB;
 		bmih.biSizeImage = 0;
 		bmih.biXPelsPerMeter = 0;
@@ -126,19 +124,21 @@ bool CTextRenderer::Paint()
 		bmih.biClrUsed = 0;
 		bmih.biClrImportant = 0;
 
-		hBM = CreateDIBSection(NULL, (BITMAPINFO *)&bmih, 0, (VOID**)&pBits, NULL, 0);
+		hBitmap = CreateDIBSection(NULL, (BITMAPINFO *)&bmih, 0, (VOID**)&pBits, NULL, 0);
 
-		//hBM_x = cx;
-		//hBM_y = cy;
+		hBitmap_X = cx;
+		hBitmap_Y = cy;
 	}
 
-	SelectObject(memDC, hBM);
+	SelectObject(memDC, hBitmap);
 
 	using namespace Gdiplus;
 	Graphics graphics(memDC);
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+
+	graphics.Clear(Color(0, 0, 0, 0));
 
 	FontFamily fontFamily(L"맑은 고딕");
 	StringFormat strformat = StringFormat::GenericTypographic();
@@ -231,13 +231,13 @@ bool CTextRenderer::Paint()
 
 	DeleteObject(memDC);
 	DeleteObject(hDC); 
-	DeleteObject(hBM);
 	return true;
 }
 
 
 CTextRenderer::~CTextRenderer()
-{
+{	if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
+
 	GdiplusShutdown(m_gpToken);
 
 	delete szNameOrg;

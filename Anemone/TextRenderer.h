@@ -15,6 +15,10 @@ public:
 	std::wstring *szContextTrans;
 private:
 	ULONG_PTR m_gpToken;
+	HBITMAP hBitmap;
+	BITMAPINFOHEADER bmih;
+	int hBitmap_X = 0;
+	int hBitmap_Y = 0;
 	//HDC hMemDC;
 
 };
