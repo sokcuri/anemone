@@ -31,7 +31,7 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	// 이지트랜스 오류 잡아주기
 	// 「よろしければ今度２人でお話しなどできないでしょうか」
 	szContext = replaceAll(szContext, L"できないでしょ", L"@X@でき@X@ないでしょ");
-	szContext = replaceAll(szContext, L"きないでしょ", L"き@X@ないでしょ");
+	szContext = replaceAll(szContext, L"すきないでしょ", L"き@X@ないでしょ");
 	szContext = replaceAll(szContext, L"でき@X@ないでしょ", L"できないでしょ");
 
 	nBufLen = WideCharToMultiByte(932, 0, szContext.c_str(), -1, NULL, NULL, NULL, NULL);
@@ -214,7 +214,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 
 bool CTextProcess::OnDrawClipboard()
 {
-	std::wstring wName, wNameT, wText, wTextT, wContext;
+	std::wstring wName, wNameT, wText, wTextT, wContext, wContextT;
 
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
@@ -223,8 +223,6 @@ bool CTextProcess::OnDrawClipboard()
 	{
 		Cl.TextRenderer->Paint(); 
 		CloseClipboard();
-
-		//MessageBox(0, L"클립보드 얻어오기 실패", 0, 0);
 		return false;
 	}
 
@@ -237,19 +235,21 @@ bool CTextProcess::OnDrawClipboard()
 	wText = NameSplit(1, wContext);
 	wTextT = eztrans_proc(wText);
 
+	wContextT = wNameT;
+	wContextT += wTextT;
+
 	*(Cl.TextRenderer->szName) = wName;
 	*(Cl.TextRenderer->szNameT) = wNameT;
 	*(Cl.TextRenderer->szText) = wText;
 	*(Cl.TextRenderer->szTextT) = wTextT;
 	*(Cl.TextRenderer->szContext) = wContext;
-	//SendMessage(hWnds.Main, WM_PAINT, 0, 0);
+	*(Cl.TextRenderer->szContextT) = wContextT;
 	
 	Cl.TextRenderer->Paint();
-
 	CloseClipboard();
 
-	ChangeClipboardChain(hWnds.Main, NULL);
-	hWnds.Clip = SetClipboardViewer(hWnds.Main);
+	//ChangeClipboardChain(hWnds.Main, NULL);
+	//hWnds.Clip = SetClipboardViewer(hWnds.Main);
 	return true;
 }
 

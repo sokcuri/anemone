@@ -220,6 +220,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_TERMINATE_ANEMONE:
 			PostQuitMessage(0);
 			break;
+			/*
+		case IDM_WINDOW_SETTING:
+			if (IsWindow(hWnds.Setting) == false)
+			{
+				RECT rect;
+				int width = 630;
+				int height = 650;
+
+				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingWndClass, NULL, WS_BORDER,
+					CW_USEDEFAULT, 0, width, height,
+					hWnd, (HMENU)NULL, hInst, NULL);
+
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+				GetWindowRect(hWnds.Setting, &rect);
+
+				SetWindowPos(hWnds.Setting, 0, ((cx - (rect.right - rect.left)) / 2), ((cy - (rect.bottom - rect.top)) / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+				int nWndStyle = GetWindowLong(hWnds.Setting, GWL_STYLE);
+
+				nWndStyle &= ~WS_CAPTION;
+				nWndStyle |= WS_BORDER;
+
+				SetWindowLong(hWnds.Setting, GWL_STYLE, nWndStyle);
+
+				ShowWindow(hWnds.Setting, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.Setting);
+				hWnds.Setting = NULL;
+			}
+			break;*/
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}

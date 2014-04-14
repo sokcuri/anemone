@@ -9,6 +9,7 @@ CTextRenderer::CTextRenderer()
 	szText = new std::wstring();
 	szTextT = new std::wstring();
 	szContext = new std::wstring();
+	szContextT = new std::wstring();
 
 	*szText = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
 	*szTextT = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
@@ -254,4 +255,5 @@ CTextRenderer::~CTextRenderer()
 	delete szText;
 	delete szTextT;
 	delete szContext;
+	delete szContextT;
 }

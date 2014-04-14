@@ -18,6 +18,7 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
+	RegKey(IDM_WINDOW_SETTING, VK_F10, false, false, false);
 	RegKey(IDM_TERMINATE_ANEMONE, VK_F12, false, false, false);
 	return true;
 }
@@ -81,7 +82,7 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 					else
 					if (key_map[i].Ctrl == true && bCtrl) continue;
 					
-					SendMessage(hWnds.Main, WM_COMMAND, key_map[i].func, 0);
+					SendMessage(hWnds.Main, WM_COMMAND, MAKELONG(key_map[i].func, 0), 0);
 					return -1;
 				}
 			}
