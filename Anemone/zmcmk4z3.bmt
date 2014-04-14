@@ -1,0 +1,167 @@
+﻿#include "StdAfx.h"
+#include "TextProcess.h"
+
+
+CTextProcess::CTextProcess()
+{
+	StartWatchClip();
+}
+
+
+void CTextProcess::StartWatchClip()
+{
+	hWnds.Clip = SetClipboardViewer(hWnds.Main);
+}
+
+void CTextProcess::EndWatchClip()
+{
+	ChangeClipboardChain(hWnds.Clip, NULL);
+}
+
+std::wstring CTextProcess::HangulEncode(std::wstring &input)
+{
+	wchar_t buf[32];
+	std::wstring output;
+
+	for (size_t i = 0; i<input.size(); i++)
+	{
+		// \ 방지
+		if (input[i] == L'\\')
+		{
+			output += L"\\\\";
+		}
+
+		if ((input[i] >= 0x1100 && input[i] <= 0x11FF) || (input[i] >= 0x3130 && input[i] <= 0x318F) ||
+			(input[i] >= 0xA960 && input[i] <= 0xA97F) || (input[i] >= 0xAC00 && input[i] <= 0xD7AF) ||
+			(input[i] >= 0xD7B0 && input[i] <= 0xD7FF))
+		{
+			swprintf_s(buf, L"\\x%04X\0", input[i]);
+			output += buf;
+		}
+		else
+		{
+			output += input[i];
+		}
+	}
+	return output;
+}
+
+std::wstring CTextProcess::HangulDecode(std::wstring &input)
+{
+	wchar_t buf[5];
+	std::wstring output;
+
+	for (size_t i = 0; i < input.size(); i++)
+	{
+		// \ 방지
+		if (input[i] == L'\\' && input[i+1] == L'\\')
+		{
+
+			continue;
+		}
+
+		// 남은 글자가 5칸보다 모자르는 경우
+		if (i + 5 < input.size())
+		{
+			for (int j = i; j < input.size(); j++)
+				output += input[j];
+			break;
+		}
+
+		if (input[i] == L'\\' && input[i+1] == L'x')
+		{
+			buf[0] = input[i + 2];
+			buf[1] = input[i + 3];
+			buf[2] = input[i + 4];
+			buf[3] = input[i + 5];
+			buf[4] = 0x00;
+
+			swscanf_s(buf, L"%04x", &buf[0]);
+			//WriteLog(L"bytearray %d: %02x\n", 0, buf[0]);
+
+			output += buf;
+			i += 6;
+		}
+	}
+}
+
+bool CTextProcess::OnDrawClipboard()
+{
+	char *szBuff, *szBuff2;
+	wchar_t *lpszBuff;
+	int nBufLen;
+
+	std::wstring szClipText;
+	std::wstring szNameOrg, szNameOrg2, szNameTrans;
+	std::wstring szContextOrg, szContextOrg2, szContextTrans;
+
+	OpenClipboard(hWnds.Clip);
+	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
+	
+	// 클립보드 얻어오기 실패 (또는 맞지 않는 규격)
+	if (hClipData == NULL)
+	{
+		Cl.TextRenderer->Paint(); 
+		CloseClipboard();
+
+		MessageBox(0, L"클립보드 얻어오기 실패", 0, 0);
+		return false;
+	}
+
+	szClipText = (wchar_t*)GlobalLock(hClipData);
+	GlobalUnlock(hClipData);
+
+	szContextOrg = szClipText;
+
+	// 한글 인코딩
+	szContextOrg2 = HangulEncode(szContextOrg);
+
+	nBufLen = WideCharToMultiByte(932, 0, szContextOrg2.c_str(), -1, NULL, NULL, NULL, NULL);
+	szBuff = (char *)malloc((nBufLen+2)*2);
+	
+	// 메모리 할당 실패
+	if (szBuff == NULL)
+	{
+		MessageBox(0, L"메모리 할당 실패", 0, 0);
+		return false;
+	}
+
+	WideCharToMultiByte(932, 0, szContextOrg2.c_str(), -1, szBuff, nBufLen, NULL, NULL);
+	
+	szBuff2 = (char *)Cl.TransEngine->J2K_TranslateMMNT(0, szBuff);
+	free(szBuff);
+	
+	nBufLen = MultiByteToWideChar(949, 0, szBuff2, -1, NULL, NULL);
+	lpszBuff = (wchar_t *)malloc((nBufLen+2)*2);
+
+	// 메모리 할당 실패
+	if (lpszBuff == NULL)
+	{
+		MessageBox(0, L"메모리 할당 실패", 0, 0);
+		return false;
+	}
+
+	MultiByteToWideChar(949, 0, szBuff2, -1, lpszBuff, nBufLen);
+	
+	szContextTrans = lpszBuff;
+	free(lpszBuff);
+	Cl.TransEngine->J2K_FreeMem(szBuff2);
+	
+	*(Cl.TextRenderer->szContextOrg) = szContextOrg;
+	*(Cl.TextRenderer->szContextTrans) = szContextTrans;
+	//SendMessage(hWnds.Main, WM_PAINT, 0, 0);
+	
+	Cl.TextRenderer->Paint();
+
+	CloseClipboard();
+
+	ChangeClipboardChain(hWnds.Main, NULL);
+	hWnds.Clip = SetClipboardViewer(hWnds.Main);
+	return true;
+}
+
+CTextProcess::~CTextProcess()
+{
+	// 클립보드 감시 종료
+	EndWatchClip();
+}
