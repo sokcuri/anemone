@@ -6,14 +6,12 @@
 
 #define MAX_LOADSTRING 100
 
+
 // 전역 변수:
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
-HINSTANCE hInst;
-_hWnds hWnds;
-_Class Cl;
-
+HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -39,6 +37,9 @@ int APIENTRY _tWinMain(
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_ANEMONE, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
+
+	// Heap 생성 (1MB)
+	AneHeap = HeapCreate(0, 1024 * 1024, 0);
 
 	// 응용 프로그램 초기화를 수행합니다.
 	if (!InitInstance(hInstance, false))
@@ -116,7 +117,8 @@ int APIENTRY _tWinMain(
 	delete Cl.TextProcess;
 	delete Cl.Hotkey;
 
-	MessageBox(hWnds.Main, L"프로그램이 종료되었습니다", L"알림", MB_ICONINFORMATION);
+	// Heap 삭제
+	HeapDestroy(AneHeap);
 
 	return (int) msg.wParam;
 }
@@ -204,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 		break;
 	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
+		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
@@ -232,7 +234,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		RECT *prc = (RECT *)lParam;
 		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
-		Cl.TextRenderer->Paint();
+		if (message == WM_SIZING) Cl.TextRenderer->Paint();
 	}
 		break;
 	case WM_DRAWCLIPBOARD:

@@ -18,7 +18,7 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
-	RegKey(IDM_TERMINATE_ANEMONE, VK_F12, true, true, true);
+	RegKey(IDM_TERMINATE_ANEMONE, VK_F12, false, false, false);
 	return true;
 }
 

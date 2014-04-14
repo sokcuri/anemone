@@ -4,7 +4,8 @@
 //
 
 #pragma once
-
+#define _USING_V110_SDK71_
+#define OEMRESOURCE
 #include "targetver.h"
 
 //#define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
@@ -15,6 +16,7 @@
 #include <ios>
 #include <tchar.h>
 #include <vector>
+#include <regex>
 
 #include "Library.h"
 
@@ -24,6 +26,7 @@
 #include "Hotkey.h"
 
 #include "Resource.h"
+
 
 // GDIPlus
 #include <GdiPlus.h>
@@ -44,6 +47,8 @@ struct _hWnds
 	HWND Clip;
 };
 extern _hWnds hWnds;
+
+extern HANDLE AneHeap;
 
 // 클래스 모음
 struct _Class

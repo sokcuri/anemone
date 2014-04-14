@@ -4,13 +4,14 @@
 
 CTextRenderer::CTextRenderer()
 {
-	szNameOrg = new std::wstring();
-	szNameTrans = new std::wstring();
-	szContextOrg = new std::wstring();
-	szContextTrans = new std::wstring();
+	szName = new std::wstring();
+	szNameT = new std::wstring();
+	szText = new std::wstring();
+	szTextT = new std::wstring();
+	szContext = new std::wstring();
 
-	*szContextOrg = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
-	*szContextTrans = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
+	*szText = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
+	*szTextT = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
 }
 
 bool CTextRenderer::Init()
@@ -83,7 +84,7 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	SolidBrush brush(textColor);
 	graphics->FillPath(&brush, &path);
 
-	return (int)(boundRect.Height + 30);
+	return (int)(boundRect.Height);
 }
 
 bool CTextRenderer::Paint()
@@ -154,10 +155,18 @@ bool CTextRenderer::Paint()
 	// 10 -> 5
 	
 	int pad_y = 20;
+	
+	std::wstring szNameConv = (*szName);
+	szNameConv += L" ";
+	szNameConv += L"(";
+	szNameConv += (*szNameT);
+	szNameConv += L")";
 
-	pad_y = DrawText(&graphics, (*szContextOrg).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 94, 0), Color(255, 255, 166, 80), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-	if (pad_y < height - 25)
-		pad_y = DrawText(&graphics, (*szContextTrans).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 0, 0), Color(251, 170, 170), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+	szNameConv = replaceAll(szNameConv, L"()", L"");
+
+	pad_y += DrawText(&graphics, (szNameConv).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 94, 0), Color(255, 255, 166, 80), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+	pad_y += DrawText(&graphics, (*szText).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 0, 0), Color(255, 251, 170, 170), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+	pad_y += DrawText(&graphics, (*szTextT).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 92, 209, 229), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
 	/*
 	// DrawText(graphics, font, fntSize, outlineInThick, outlineOutThick, shadowThick, textVisible, outlineInVisible, outlineOutVisible, shadowVisible)
 	//MessageBox(0, (*szContextOrg).c_str(), 0, 0);
@@ -240,8 +249,9 @@ CTextRenderer::~CTextRenderer()
 
 	GdiplusShutdown(m_gpToken);
 
-	delete szNameOrg;
-	delete szNameTrans;
-	delete szContextOrg;
-	delete szContextTrans;
+	delete szName;
+	delete szNameT;
+	delete szText;
+	delete szTextT;
+	delete szContext;
 }
