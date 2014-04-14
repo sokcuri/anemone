@@ -245,8 +245,10 @@ bool CTextProcess::OnDrawClipboard()
 	*(Cl.TextRenderer->szContext) = wContext;
 	*(Cl.TextRenderer->szContextT) = wContextT;
 	
-	Cl.TextRenderer->Paint();
 	CloseClipboard();
+	
+	IsActive = true;
+	Cl.TextRenderer->Paint();
 
 	//ChangeClipboardChain(hWnds.Main, NULL);
 	//hWnds.Clip = SetClipboardViewer(hWnds.Main);

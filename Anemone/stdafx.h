@@ -47,8 +47,8 @@ struct _hWnds
 	HWND Clip;
 };
 extern _hWnds hWnds;
-
 extern HANDLE AneHeap;
+extern bool IsActive;
 
 // 클래스 모음
 struct _Class

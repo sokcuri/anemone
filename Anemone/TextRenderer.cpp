@@ -1,7 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "TextRenderer.h"
 
-
 CTextRenderer::CTextRenderer()
 {
 	szName = new std::wstring();
@@ -10,9 +9,6 @@ CTextRenderer::CTextRenderer()
 	szTextT = new std::wstring();
 	szContext = new std::wstring();
 	szContextT = new std::wstring();
-
-	*szText = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
-	*szTextT = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
 }
 
 bool CTextRenderer::Init()
@@ -111,7 +107,6 @@ bool CTextRenderer::Paint()
 	if (cx != hBitmap_X || cy != hBitmap_Y)
 	{
 		// hBitmap_X, hBitmap_Y가 0이 아니면 hBitmap 반환
-		
 		if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
 
 		bmih.biSize = sizeof (BITMAPINFOHEADER);
@@ -140,89 +135,58 @@ bool CTextRenderer::Paint()
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
 
-	graphics.Clear(Color(0, 0, 0, 0));
-
-	FontFamily fontFamily(L"맑은 고딕");
-	StringFormat strformat = StringFormat::GenericTypographic();
-	strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
-	//wchar_t pszbuf[] = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
-
-	int i_x = 10;
-	int i_y = 10;
-
-	int i_shadow_width = 3;
-	int i_outline_width = 12;
-	// 5 -> 3
-	// 10 -> 5
-	
-	int pad_y = 20;
-	
-	std::wstring szNameConv = (*szName);
-	szNameConv += L" ";
-	szNameConv += L"(";
-	szNameConv += (*szNameT);
-	szNameConv += L")";
-
-	szNameConv = replaceAll(szNameConv, L"()", L"");
-
-	pad_y += DrawText(&graphics, (szNameConv).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 94, 0), Color(255, 255, 166, 80), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-	pad_y += DrawText(&graphics, (*szText).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 0, 0), Color(255, 251, 170, 170), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-	pad_y += DrawText(&graphics, (*szTextT).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 92, 209, 229), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-	/*
-	// DrawText(graphics, font, fntSize, outlineInThick, outlineOutThick, shadowThick, textVisible, outlineInVisible, outlineOutVisible, shadowVisible)
-	//MessageBox(0, (*szContextOrg).c_str(), 0, 0);
+	if (IsActive == false)
 	{
-		GraphicsPath path;
-		GraphicsPath path_shadow;
-		//MessageBox(0, 0, 0, 0);
-		path.AddString((*szContextOrg).c_str(), (*szContextOrg).length(),
-			&fontFamily, FontStyleRegular, 36, Gdiplus::Rect(10, 10, width - 20, height - 20), &strformat);
-		path_shadow.AddString((*szContextOrg).c_str(), (*szContextOrg).length(),
-			&fontFamily, FontStyleRegular, 36, Gdiplus::Rect(14, 14, width - 20, height - 20), &strformat);
+		graphics.Clear(Color(75, 0, 216, 255));
+
+		int nBorderWidth = 5;
+		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+
+		SolidBrush brush(Color(32, 0, 0, 0));
+		Pen pen(Color(16, 255, 255, 255), 10);
 		
-		Pen pen_shadow(Color(32, 0, 0, 0), (Gdiplus::REAL)i_shadow_width + i_outline_width - 5);
-		pen_shadow.SetLineJoin(LineJoinRound);
-		graphics.DrawPath(&pen_shadow, &path_shadow);
-		SolidBrush brush_shadow(Color(32, 0, 0, 0));
-		graphics.FillPath(&brush_shadow, &path);
+		for (int i = 1; i <= 10; i++)
+			graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
+		
+		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~ by eroha", L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
 
-		for (int i = 1; i < i_outline_width + 1; ++i)
-		{
-			Pen pen(Color(64, 0, 128, 192), (Gdiplus::REAL)i);
-			pen.SetLineJoin(LineJoinRound);
-			graphics.DrawPath(&pen, &path);
-
-		}
-
-		Pen pen(Color(128, 0, 128, 192), (Gdiplus::REAL)i_outline_width);
-		pen.SetLineJoin(LineJoinRound);
-		graphics.DrawPath(&pen, &path);
-
-		SolidBrush brush(Color(255, 255, 255));
-		graphics.FillPath(&brush, &path);
+		graphics.DrawRectangle(&nBorderPen, Rect(2, 2, rect.right - rect.left - nBorderWidth - 1, rect.bottom - rect.top - nBorderWidth - 1));
 	}
+	else
 	{
-		GraphicsPath path;
-		path.AddString((*szContextTrans).c_str(), (*szContextTrans).length(),
-			&fontFamily, FontStyleRegular, 36, Gdiplus::Rect(10, 100, width - 20, height - 20), &strformat);
-		Pen penOut(Color(32, 117, 81), 12);
-		penOut.SetLineJoin(LineJoinRound);
-		graphics.DrawPath(&penOut, &path);
+		graphics.Clear(Color(0, 0, 0, 0));
 
-		Pen pen(Color(234, 137, 6), 6);
-		pen.SetLineJoin(LineJoinRound);
-		graphics.DrawPath(&pen, &path);
-		SolidBrush brush(Color(128, 0, 255));
-		graphics.FillPath(&brush, &path);
-		//SolidBrush brush(Color(255, 255, 255));
-		//graphics.FillPath(&brush, &path);
+		StringFormat strformat = StringFormat::GenericTypographic();
+		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
+		//wchar_t pszbuf[] = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
+
+		int i_x = 10;
+		int i_y = 10;
+
+		int i_shadow_width = 3;
+		int i_outline_width = 12;
+		// 5 -> 3
+		// 10 -> 5
+
+		int pad_y = 20;
+
+		std::wstring szNameConv = (*szName);
+		szNameConv += L" ";
+		szNameConv += L"(";
+		szNameConv += (*szNameT);
+		szNameConv += L")";
+
+		szNameConv = replaceAll(szNameConv, L"()", L"");
+
+		pad_y += DrawText(&graphics, (szNameConv).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 94, 0), Color(255, 255, 166, 80), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+		pad_y += DrawText(&graphics, (*szText).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 0, 0), Color(255, 251, 170, 170), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+		pad_y += DrawText(&graphics, (*szTextT).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 92, 209, 229), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+		
+		int nBorderWidth = 5;
+		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+
+		graphics.DrawRectangle(&nBorderPen, Rect(1, 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
 	}
-	*/
-	int nBorderWidth = 5;
-	Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
-
-	graphics.DrawRectangle(&nBorderPen, Rect(1, 1, rect.right - rect.left - nBorderWidth - 1, rect.bottom - rect.top - nBorderWidth - 1));
-
 	POINT dcOffset = { 0, 0 };
 	SIZE size = { rect.right - rect.left, rect.bottom - rect.top };
 

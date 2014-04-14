@@ -12,6 +12,7 @@ TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
+bool IsActive = false;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -96,6 +97,9 @@ int APIENTRY _tWinMain(
 
 	// 단축키 클래스
 	Cl.Hotkey = new CHotkey();
+	
+	IsActive = false;
+	Cl.TextRenderer->Paint();
 
 	// 윈도우 표시
 	ShowWindow(hWnds.Main, true);
