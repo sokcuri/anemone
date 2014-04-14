@@ -27,6 +27,12 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	std::wstring szContext, output;
 
 	szContext = HangulEncode(input);
+	
+	// 이지트랜스 오류 잡아주기
+	// 「よろしければ今度２人でお話しなどできないでしょうか」
+	szContext = replaceAll(szContext, L"できないでしょ", L"@X@でき@X@ないでしょ");
+	szContext = replaceAll(szContext, L"きないでしょ", L"き@X@ないでしょ");
+	szContext = replaceAll(szContext, L"でき@X@ないでしょ", L"できないでしょ");
 
 	nBufLen = WideCharToMultiByte(932, 0, szContext.c_str(), -1, NULL, NULL, NULL, NULL);
 	szBuff = (char *)HeapAlloc(AneHeap, 0, (nBufLen + 2) * 2);
@@ -58,7 +64,6 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	Cl.TransEngine->J2K_FreeMem(szBuff2);
 
 	output = HangulDecode(output);
-
 	return output;
 }
 
@@ -103,13 +108,18 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 
 	for (DWORD i = 0; i<input.size(); i++)
 	{
-		if ((input[i] == L'\\' || input[i] == L'@') && input[i] == input[i+1])
+		// @X = 삭제
+		if (i + 2 < input.size() && input[i] == L'@' && input[i + 1] == L'X' && input[i + 2] == L'@')
 		{
-			if (!(input[i] == L'@' && input[i + 1] == L'X')) // @X = 삭제
-			{
-				output += input[i];
-				i++;
-			}
+			i+=2;
+			continue;
+		}
+		
+		// \, @ 처리
+		else if (i + 1 < input.size() && (input[i] == L'\\' || input[i] == L'@') && input[i] == input[i+1])
+		{
+			output += input[i];
+			i++;
 			continue;
 		}
 		else
@@ -126,7 +136,6 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 			buf[4] = 0x00;
 
 			swscanf_s(buf, L"%04x", &buf[0]);
-			//WriteLog(L"bytearray %d: %02x\n", 0, buf[0]);
 
 			output += buf;
 			i += 5;
