@@ -89,7 +89,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <CLRUnmanagedCodeCheck>true</CLRUnmanagedCodeCheck>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -97,6 +97,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Anemone.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="FileWatch.h" />
     <ClInclude Include="Hotkey.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="Resource.h" />
@@ -108,6 +110,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Anemone.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="FileWatch.cpp" />
     <ClCompile Include="Hotkey.cpp" />
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="stdafx.cpp">

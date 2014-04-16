@@ -154,7 +154,9 @@ bool CTextRenderer::Paint()
 	}
 	else
 	{
-		graphics.Clear(Color(0, 0, 0, 0));
+		//130091FB
+		DWORD BGColor = Cl.Config->GetBGColor();
+		graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor) & 0xFF));
 
 		StringFormat strformat = StringFormat::GenericTypographic();
 		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);

@@ -24,6 +24,8 @@
 #include "TextRenderer.h"
 #include "TextProcess.h"
 #include "Hotkey.h"
+#include "Config.h"
+#include "FileWatch.h"
 
 #include "Resource.h"
 
@@ -57,6 +59,8 @@ struct _Class
 	CTransEngine *TransEngine;
 	CTextProcess *TextProcess;
 	CHotkey *Hotkey;
+	CConfig *Config;
+	CFileWatch *FileWatch;
 };
 extern _Class Cl;
 

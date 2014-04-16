@@ -42,6 +42,9 @@ int APIENTRY _tWinMain(
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
 
+	// 환경설정 클래스
+	Cl.Config = new CConfig();
+
 	// 응용 프로그램 초기화를 수행합니다.
 	if (!InitInstance(hInstance, false))
 	{
@@ -97,7 +100,10 @@ int APIENTRY _tWinMain(
 
 	// 단축키 클래스
 	Cl.Hotkey = new CHotkey();
-	
+
+	// 파일 감시 쓰레드
+	Cl.FileWatch = new CFileWatch();
+
 	IsActive = false;
 	Cl.TextRenderer->Paint();
 
@@ -116,10 +122,12 @@ int APIENTRY _tWinMain(
 
 	ShowWindow(hWnds.Main, false);
 
+	delete Cl.Config;
 	delete Cl.TransEngine;
 	delete Cl.TextRenderer;
 	delete Cl.TextProcess;
 	delete Cl.Hotkey;
+	delete Cl.FileWatch;
 
 	// Heap 삭제
 	HeapDestroy(AneHeap);

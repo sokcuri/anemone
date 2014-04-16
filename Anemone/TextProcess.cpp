@@ -31,7 +31,7 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	// 이지트랜스 오류 잡아주기
 	// 「よろしければ今度２人でお話しなどできないでしょうか」
 	szContext = replaceAll(szContext, L"できないでしょ", L"@X@でき@X@ないでしょ");
-	szContext = replaceAll(szContext, L"すきないでしょ", L"き@X@ないでしょ");
+	szContext = replaceAll(szContext, L"きないでしょ", L"き@X@ないでしょ");
 	szContext = replaceAll(szContext, L"でき@X@ないでしょ", L"できないでしょ");
 
 	nBufLen = WideCharToMultiByte(932, 0, szContext.c_str(), -1, NULL, NULL, NULL, NULL);
