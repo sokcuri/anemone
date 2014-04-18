@@ -240,6 +240,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_TERMINATE_ANEMONE:
 			PostQuitMessage(0);
 			break;
+		case IDM_TEMP_CLICK_THOUGH:
+			(Cl.Config->GetClickThough() ? Cl.Config->SetClickThough(false) : Cl.Config->SetClickThough(true));
+
+			if (Cl.Config->GetClickThough())
+			{
+				int nExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+				nExStyle |= WS_EX_TRANSPARENT;
+				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
+			}
+			else
+			{
+				int nExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+				nExStyle &= ~WS_EX_TRANSPARENT;
+				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
+			}
+			break;
+		case IDM_TEMP_SIZABLE_MODE:
+			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
 			/*
 		case IDM_WINDOW_SETTING:
 			if (IsWindow(hWnds.Setting) == false)

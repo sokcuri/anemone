@@ -49,6 +49,9 @@ private:
 	int cfg_trans_size_b        = 6;
 	int cfg_trans_size_c        = 6;
 
+	bool cfg_temp_click_though = false;
+	bool cfg_temp_sizable_mode = false;
+
 
 public:
 	CConfig();
@@ -56,7 +59,13 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
-	
+
+	bool GetClickThough() { return cfg_temp_click_though; }
+	void SetClickThough(bool b) { cfg_temp_click_though = b; }
+
+	bool GetSizableMode() { return cfg_temp_sizable_mode; }
+	void SetSizableMode(bool b) { cfg_temp_sizable_mode = b; }
+
 	bool GetBGSwitch() { return cfg_bg_switch; }
 	DWORD GetBGColor() { return cfg_bg_color; }
 

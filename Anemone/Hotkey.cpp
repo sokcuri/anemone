@@ -18,6 +18,8 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
+	RegKey(IDM_TEMP_CLICK_THOUGH, VK_F6, false, false, false);
+	RegKey(IDM_TEMP_SIZABLE_MODE, VK_F7, false, false, false);
 	RegKey(IDM_WINDOW_SETTING, VK_F10, false, false, false);
 	RegKey(IDM_TERMINATE_ANEMONE, VK_F12, false, false, false);
 	return true;
@@ -62,7 +64,6 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 	if (nCode >= 0)
 	{
 		PKBDLLHOOKSTRUCT pHookKey = (PKBDLLHOOKSTRUCT)lParam;
-
 
 		switch(wParam)
 		{

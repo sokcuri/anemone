@@ -137,10 +137,30 @@ bool CTextRenderer::Paint()
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
 
-	if (IsActive == false)
-	{
-		graphics.Clear(Color(75, 0, 216, 255));
+	//130091FB
+	bool bBGSwitch = Cl.Config->GetBGSwitch();
+	DWORD BGColor = Cl.Config->GetBGColor();
 
+	if (!Cl.Config->GetSizableMode())
+	{
+		if (!IsActive) graphics.Clear(Color(75, 0, 216, 255));
+		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		else graphics.Clear(Color(0, 0, 0, 0));
+	}
+	else
+	{
+		if (!IsActive) graphics.Clear(Color(0x80, 0, 216, 255));
+		else if (bBGSwitch) graphics.Clear(Color(0x80, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		else graphics.Clear(Color(0x80, 255, 255, 255));
+
+		int nBorderWidth = 10;
+		Pen nBorderPen(Color(0x80, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
+	}
+
+	if (!IsActive)
+	{
 		int nBorderWidth = 5;
 		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
@@ -152,14 +172,10 @@ bool CTextRenderer::Paint()
 		
 		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~ by eroha", L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
 
-		graphics.DrawRectangle(&nBorderPen, Rect(2, 2, rect.right - rect.left - nBorderWidth - 1, rect.bottom - rect.top - nBorderWidth - 1));
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 	else
 	{
-		//130091FB
-		DWORD BGColor = Cl.Config->GetBGColor();
-		graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
-
 		StringFormat strformat = StringFormat::GenericTypographic();
 		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
 		//wchar_t pszbuf[] = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
@@ -248,7 +264,7 @@ bool CTextRenderer::Paint()
 		int nBorderWidth = 5;
 		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
-		graphics.DrawRectangle(&nBorderPen, Rect(1, 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 	POINT dcOffset = { 0, 0 };
 	SIZE size = { rect.right - rect.left, rect.bottom - rect.top };

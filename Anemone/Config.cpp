@@ -26,7 +26,7 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"BG_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetBGSwitch(true) : SetBGSwitch(false);
 	ReadINI_Str(L"BG_COLOR", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetBGColor((DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetBGColor((DWORD)wcstoul(buf, NULL, 16));
 
 	ReadINI_Str(L"NAME_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_NAME, true) : SetTextSwitch(CFG_NAME, false);

@@ -19,6 +19,8 @@
 #endif
 
 #define IDM_TERMINATE_ANEMONE  1001
+#define IDM_TEMP_CLICK_THOUGH  1002
+#define IDM_TEMP_SIZABLE_MODE  1003
 #define IDM_WINDOW_SETTING     1201 
 // 다음은 새 개체에 사용할 기본값입니다.
 //
