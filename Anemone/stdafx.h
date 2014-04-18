@@ -26,9 +26,9 @@
 #include "Hotkey.h"
 #include "Config.h"
 #include "FileWatch.h"
+#include "Remocon.h"
 
 #include "Resource.h"
-
 
 // GDIPlus
 #include <GdiPlus.h>
@@ -45,6 +45,7 @@ struct _hWnds
 {
 	HWND Main;
 	HWND Setting;
+	HWND Remocon;
 	HWND View;
 	HWND Clip;
 };
@@ -61,6 +62,7 @@ struct _Class
 	CHotkey *Hotkey;
 	CConfig *Config;
 	CFileWatch *FileWatch;
+	CRemocon *Remocon;
 };
 extern _Class Cl;
 

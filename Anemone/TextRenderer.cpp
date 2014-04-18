@@ -86,6 +86,8 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 
 bool CTextRenderer::Paint()
 {
+	if (m_gpToken == NULL) return false;
+
 	PAINTSTRUCT ps;
 	HDC hDC, memDC;
 	RECT rect;
@@ -156,7 +158,7 @@ bool CTextRenderer::Paint()
 	{
 		//130091FB
 		DWORD BGColor = Cl.Config->GetBGColor();
-		graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor) & 0xFF));
+		graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 
 		StringFormat strformat = StringFormat::GenericTypographic();
 		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
@@ -172,17 +174,76 @@ bool CTextRenderer::Paint()
 
 		int pad_y = 20;
 
+		bool bNameSwitch = Cl.Config->GetTextSwitch(CFG_NAME);
+		bool bNameOrgSwitch = Cl.Config->GetTextSwitch(CFG_NAME_ORG);
+		bool bNameShadow = Cl.Config->GetTextShadow(CFG_NAME);
+
+		wchar_t *fnName = Cl.Config->GetTextFont(CFG_NAME);
+
+		int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
+		int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
+		int nNameC = Cl.Config->GetTextSize(CFG_NAME, CFG_C);
+
+		DWORD dwNameA = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
+		DWORD dwNameB = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
+		DWORD dwNameC = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
+		DWORD dwNameD = Cl.Config->GetTextColor(CFG_NAME, CFG_D);
+
+		bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
+		bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
+
+		wchar_t *fnOrg = Cl.Config->GetTextFont(CFG_ORG);
+
+		int nOrgA = Cl.Config->GetTextSize(CFG_ORG, CFG_A);
+		int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
+		int nOrgC = Cl.Config->GetTextSize(CFG_ORG, CFG_C);
+
+		DWORD dwOrgA = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
+		DWORD dwOrgB = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
+		DWORD dwOrgC = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+		DWORD dwOrgD = Cl.Config->GetTextColor(CFG_ORG, CFG_D);
+
+		bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
+		bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
+
+		wchar_t *fnTrans = Cl.Config->GetTextFont(CFG_TRANS);
+
+		int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
+		int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
+		int nTransC = Cl.Config->GetTextSize(CFG_TRANS, CFG_C);
+
+		DWORD dwTransA = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
+		DWORD dwTransB = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
+		DWORD dwTransC = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
+		DWORD dwTransD = Cl.Config->GetTextColor(CFG_TRANS, CFG_D);
+
+		// 원문 이름 괄호 옆에 붙이기
 		std::wstring szNameConv = (*szName);
 		szNameConv += L" ";
-		szNameConv += L"(";
-		szNameConv += (*szNameT);
-		szNameConv += L")";
 
-		szNameConv = replaceAll(szNameConv, L"()", L"");
+		if (bNameSwitch)
+		{
+			if (bNameOrgSwitch)
+			{
+				szNameConv += L"(";
+				szNameConv += (*szNameT);
+				szNameConv += L")";
 
-		pad_y += DrawText(&graphics, (szNameConv).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 94, 0), Color(255, 255, 166, 80), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-		pad_y += DrawText(&graphics, (*szText).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 255, 0, 0), Color(255, 251, 170, 170), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
-		pad_y += DrawText(&graphics, (*szTextT).c_str(), L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 92, 209, 229), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+				szNameConv = replaceAll(szNameConv, L"()", L"");
+			}
+		}
+
+		// 이름을 사용하지 않을때 원문에 그냥 붙여버린다
+		else
+		{
+			szNameConv = L" ";
+			szText = szContext;
+			szTextT = szContextT;
+		}
+
+		pad_y += DrawText(&graphics, (szNameConv).c_str(), fnName, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwNameD >> 24) & 0xFF, (dwNameD >> 16) & 0xFF, (dwNameD >> 8) & 0xFF, (dwNameD)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+		if (bOrgSwitch)   pad_y += DrawText(&graphics, (*szText).c_str(), fnOrg, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgD >> 24) & 0xFF, (dwOrgD >> 16) & 0xFF, (dwOrgD >> 8) & 0xFF, (dwOrgD)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
+		if (bTransSwitch) pad_y += DrawText(&graphics, (*szTextT).c_str(), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransD >> 24) & 0xFF, (dwTransD >> 16) & 0xFF, (dwTransD >> 8) & 0xFF, (dwTransD)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
 		
 		int nBorderWidth = 5;
 		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
@@ -215,6 +276,7 @@ CTextRenderer::~CTextRenderer()
 {	if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
 
 	GdiplusShutdown(m_gpToken);
+	m_gpToken = NULL;
 
 	delete szName;
 	delete szNameT;

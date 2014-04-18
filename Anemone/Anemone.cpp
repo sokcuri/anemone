@@ -104,6 +104,13 @@ int APIENTRY _tWinMain(
 	// 파일 감시 쓰레드
 	Cl.FileWatch = new CFileWatch();
 
+	// 리모콘 클래스
+	Cl.Remocon = new CRemocon();
+	if (!Cl.Remocon->CreateInstance())
+	{
+		MessageBox(0, L"아네모네 리모콘 초기화가 실패했습니다.", 0, MB_ICONERROR);
+	}
+
 	IsActive = false;
 	Cl.TextRenderer->Paint();
 
@@ -128,6 +135,7 @@ int APIENTRY _tWinMain(
 	delete Cl.TextProcess;
 	delete Cl.Hotkey;
 	delete Cl.FileWatch;
+	delete Cl.Remocon;
 
 	// Heap 삭제
 	HeapDestroy(AneHeap);

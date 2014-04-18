@@ -2,6 +2,7 @@
 #include "FileWatch.h"
 
 CFileWatch *CFileWatch::m_pThis = NULL;
+std::vector<std::wstring> fileList;
 
 CFileWatch::CFileWatch()
 {

@@ -8,7 +8,6 @@ private:
 	static CFileWatch *m_pThis;
 	HANDLE hWatchThread;
 
-	std::vector<std::wstring> fileList;
 	DWORD _FileChangeNotifyThread(LPVOID lpParam);
 	MMRESULT _FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dwUser, DWORD dw1, DWORD d2);
 

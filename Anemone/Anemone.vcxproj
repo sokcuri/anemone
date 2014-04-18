@@ -101,6 +101,7 @@
     <ClInclude Include="FileWatch.h" />
     <ClInclude Include="Hotkey.h" />
     <ClInclude Include="Library.h" />
+    <ClInclude Include="Remocon.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -114,6 +115,7 @@
     <ClCompile Include="FileWatch.cpp" />
     <ClCompile Include="Hotkey.cpp" />
     <ClCompile Include="Library.cpp" />
+    <ClCompile Include="Remocon.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
