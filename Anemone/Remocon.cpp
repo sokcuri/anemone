@@ -112,10 +112,15 @@ bool CRemocon::Paint()
 	SolidBrush brush(Color(32, 0, 0, 0));
 	Pen pen(Color(16, 255, 255, 255), 10);
 
-	Image image(L"D:\\Anemone\\Release\\btn.png");
+	std::wstring imgPath;
+	GetLoadPath(imgPath);
+	imgPath += L"\\remocon.png";
+
+	Image image(imgPath.c_str());
 	graphics.DrawImage(&image, 20, 20, image.GetWidth(), image.GetHeight());
 
-	SolidBrush fade(Color(128, 255, 255, 255));
+	//SolidBrush fade(Color(128, 255, 255, 255));
+	SolidBrush fade(Color(24, 0, 0, 0));
 	if (m_nBtnStatus != 0)
 	graphics.FillRectangle(&fade, Rect(20 + (90 * ((m_nBtnStatus % 4) - 1)) + ((m_nBtnStatus % 4) - 1), 20 + (90 * (m_nBtnStatus / 4) + (m_nBtnStatus / 4)), 90, 90));
 
@@ -247,13 +252,13 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 
 		// NEXT
-		else if (pt.x >= 111 && pt.x <= 201 && pt.y >= 20 && pt.y <= 110)
+		else if (pt.x >= 112 && pt.x <= 202 && pt.y >= 20 && pt.y <= 110)
 		{
 			m_nBtnStatus = 2;
 		}
 
 		// CONFIG
-		else if (pt.x >= 202 && pt.x <= 292 && pt.y >= 20 && pt.y <= 110)
+		else if (pt.x >= 204 && pt.x <= 294 && pt.y >= 20 && pt.y <= 110)
 		{
 			m_nBtnStatus = 3;
 		}
@@ -281,13 +286,13 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 
 		// NEXT
-		if (pt.x >= 111 && pt.x <= 201 && pt.y >= 20 && pt.y <= 110)
+		if (pt.x >= 112 && pt.x <= 202 && pt.y >= 20 && pt.y <= 110)
 		{
 			MessageBox(hWnd, L"NEXT CLICK", 0, 0);
 		}
 
 		// CONFIG
-		if (pt.x >= 202 && pt.x <= 292 && pt.y >= 20 && pt.y <= 110)
+		if (pt.x >= 204 && pt.x <= 294 && pt.y >= 20 && pt.y <= 110)
 		{
 			MessageBox(hWnd, L"CONFIG CLICK", 0, 0);
 		}

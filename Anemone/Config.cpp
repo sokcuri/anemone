@@ -7,6 +7,8 @@ CConfig::CConfig()
 	wcscpy_s(cfg_name_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_org_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_trans_font, L"¸¼Àº °íµñ");
+
+	LoadConfig();
 }
 
 
@@ -18,8 +20,7 @@ bool CConfig::LoadConfig()
 {
 	std::wstring INIPath;
 	GetLoadPath(INIPath);
-	INIPath += L"\\";
-	INIPath += L"Anemone.ini";
+	INIPath += L"\\anemone.ini";
 
 	wchar_t buf[255];
 	ReadINI_Str(L"BG_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
@@ -42,13 +43,13 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"NAME_SIZE_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_NAME, CFG_C, _wtoi(buf));
 	ReadINI_Str(L"NAME_COLOR_A", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_A, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_A, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_COLOR_B", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_B, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_C, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_COLOR_D", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_D, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_D, (DWORD)wcstoul(buf, NULL, 16));
 
 	ReadINI_Str(L"ORG_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_ORG, true) : SetTextSwitch(CFG_ORG, false);
@@ -63,13 +64,13 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"ORG_SIZE_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_ORG, CFG_C, _wtoi(buf));
 	ReadINI_Str(L"ORG_COLOR_A", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_A, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_A, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"ORG_COLOR_B", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_B, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"ORG_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_C, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"ORG_COLOR_D", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_D, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_D, (DWORD)wcstoul(buf, NULL, 16));
 
 	ReadINI_Str(L"TRANS_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_TRANS, true) : SetTextSwitch(CFG_TRANS, false);
@@ -84,13 +85,13 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"TRANS_SIZE_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_TRANS, CFG_C, _wtoi(buf));
 	ReadINI_Str(L"TRANS_COLOR_A", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_A, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_A, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"TRANS_COLOR_B", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_B, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"TRANS_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_C, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"TRANS_COLOR_D", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_D, (DWORD)wcstod(buf, _T('\0')));
+	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_D, (DWORD)wcstoul(buf, NULL, 16));
 	return true;
 }
 
