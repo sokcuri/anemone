@@ -10,14 +10,17 @@
 // 전역 변수:
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
+TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
 bool IsActive = false;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
-ATOM				MyRegisterClass(HINSTANCE hInstance);
+ATOM				MainWndClassRegister(HINSTANCE hInstance);
+ATOM				SettingClassRegister(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(
@@ -37,7 +40,10 @@ int APIENTRY _tWinMain(
 	// 전역 문자열을 초기화합니다.
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_ANEMONE, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+	wcscpy_s(szSettingClass, L"Anemone_Setting_Class");
+
+	MainWndClassRegister(hInstance);
+	SettingClassRegister(hInstance);
 
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
@@ -146,11 +152,9 @@ int APIENTRY _tWinMain(
 
 
 //
-//  함수: MyRegisterClass()
+// 윈도우 클래스 등록
 //
-//  목적: 창 클래스를 등록합니다.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM MainWndClassRegister(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
 
@@ -167,6 +171,27 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.lpszMenuName	= 0;
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassEx(&wcex);
+}
+
+ATOM SettingClassRegister(HINSTANCE hInstance)
+{
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = SettingProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = 0;
+	wcex.lpszClassName = szSettingClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
 }
@@ -260,31 +285,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
 			SendMessage(hWnd, WM_PAINT, 0, 0);
 			break;
-			/*
+
 		case IDM_WINDOW_SETTING:
 			if (IsWindow(hWnds.Setting) == false)
 			{
-				RECT rect;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
 				int width = 630;
 				int height = 650;
 
-				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingWndClass, NULL, WS_BORDER,
-					CW_USEDEFAULT, 0, width, height,
+				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingClass, NULL, WS_POPUP | WS_BORDER,
+					(cx - width) / 2, (cy - height) / 2, width, height,
 					hWnd, (HMENU)NULL, hInst, NULL);
-
-				int cx = GetSystemMetrics(SM_CXSCREEN);
-				int cy = GetSystemMetrics(SM_CYSCREEN);
-				GetWindowRect(hWnds.Setting, &rect);
-
-				SetWindowPos(hWnds.Setting, 0, ((cx - (rect.right - rect.left)) / 2), ((cy - (rect.bottom - rect.top)) / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-
-				int nWndStyle = GetWindowLong(hWnds.Setting, GWL_STYLE);
-
-				nWndStyle &= ~WS_CAPTION;
-				nWndStyle |= WS_BORDER;
-
-				SetWindowLong(hWnds.Setting, GWL_STYLE, nWndStyle);
-
 				ShowWindow(hWnds.Setting, 1);
 			}
 			else
@@ -292,7 +305,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				DestroyWindow(hWnds.Setting);
 				hWnds.Setting = NULL;
 			}
-			break;*/
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -373,6 +386,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
+}
+
+LRESULT CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_CREATE:
+	{
+	}
+		break;
+	case WM_COMMAND:
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

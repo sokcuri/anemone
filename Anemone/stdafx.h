@@ -4,7 +4,6 @@
 //
 
 #pragma once
-#define _USING_V110_SDK71_
 #define OEMRESOURCE
 #include "targetver.h"
 

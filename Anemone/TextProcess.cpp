@@ -18,7 +18,6 @@ void CTextProcess::EndWatchClip()
 	ChangeClipboardChain(hWnds.Clip, NULL);
 }
 
-
 std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 {
 	int nBufLen;
@@ -249,9 +248,6 @@ bool CTextProcess::OnDrawClipboard()
 	
 	IsActive = true;
 	Cl.TextRenderer->Paint();
-
-	//ChangeClipboardChain(hWnds.Main, NULL);
-	//hWnds.Clip = SetClipboardViewer(hWnds.Main);
 	return true;
 }
 

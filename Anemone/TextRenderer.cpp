@@ -178,15 +178,6 @@ bool CTextRenderer::Paint()
 	{
 		StringFormat strformat = StringFormat::GenericTypographic();
 		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
-		//wchar_t pszbuf[] = L"테스트 문자열입니다 테스트 테스트 테스트!~!@$%^&*()_1234567890";
-
-		int i_x = 10;
-		int i_y = 10;
-
-		int i_shadow_width = 3;
-		int i_outline_width = 12;
-		// 5 -> 3
-		// 10 -> 5
 
 		int pad_y = 20;
 
@@ -262,7 +253,8 @@ bool CTextRenderer::Paint()
 		if (bTransSwitch) pad_y += DrawText(&graphics, (*szTextT).c_str(), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransD >> 24) & 0xFF, (dwTransD >> 16) & 0xFF, (dwTransD >> 8) & 0xFF, (dwTransD)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20, pad_y, width - 40, height + 300));
 		
 		int nBorderWidth = 5;
-		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+		Pen 
+			nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
@@ -289,7 +281,8 @@ bool CTextRenderer::Paint()
 
 
 CTextRenderer::~CTextRenderer()
-{	if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
+{
+	if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
 
 	GdiplusShutdown(m_gpToken);
 	m_gpToken = NULL;

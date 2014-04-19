@@ -8,6 +8,7 @@
 #define CFG_B 1
 #define CFG_C 2
 #define CFG_D 3
+#define CFG_ALL 4
 
 class CConfig
 {
@@ -244,6 +245,12 @@ public:
 				if (n == CFG_A) cfg_name_size_a = c;
 				else if (n == CFG_B) cfg_name_size_b = c;
 				else if (n == CFG_C) cfg_name_size_c = c;
+				else if (n == CFG_ALL)
+				{
+					cfg_name_size_a = c;
+					cfg_name_size_b = c;
+					cfg_name_size_c = c;
+				}
 			}
 			break;
 		case CFG_ORG:
@@ -251,6 +258,12 @@ public:
 				if (n == CFG_A) cfg_org_size_a = c;
 				else if (n == CFG_B) cfg_org_size_b = c;
 				else if (n == CFG_C) cfg_org_size_c = c;
+				else if (n == CFG_ALL)
+				{
+					cfg_org_size_a = c;
+					cfg_org_size_b = c;
+					cfg_org_size_c = c;
+				}
 			}
 			break;
 		case CFG_TRANS:
@@ -258,6 +271,12 @@ public:
 				if (n == CFG_A) cfg_trans_size_a = c;
 				else if (n == CFG_B) cfg_trans_size_b = c;
 				else if (n == CFG_C) cfg_trans_size_c = c;
+				else if (n == CFG_ALL)
+				{
+					cfg_trans_size_a = c;
+					cfg_trans_size_b = c;
+					cfg_trans_size_c = c;
+				}
 			}
 			break;
 		}
