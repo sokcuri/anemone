@@ -10,7 +10,7 @@ public:
 	void J2K_GetPriorDict(void);
 	void J2K_GetProperty(void);
 	void J2K_Initialize(void);
-	bool J2K_InitializeEx(char *data0, char *key);
+	bool J2K_InitializeEx(char *data0, const char *key);
 	void J2K_ReloadUserDict();
 	void J2K_SetDelJPN();
 	void J2K_SetField();

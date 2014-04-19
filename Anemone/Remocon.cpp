@@ -47,8 +47,8 @@ bool CRemocon::CreateInstance()
 
 	if (!hWnds.Remocon)
 	{
-		MessageBox(0, L"생성 실패!", 0, 0);
-		//return FALSE;
+		MessageBox(0, L"리모콘 윈도우 생성 실패!", 0, 0);
+		return false;
 	}
 
 	ShowWindow(hWnds.Remocon, true);
@@ -103,7 +103,7 @@ bool CRemocon::Paint()
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-//	#4B00D8FF
+
 	graphics.Clear(Color((bgColor >> 24) & 0xFF, (bgColor >> 16) & 0xFF, (bgColor >> 8) & 0xFF, bgColor & 0xFF));
 
 	int nBorderWidth = 5;
@@ -119,16 +119,10 @@ bool CRemocon::Paint()
 	Image image(imgPath.c_str());
 	graphics.DrawImage(&image, 20, 20, image.GetWidth(), image.GetHeight());
 
-	//SolidBrush fade(Color(128, 255, 255, 255));
 	SolidBrush fade(Color(24, 0, 0, 0));
 	if (m_nBtnStatus != 0)
 	graphics.FillRectangle(&fade, Rect(20 + (90 * ((m_nBtnStatus % 4) - 1)) + ((m_nBtnStatus % 4) - 1), 20 + (90 * (m_nBtnStatus / 4) + (m_nBtnStatus / 4)), 90, 90));
 
-	/*
-	Cl.TextRenderer->DrawText(&graphics, L"~리모콘 윈도우~", L"맑은 고딕", 25, 6, 6, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
-
-	graphics.DrawRectangle(&nBorderPen, Rect(2, 2, rect.right - rect.left - nBorderWidth - 1, rect.bottom - rect.top - nBorderWidth - 1));
-	*/
 	POINT dcOffset = { 0, 0 };
 	SIZE size = { rect.right - rect.left, rect.bottom - rect.top };
 
@@ -165,7 +159,7 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
-		// 메뉴 선택을 구문 분석합니다.
+
 		switch (wmId)
 		{
 		case IDM_EXIT:

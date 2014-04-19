@@ -44,10 +44,11 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	if (outlineInVisible) outlineTotalThick += outlineInThick;
 	if (outlineOutVisible) outlineTotalThick += outlineOutThick;
 
+
 	Font font(&fontFamily, (Gdiplus::REAL)fntSize, FontStyleRegular);
 	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &boundRect);
-	SolidBrush tempBrush(outlineOutColor);
-	graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
+	//SolidBrush tempBrush(outlineOutColor);
+	//graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
 
 	Gdiplus::REAL emSize = graphics->GetDpiY() * fntSize / 72;
 

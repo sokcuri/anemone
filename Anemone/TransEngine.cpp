@@ -43,8 +43,10 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 		return false;
 	}
 
-	//std::wstring szEngineDAT = szEnginePath + L"\\Dat";
-	if (J2K_InitializeEx("CSUSER123455", "C:\\Program Files\\ChangShinSoft\\ezTrans XP\\Dat")) return true;
+	std::wstring _szEngineDAT = szEnginePath + L"\\Dat";
+	std::string szEngineDAT(_szEngineDAT.length(), ' ');
+	std::copy(_szEngineDAT.begin(), _szEngineDAT.end(), szEngineDAT.begin());
+	if (J2K_InitializeEx("CSUSER123455", szEngineDAT.c_str())) return true;
 	return false;
 }
 
@@ -64,7 +66,7 @@ __declspec(naked) void CTransEngine::J2K_Initialize(void)
 {
 	__asm JMP ezt_addr + (4 * 3)
 }
-__declspec(naked) bool CTransEngine::J2K_InitializeEx(char *data0, char *key)
+__declspec(naked) bool CTransEngine::J2K_InitializeEx(char *data0, const char *key)
 {
 	__asm JMP ezt_addr + (4 * 4)
 }
