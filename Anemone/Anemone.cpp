@@ -74,25 +74,7 @@ int APIENTRY _tWinMain(
 		MessageBox(0, L"이지트랜스 엔진 초기화가 실패했습니다.", 0, MB_ICONERROR);
 		return false;
 	}
-	/*
-	char buf[1024];
-	char *n_str;
 
-	// 가끔 번역실패하는 문제가 있어서 세번 돌림
-	for (int k = 0; k < 3; k++)
-	{
-		n_str = (char *)TransEngine.J2K_TranslateMMNT(0, "u??????xQl??b????????????v");
-		if (n_str[0] != 0x00) break;
-	}
-
-	if (n_str)
-	{
-		strcpy_s(buf, n_str);
-		TransEngine.J2K_FreeMem(n_str);
-		MessageBoxA(0, buf, 0, 0);
-	}
-	*/
-	
 	// 렌더러 초기화
 	Cl.TextRenderer = new CTextRenderer();
 	if (!Cl.TextRenderer->Init())

@@ -168,47 +168,9 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
-		case IDM_ABOUT:
-			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case IDM_TERMINATE_ANEMONE:
-			PostQuitMessage(0);
-			break;
-			/*
-		case IDM_WINDOW_SETTING:
-			if (IsWindow(hWnds.Setting) == false)
-			{
-				RECT rect;
-				int width = 630;
-				int height = 650;
-
-				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingWndClass, NULL, WS_BORDER,
-					CW_USEDEFAULT, 0, width, height,
-					hWnd, (HMENU)NULL, hInst, NULL);
-
-				int cx = GetSystemMetrics(SM_CXSCREEN);
-				int cy = GetSystemMetrics(SM_CYSCREEN);
-				GetWindowRect(hWnds.Setting, &rect);
-
-				SetWindowPos(hWnds.Setting, 0, ((cx - (rect.right - rect.left)) / 2), ((cy - (rect.bottom - rect.top)) / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-
-				int nWndStyle = GetWindowLong(hWnds.Setting, GWL_STYLE);
-
-				nWndStyle &= ~WS_CAPTION;
-				nWndStyle |= WS_BORDER;
-
-				SetWindowLong(hWnds.Setting, GWL_STYLE, nWndStyle);
-
-				ShowWindow(hWnds.Setting, 1);
-			}
-			else
-			{
-				DestroyWindow(hWnds.Setting);
-				hWnds.Setting = NULL;
-			}
-			break;*/
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -275,6 +237,7 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		m_bTracking = false;
 		break;
 	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
 		POINT pt;
 		pt.x = LOWORD(lParam);
 		pt.y = HIWORD(lParam);
@@ -282,76 +245,25 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		// PREV
 		if (pt.x >= 20 && pt.x <= 110 && pt.y >= 20 && pt.y <= 110)
 		{
-			MessageBox(hWnd, L"PREV CLICK", 0, 0);
+			if (message == WM_LBUTTONUP) MessageBox(hWnd, L"PREV CLICK", 0, 0);
 		}
 
 		// NEXT
-		if (pt.x >= 112 && pt.x <= 202 && pt.y >= 20 && pt.y <= 110)
+		else if (pt.x >= 112 && pt.x <= 202 && pt.y >= 20 && pt.y <= 110)
 		{
-			MessageBox(hWnd, L"NEXT CLICK", 0, 0);
+			if (message == WM_LBUTTONUP) MessageBox(hWnd, L"NEXT CLICK", 0, 0);
 		}
 
 		// CONFIG
-		if (pt.x >= 204 && pt.x <= 294 && pt.y >= 20 && pt.y <= 110)
+		else if (pt.x >= 204 && pt.x <= 294 && pt.y >= 20 && pt.y <= 110)
 		{
-			MessageBox(hWnd, L"CONFIG CLICK", 0, 0);
+			if (message == WM_LBUTTONUP) PostMessage(hWnds.Main, WM_COMMAND, MAKELONG(IDM_WINDOW_SETTING, 0), 0);
 		}
 
-		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		else if (message == WM_LBUTTONDOWN) SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_ERASEBKGND:
 		return false;
-		/*
-	case WM_GETMINMAXINFO:
-	{
-		MINMAXINFO *mm = (MINMAXINFO *)lParam;
-
-		mm->ptMinTrackSize.x = 90;
-		mm->ptMinTrackSize.y = 90;
-	}
-		break;
-	case WM_NCHITTEST:
-	{
-		POINT pt;
-		RECT rc;
-		GetClientRect(hWnd, &rc);
-		pt.x = LOWORD(lParam);
-		pt.y = HIWORD(lParam);
-		ScreenToClient(hWnd, &pt);
-
-		int BORDERWIDTH = 30;
-
-		//top-left, top and top-right
-		if (pt.y<BORDERWIDTH)
-		{
-			if (pt.x<BORDERWIDTH)
-			{
-				return HTTOPLEFT;
-			}
-			else if (pt.x>(rc.right - BORDERWIDTH))
-			{
-				return HTTOPRIGHT;
-			}    return HTTOP;
-		}
-		//bottom-left, bottom and bottom-right
-		if (pt.y>(rc.bottom - BORDERWIDTH))
-		{
-			if (pt.x<BORDERWIDTH)
-			{
-				return HTBOTTOMLEFT;
-			}
-			else if (pt.x>(rc.right - BORDERWIDTH))
-			{
-				return HTBOTTOMRIGHT;
-			}    return HTBOTTOM;
-		}  if (pt.x<BORDERWIDTH)
-		{
-			return HTLEFT;
-		}  if (pt.x>(rc.right - BORDERWIDTH))
-		{
-			return HTRIGHT;
-		}  return DefWindowProc(hWnd, message, wParam, lParam);
-	}*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

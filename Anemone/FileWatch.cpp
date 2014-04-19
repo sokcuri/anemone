@@ -25,7 +25,6 @@ CFileWatch::~CFileWatch()
 
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 {
-
 	HWND hwnd = (HWND)lpParam;
 	UINT m_nTimerID;
 
