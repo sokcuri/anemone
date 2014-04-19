@@ -21,7 +21,9 @@ private:
 		return m_pThis->KeyboardProc(code, wParam, lParam);
 	}
 
-	inline void RegKey(int func, int code, bool bCtrl, bool bAlt, bool bShift);
+	inline void RegKey(int code, bool bCtrl, bool bAlt, bool bShift, int func);
+	inline void UnregKey(int code);
+	inline void UnregFuncKey(int func);
 
 	LRESULT KeyboardProc(int code, WPARAM wParam, LPARAM lParam);
 };

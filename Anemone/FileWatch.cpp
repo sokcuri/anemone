@@ -42,7 +42,7 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 		FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION;
 	DWORD bytesReturned;
 
-	m_nTimerID = timeSetEvent(500, 0, (LPTIMECALLBACK)FileChangeNotifyProc, 0, TIME_PERIODIC);
+	m_nTimerID = timeSetEvent(300, 0, (LPTIMECALLBACK)FileChangeNotifyProc, 0, TIME_PERIODIC);
 
 	wchar_t temp[MAX_PATH] = { 0 };
 	for (;;)
@@ -64,14 +64,20 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 			std::wstring filename(temp);
 			transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-			for (unsigned int i = 0; i <= fileList.size(); i++)
+			if (fileList.begin() == fileList.end())
 			{
-				if (i == fileList.size())
+				fileList.push_back(filename.c_str());
+			}
+
+			std::vector<std::wstring>::iterator it = fileList.begin();
+			for (; it != fileList.end(); it++)
+			{
+				if (it + 1 == fileList.end())
 				{
 					fileList.push_back(filename.c_str());
 					break;
 				}
-				else if (fileList[i].compare(filename.c_str()) == 0) break;
+				else if ((*it).compare(filename.c_str()) == 0) break;
 			}
 
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
@@ -89,27 +95,26 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 	c_config = false;
 	c_anedic = false;
 
-	if (fileList.size() == 0) return 0;
+	if (fileList.begin() == fileList.end()) return 0;
 
-	//WriteLog(L"1초에 한번 이벤트\n");
-	for (unsigned int i = 0; i<fileList.size(); i++)
+	std::vector<std::wstring>::iterator it = fileList.begin();
+	for (; it != fileList.end(); it++)
 	{
-		if (fileList[i].compare(L"anemone.ini") == 0)
+		if ((*it).compare(L"anemone.ini") == 0)
 		{
 			c_config = true;
 		}
 
-		if (fileList[i].compare(L"anedic.txt") == 0)
+		if ((*it).compare(L"anedic.txt") == 0)
 		{
 			c_anedic = true;
 		}
 	}
 	fileList.clear();
-
+	
 	// 감시 모드가 작동중일때 파일변경시
 	if (c_config == true)
 	{
-		//MessageBox(0, L"변경", L"anemone.ini", 0);
 		Cl.Config->LoadConfig();
 
 		PostMessage(hWnds.Main, WM_PAINT, 0, 0);

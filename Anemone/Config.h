@@ -25,8 +25,8 @@ private:
 	DWORD cfg_name_color_c      = 0xFFFFA850;
 	DWORD cfg_name_color_d      = 0x32000000;
 	int cfg_name_size_a         = 25;
-	int cfg_name_size_b         = 6;
-	int cfg_name_size_c         = 6;
+	int cfg_name_size_b         = 3;
+	int cfg_name_size_c         = 3;
 
 	bool cfg_org_switch         = true;
 	bool cfg_org_shadow         = true;
@@ -36,8 +36,8 @@ private:
 	DWORD cfg_org_color_c       = 0xFFFBAAAA;
 	DWORD cfg_org_color_d       = 0x32000000;
 	int cfg_org_size_a          = 25;
-	int cfg_org_size_b          = 6;
-	int cfg_org_size_c          = 6;
+	int cfg_org_size_b          = 3;
+	int cfg_org_size_c          = 3;
 
 	bool cfg_trans_switch       = true;
 	bool cfg_trans_shadow       = true;
@@ -47,8 +47,8 @@ private:
 	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
 	DWORD cfg_trans_color_d     = 0x32000000;
 	int cfg_trans_size_a        = 25;
-	int cfg_trans_size_b        = 6;
-	int cfg_trans_size_c        = 6;
+	int cfg_trans_size_b        = 3;
+	int cfg_trans_size_c        = 3;
 
 	bool cfg_temp_click_though = false;
 	bool cfg_temp_sizable_mode = false;

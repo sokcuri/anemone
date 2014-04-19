@@ -71,30 +71,31 @@ std::wstring CTextProcess::HangulEncode(std::wstring &input)
 	std::wstring output;
 	wchar_t buf[8];
 
-	for (DWORD i = 0; i<input.size(); i++)
+	std::wstring::iterator it = input.begin();
+	for (; it != input.end(); it++)
 	{
-		if (input[i] == L'\\')
+		if ((*it) == L'\\')
 		{
 			output += L"\\\\";
 			continue;
 		}
 		else
-		if (input[i] == L'@')
+		if ((*it) == L'@')
 		{
 			output += L"@@";
 			continue;
 		}
 		else
-		if ((input[i] >= 0x1100 && input[i] <= 0x11FF) || (input[i] >= 0x3130 && input[i] <= 0x318F) ||
-			(input[i] >= 0xA960 && input[i] <= 0xA97F) || (input[i] >= 0xAC00 && input[i] <= 0xD7AF) ||
-			(input[i] >= 0xD7B0 && input[i] <= 0xD7FF))
+		if ((*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
+			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
+			(*it >= 0xD7B0 && *it <= 0xD7FF))
 		{
-			swprintf_s(buf, L"\\x%04X", input[i]);
+			swprintf_s(buf, L"\\x%04X", *it);
 			output += buf;
 		}
 		else
 		{
-			output += input[i];
+			output += *it;
 		}
 	}
 
@@ -105,43 +106,44 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 	std::wstring output;
 	wchar_t buf[8];
 
-	for (DWORD i = 0; i<input.size(); i++)
+	std::wstring::iterator it = input.begin();
+	for (; it != input.end(); it++)
 	{
 		// @X = 삭제
-		if (i + 2 < input.size() && input[i] == L'@' && input[i + 1] == L'X' && input[i + 2] == L'@')
+		if (it + 2 < input.end() && (*it) == L'@' && *(it + 1) == L'X' && *(it + 2) == L'@')
 		{
-			i+=2;
+			it += 2;
 			continue;
 		}
 		
 		// \, @ 처리
-		else if (i + 1 < input.size() && (input[i] == L'\\' || input[i] == L'@') && input[i] == input[i+1])
+		else if (it + 1 < input.end() && ((*it) == L'\\' || (*it) == L'@') && (*it) == *(it + 1))
 		{
-			output += input[i];
-			i++;
+			output += (*it);
+			it++;
 			continue;
 		}
 		else
-		if (i + 5 < input.size() && input[i] == '\\' && input[i + 1] == 'x' &&
-		   ((input[i + 2] >= L'A' && input[i + 2] <= L'Z') || (input[i + 2] >= L'a' && input[i + 2] <= L'z') || (input[i + 2] >= L'0' && input[i + 2] <= L'9')) && 
-		   ((input[i + 3] >= L'A' && input[i + 3] <= L'Z') || (input[i + 3] >= L'a' && input[i + 3] <= L'z') || (input[i + 3] >= L'0' && input[i + 3] <= L'9')) &&
-		   ((input[i + 4] >= L'A' && input[i + 4] <= L'Z') || (input[i + 4] >= L'a' && input[i + 4] <= L'z') || (input[i + 4] >= L'0' && input[i + 4] <= L'9')) &&
-		   ((input[i + 5] >= L'A' && input[i + 5] <= L'Z') || (input[i + 5] >= L'a' && input[i + 5] <= L'z') || (input[i + 5] >= L'0' && input[i + 5] <= L'9')))
+		if (it + 5 < input.end() && (*it) == '\\' && *(it + 1) == 'x' &&
+		   ((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) && 
+		   ((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
+		   ((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
+		   ((*(it + 5) >= L'A' && *(it + 5) <= L'Z') || (*(it + 5) >= L'a' && *(it + 5) <= L'z') || (*(it + 5) >= L'0' && *(it + 5) <= L'9')))
 		{
-			buf[0] = input[i + 2];
-			buf[1] = input[i + 3];
-			buf[2] = input[i + 4];
-			buf[3] = input[i + 5];
+			buf[0] = *(it + 2);
+			buf[1] = *(it + 3);
+			buf[2] = *(it + 4);
+			buf[3] = *(it + 5);
 			buf[4] = 0x00;
 
 			swscanf_s(buf, L"%04x", &buf[0]);
 
 			output += buf;
-			i += 5;
+			it += 5;
 		}
 		else
 		{
-			output += input[i];
+			output += (*it);
 		}
 	}
 	return output;

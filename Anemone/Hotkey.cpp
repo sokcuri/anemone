@@ -18,14 +18,14 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
-	RegKey(IDM_TEMP_CLICK_THOUGH, VK_F6, false, false, false);
-	RegKey(IDM_TEMP_SIZABLE_MODE, VK_F7, false, false, false);
-	RegKey(IDM_WINDOW_SETTING, VK_F10, false, false, false);
-	RegKey(IDM_TERMINATE_ANEMONE, VK_F12, false, false, false);
+	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
+	RegKey(VK_F7, false, false, false, IDM_TEMP_SIZABLE_MODE);
+	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING);
+	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
 	return true;
 }
 
-inline void CHotkey::RegKey(int func, int code, bool bCtrl, bool bAlt, bool bShift)
+inline void CHotkey::RegKey(int code, bool bCtrl, bool bAlt, bool bShift, int func)
 {
 	struct _key_map kmap;
 	kmap.Alt = bAlt;
@@ -34,6 +34,32 @@ inline void CHotkey::RegKey(int func, int code, bool bCtrl, bool bAlt, bool bShi
 	kmap.Code = code;
 	kmap.func = func;
 	key_map.push_back(kmap);
+}
+
+inline void CHotkey::UnregKey(int code)
+{
+	std::vector<_key_map>::iterator it = key_map.begin();
+	for (; it != key_map.end(); it++)
+	{
+		if ((*it).Code == code)
+		{
+			key_map.erase(it);
+			it = key_map.begin();
+		}
+	}
+}
+
+inline void CHotkey::UnregFuncKey(int func)
+{
+	std::vector<_key_map>::iterator it = key_map.begin();
+	for (; it != key_map.end(); it++)
+	{
+		if ((*it).func == func)
+		{
+			key_map.erase(it);
+			it = key_map.begin();
+		}
+	}
 }
 
 bool CHotkey::SaveKeyMap()
@@ -69,21 +95,22 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 		{
 		case 256:	// WM_KEYDOWN
 		case 260:	// WM_SYSKEYDOWN
-			for (DWORD i = 0; i < key_map.size(); i++)
+			std::vector<_key_map>::iterator it = key_map.begin();
+			for (; it != key_map.end(); it++)
 			{
-				if (key_map[i].Code == pHookKey->vkCode)
+				if ((*it).Code == pHookKey->vkCode)
 				{
 					bool bCtrl = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) ? false : true);
 					bool bShift = ((GetAsyncKeyState(VK_SHIFT) & 0x8000) ? false : true);
 					bool bAlt = ((GetAsyncKeyState(VK_MENU) & 0x8000) ? false : true);
 					
-					if (key_map[i].Alt == true && bAlt) continue;
+					if ((*it).Alt == true && bAlt) continue;
 					else
-					if (key_map[i].Shift == true && bShift) continue;
+					if ((*it).Shift == true && bShift) continue;
 					else
-					if (key_map[i].Ctrl == true && bCtrl) continue;
+					if ((*it).Ctrl == true && bCtrl) continue;
 					
-					SendMessage(hWnds.Main, WM_COMMAND, MAKELONG(key_map[i].func, 0), 0);
+					SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
 					return -1;
 				}
 			}
