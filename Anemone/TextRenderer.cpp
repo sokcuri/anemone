@@ -168,10 +168,10 @@ bool CTextRenderer::Paint()
 		SolidBrush brush(Color(32, 0, 0, 0));
 		Pen pen(Color(16, 255, 255, 255), 10);
 		
-		for (int i = 1; i <= 10; i++)
-			graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
+		//for (int i = 1; i <= 10; i++)
+		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
 		
-		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~ by eroha", L"맑은 고딕", 25, 3, 3, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
+		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", L"맑은 고딕", 25, 3, 3, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
 
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
@@ -240,7 +240,7 @@ bool CTextRenderer::Paint()
 				szNameConv = replaceAll(szNameConv, L"()", L"");
 			}
 		}
-
+		
 		// 이름을 사용하지 않을때 원문에 그냥 붙여버린다
 		else
 		{
