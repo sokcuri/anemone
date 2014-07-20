@@ -20,7 +20,7 @@ ATOM				MainWndClassRegister(HINSTANCE hInstance);
 ATOM				SettingClassRegister(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(
@@ -164,7 +164,7 @@ ATOM SettingClassRegister(HINSTANCE hInstance)
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	//wcex.lpfnWndProc = SettingProc;
+	wcex.lpfnWndProc = SettingProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
@@ -195,7 +195,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    int cx = GetSystemMetrics(SM_CXSCREEN);
    int cy = GetSystemMetrics(SM_CYSCREEN);
 
-   int x = 500;
+   int x = 300;
    int y = 200;
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
@@ -269,7 +269,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case IDM_WINDOW_SETTING:
-		{
 			if (IsWindow(hWnds.Setting) == false)
 			{
 				int cx = GetSystemMetrics(SM_CXSCREEN);
@@ -278,15 +277,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int width = 630;
 				int height = 650;
 
-
-				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnd, SettingProc);
-				/*
 				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingClass, NULL, WS_POPUP | WS_BORDER,
-				(cx - width) / 2, (cy - height) / 2, width, height,
-				hWnd, (HMENU)NULL, hInst, NULL);
-				*/
-				SetWindowLong(hWnds.Setting, GWL_STYLE, WS_POPUP | WS_BORDER);
-				SetWindowLong(hWnds.Setting, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE);
+					(cx - width) / 2, (cy - height) / 2, width, height,
+					hWnd, (HMENU)NULL, hInst, NULL);
 				ShowWindow(hWnds.Setting, 1);
 			}
 			else
@@ -299,7 +292,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
-	}
 	case WM_PAINT:
 	{
 		Cl.TextRenderer->Paint();
@@ -382,7 +374,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 
@@ -413,9 +405,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	case WM_ERASEBKGND:
 		return false;
-	//default:
-	//	return DefWindowProc(hWnd, message, wParam, lParam);
-
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
