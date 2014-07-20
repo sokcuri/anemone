@@ -1,11 +1,11 @@
-//Microsoft Visual C++ÏóêÏÑú ÏÉùÏÑ±Ìïú Î¶¨ÏÜåÏä§ Ïä§ÌÅ¨Î¶ΩÌä∏ÏûÖÎãàÎã§.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
-// TEXTINCLUDE 2 Î¶¨ÏÜåÏä§ÏóêÏÑú ÏÉùÏÑ±ÎêòÏóàÏäµÎãàÎã§.
+// Generated from the TEXTINCLUDE 2 resource.
 //
 #ifndef APSTUDIO_INVOKED
 #include "targetver.h"
@@ -13,44 +13,48 @@
 #define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
+/////////////////////////////////////////////////////////////////////////////
+// «—±πæÓ(¥Î«—πŒ±π) resources
+
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
-LANGUAGE 18, 1
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+#pragma code_page(949)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// ÏïÑÏù¥ÏΩò
+// Icon
 //
 
-// ÏùëÏö© ÌîÑÎ°úÍ∑∏Îû® ÏïÑÏù¥ÏΩòÏù¥ Î™®Îì† ÏãúÏä§ÌÖúÏóêÏÑú ÏùºÍ¥ÄÎêú ÏÉÅÌÉúÎ•º Ïú†ÏßÄÌïòÎèÑÎ°ù ÌïòÍ∏∞ ÏúÑÌï¥
-// Í∞ÄÏû• ÎÇÆÏùÄ ID Í∞íÏùÑ Í∞ñÎäî ÏïÑÏù¥ÏΩòÏù¥ Îß® Ï≤òÏùå Î∞∞ÏπòÎê©ÎãàÎã§.
-
-IDI_ANEMONE       ICON         "Anemone.ico"
-IDI_SMALL               ICON         "small.ico"
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ANEMONE             ICON                    "Anemone.ico"
+IDI_SMALL               ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Î©îÎâ¥
+// Menu
 //
 
 IDC_ANEMONE MENU
 BEGIN
-    POPUP "ÌååÏùº(&F)"
+    POPUP "?åÏùº(&F)"
     BEGIN
-        MENUITEM "ÎÅùÎÇ¥Í∏∞(&X)",                IDM_EXIT
+        MENUITEM "?ùÎÇ¥Í∏?&X)",                    IDM_EXIT
     END
-    POPUP "ÎèÑÏõÄÎßê(&H)"
+    POPUP "?ÑÏ?Îß?&H)"
     BEGIN
-        MENUITEM "Ï†ïÎ≥¥(&A)...",           IDM_ABOUT
+        MENUITEM "?ïÎ≥¥(&A)...",                  IDM_ABOUT
     END
 END
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Ïï°ÏÖÄÎü¨Î†àÏù¥ÌÑ∞ ÌÇ§
+// Accelerator
 //
 
 IDC_ANEMONE ACCELERATORS
@@ -62,19 +66,108 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// ÎåÄÌôî ÏÉÅÏûê
+// Dialog
 //
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Anemone Ï†ïÎ≥¥"
-FONT 9, "MS Shell Dlg"
+CAPTION "Anemone ?ïÎ≥¥"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
     LTEXT           "Anemone, Î≤ÑÏ†Ñ 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2014",IDC_STATIC,42,26,114,8
-    DEFPUSHBUTTON   "ÌôïÏù∏",IDOK,113,41,50,14,WS_GROUP
+    DEFPUSHBUTTON   "?ïÏù∏",IDOK,113,41,50,14,WS_GROUP
 END
+
+IDD_SETTING DIALOGEX 0, 0, 439, 434
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP
+FONT 9, "±º∏≤", 400, 0, 0x81
+BEGIN
+    DEFPUSHBUTTON   "¡æ∑·«œ±‚",IDOK,6,396,66,30
+    GROUPBOX        "¿œπ› º≥¡§",IDC_STATIC,7,6,161,339
+    CONTROL         "«◊ªÛ ¿ß «•Ω√",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,21,55,10
+    CONTROL         "¿⁄ºÆ ∏µÂ ªÁøÎΩ√ «◊ªÛ ¿ß «•Ω√",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,36,110,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,50,155,8,WS_DISABLED
+    CONTROL         "√¢ º˚±Ë ∏µÂ",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,63,55,10
+    CONTROL         "√¢ º˚±ËΩ√ ≈¨∏≥∫∏µÂ ∞®Ω√ ¿œΩ√ «ÿ¡¶",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,78,123,10
+    CONTROL         "√¢ º˚±ËΩ√ ¿œ∫Œ ¥‹√‡≈∞ ¿œΩ√ «ÿ¡¶",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,94,117,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,108,154,8,WS_DISABLED
+    CONTROL         "≈¨∏≥∫∏µÂ ∞®Ω√",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,120,59,10
+    CONTROL         "√¢ ≥ ∏” ≈¨∏Ø",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,135,55,10
+    CONTROL         "¿⁄ºÆ ∏µÂ ªÁøÎ",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,151,62,10
+    CONTROL         "≈©±‚ ¡∂¿˝ ∏µÂ",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,166,62,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,180,155,8,WS_DISABLED
+    CONTROL         "ø¯πÆ πÆ¿Â √‚∑¬",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,191,62,10
+    CONTROL         "ø¯πÆ ¿Ã∏ß √‚∑¬",IDC_CHECK11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,206,62,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,220,155,8,WS_DISABLED
+    CONTROL         "¿Ã∏ß ∫–∏Æ «•Ω√",IDC_CHECK12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,231,62,10
+    CONTROL         "π›∫π πÆ¿⁄ √≥∏Æ",IDC_CHECK13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,246,62,10
+    CONTROL         "¥ÎªÁ ≥°ø° ∫Ÿ¿∫ ¿Ã∏ß √≥∏Æ",IDC_CHECK14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,262,94,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,277,155,8,WS_DISABLED
+    CONTROL         "æ∆≥◊∏≥◊ ªÁ¿¸ øÏº± ¿˚øÎ",IDC_CHECK15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,286,91,10
+    CONTROL         "æ∆≥◊∏≥◊ ∏Æ∏ƒ‹ ªÁøÎ",IDC_CHECK16,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,301,82,10
+    LTEXT           "¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°",IDC_STATIC,12,315,154,8,WS_DISABLED
+    CONTROL         "¿¸ø™ ¥‹√‡≈∞ ªÁøÎ",IDC_CHECK17,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,326,69,10
+    GROUPBOX        "√¢ πË∞Ê/º≥¡§",IDC_STATIC,174,6,126,60
+    GROUPBOX        "≈ÿΩ∫∆Æ ¡§∑ƒ",IDC_STATIC,6,351,162,36
+    CONTROL         "øﬁ¬  ¡§∑ƒ",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,13,366,41,10
+    CONTROL         "∞°øÓµ• ¡§∑ƒ",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,61,366,47,10
+    CONTROL         "ø¿∏•¬  ¡§∑ƒ",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,114,366,50,10
+    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,210,36,87,15
+    LTEXT           "≈ı∏Ìµµ º≥¡§ (20)",IDC_STATIC,231,24,52,8
+    PUSHBUTTON      " ",IDC_BUTTON1,184,21,22,24
+    LTEXT           "ªˆªÛ",IDC_STATIC,188,50,15,8
+    GROUPBOX        "≈ÿΩ∫∆Æ ≈©±‚ º≥¡§",IDC_STATIC,306,6,126,60
+    PUSHBUTTON      "-",IDC_BUTTON2,312,21,19,36
+    PUSHBUTTON      "+",IDC_BUTTON3,408,22,19,36
+    CONTROL         "",IDC_SLIDER2,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,333,36,72,15
+    LTEXT           "±€¿⁄ ≈©±‚ (99)",IDC_STATIC,349,24,46,8
+    GROUPBOX        "¿Ã∏ß ∆ƒ∆Æ º≥¡§",IDC_STATIC,174,72,126,78
+    PUSHBUTTON      " ",IDC_BUTTON4,187,88,18,22
+    LTEXT           "ªˆªÛ",IDC_STATIC,189,114,15,8
+    PUSHBUTTON      " ",IDC_BUTTON5,225,88,19,22
+    LTEXT           "ø‹∞˚º±1",IDC_STATIC,223,114,25,8
+    PUSHBUTTON      " ",IDC_BUTTON6,264,88,19,22
+    LTEXT           "ø‹∞˚º±2",IDC_STATIC,261,114,25,8
+    PUSHBUTTON      "±€≤√ : ±º∏≤",IDC_BUTTON7,184,126,102,18
+    CONTROL         "πË∞Êªˆ ªÁøÎ",IDC_CHECK18,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,246,6,48,10
+    CONTROL         "±◊∏≤¿⁄ ªÁøÎ",IDC_CHECK19,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,246,72,48,10
+    GROUPBOX        "ø¯πÆ º≥¡§",IDC_STATIC,306,72,126,78
+    PUSHBUTTON      " ",IDC_BUTTON8,319,88,18,22
+    LTEXT           "ªˆªÛ",IDC_STATIC,321,114,15,8
+    PUSHBUTTON      " ",IDC_BUTTON9,357,88,19,22
+    LTEXT           "ø‹∞˚º±1",IDC_STATIC,355,114,25,8
+    PUSHBUTTON      " ",IDC_BUTTON10,396,88,19,22
+    LTEXT           "ø‹∞˚º±2",IDC_STATIC,393,114,25,8
+    PUSHBUTTON      "±€≤√ : ±º∏≤",IDC_BUTTON11,316,126,102,18
+    CONTROL         "±◊∏≤¿⁄ ªÁøÎ",IDC_CHECK20,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,378,72,48,10
+    GROUPBOX        "π¯ø™πÆ ∆ƒ∆Æ º≥¡§",IDC_STATIC,174,156,126,78
+    PUSHBUTTON      " ",IDC_BUTTON12,187,172,18,22
+    LTEXT           "ªˆªÛ",IDC_STATIC,189,198,15,8
+    PUSHBUTTON      " ",IDC_BUTTON13,225,172,19,22
+    LTEXT           "ø‹∞˚º±1",IDC_STATIC,223,198,25,8
+    PUSHBUTTON      " ",IDC_BUTTON14,264,172,19,22
+    LTEXT           "ø‹∞˚º±2",IDC_STATIC,261,198,25,8
+    PUSHBUTTON      "±€≤√ : ±º∏≤",IDC_BUTTON15,184,210,102,18
+    CONTROL         "±◊∏≤¿⁄ ªÁøÎ",IDC_CHECK21,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,246,156,48,10
+    GROUPBOX        "±◊∏≤¿⁄ º≥¡§",IDC_STATIC,306,156,126,78
+    CONTROL         "",IDC_SLIDER3,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,339,192,87,15
+    LTEXT           "≈ı∏Ìµµ º≥¡§ (20)",IDC_STATIC,360,180,52,8
+    PUSHBUTTON      " ",IDC_BUTTON16,313,177,22,24
+    LTEXT           "ªˆªÛ",IDC_STATIC,317,206,15,8
+    DEFPUSHBUTTON   "ªÁ¿¸∆ƒ¿œ ø≠±‚",IDOK2,78,396,66,30
+    DEFPUSHBUTTON   "º≥¡§∆ƒ¿œ ø≠±‚",IDOK3,150,396,66,30
+    DEFPUSHBUTTON   "√¢ ¿ßƒ° √ ±‚»≠",IDOK4,222,396,66,30
+    DEFPUSHBUTTON   "∞Ì±ﬁ º≥¡§",IDOK5,294,396,66,30
+    DEFPUSHBUTTON   "¥›±‚",IDOK6,366,396,66,30
+    GROUPBOX        "¿Ã∏ß-¥ÎªÁ∞£ ø©πÈ º≥¡§",IDC_STATIC,174,240,258,54
+    CONTROL         "",IDC_SLIDER4,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,183,268,114,15
+    LTEXT           "ªÛ«œ ∞£∞› (200)",IDC_STATIC,219,255,49,8
+    CONTROL         "",IDC_SLIDER5,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,309,269,114,15
+    LTEXT           "¡¬øÏ ∞£∞› (200)",IDC_STATIC,345,256,49,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -91,20 +184,30 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 55
     END
+
+    IDD_SETTING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 432
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 426
+    END
 END
 #endif    // APSTUDIO_INVOKED
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // TEXTINCLUDE
 //
-1 TEXTINCLUDE
+
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#ifndef APSTUDIO_INVOKED\r\n"
     "#include ""targetver.h""\r\n"
@@ -115,7 +218,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -123,18 +226,19 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
-// Î¨∏ÏûêÏó¥ ÌÖåÏù¥Î∏î
+// String Table
 //
 
 STRINGTABLE
 BEGIN
-   IDC_ANEMONE   "ANEMONE"
-   IDS_APP_TITLE       "ANEMONE"
+    IDS_APP_TITLE           "ANEMONE"
+    IDC_ANEMONE             "ANEMONE"
 END
 
-#endif
+#endif    // «—±πæÓ(¥Î«—πŒ±π) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -142,8 +246,10 @@ END
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
-// TEXTINCLUDE 3 Î¶¨ÏÜåÏä§ÏóêÏÑú ÏÉùÏÑ±ÎêòÏóàÏäµÎãàÎã§.
+// Generated from the TEXTINCLUDE 3 resource.
 //
 
+
 /////////////////////////////////////////////////////////////////////////////
-#endif    // APSTUDIO_INVOKEDÍ∞Ä ÏïÑÎãôÎãàÎã§.
+#endif    // not APSTUDIO_INVOKED
+
