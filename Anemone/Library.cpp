@@ -144,3 +144,48 @@ std::wstring replaceAll(const std::wstring &str, const std::wstring &pattern, co
 	return result;
 }
 
+static BOOL CALLBACK OnGetWindowByProcess(HWND hwnd, LPARAM lParam)
+{
+	WINDOWPROCESSINFO *infoPtr = (WINDOWPROCESSINFO *)lParam;
+	DWORD check = 0;
+	BOOL br = TRUE;
+	GetWindowThreadProcessId(hwnd, &check);
+	//WriteLog(L"%x %x %x\n", hwnd, check, infoPtr->pid);
+	if (check == infoPtr->pid)
+	{
+		//WriteLog(L"found window %x for process id %x\n", hwnd, check);
+		infoPtr->hwnd = hwnd;
+		br = FALSE;
+	}
+	return br;
+}
+
+void ExecuteFile(const std::wstring &filename)
+{
+	SHELLEXECUTEINFO sxi = { 0 };
+	sxi.cbSize = sizeof(sxi);
+	sxi.nShow = SW_SHOWNORMAL;
+
+	sxi.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC | SEE_MASK_WAITFORINPUTIDLE;
+	sxi.lpVerb = L"open";
+	sxi.lpFile = filename.c_str();
+	if (!ShellExecuteEx(&sxi))
+		//WriteLog(L"ShellExecuteEx: %d\n", GetLastError());
+	{
+	}
+	else
+	{
+		WINDOWPROCESSINFO info;
+		info.pid = GetProcessId(sxi.hProcess); // SPECIFY PID
+		info.hwnd = 0;
+		AllowSetForegroundWindow(info.pid);
+		EnumWindows(OnGetWindowByProcess, (LPARAM)&info);
+		if (info.hwnd != 0)
+		{
+			SetForegroundWindow(info.hwnd);
+			SetActiveWindow(info.hwnd);
+		}
+		CloseHandle(sxi.hProcess);
+
+	}
+}

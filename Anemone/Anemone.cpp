@@ -375,24 +375,59 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (IsWindow(hWnds.Setting) == false)
 			{
+				RECT rect;
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
-
-				RECT rect;
 
 				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnd, SettingProc);
 			
 				GetWindowRect(hWnds.Setting, &rect);
 
-				/*
-				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingClass, NULL, WS_POPUP | WS_BORDER,
-				(cx - width) / 2, (cy - height) / 2, width, height,
-				hWnd, (HMENU)NULL, hInst, NULL);
-				*/
 				SetWindowPos(hWnds.Setting, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
-				//SetWindowLong(hWnds.Setting, GWL_STYLE, WS_POPUP | WS_BORDER);
-				//SetWindowLong(hWnds.Setting, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE);
 				ShowWindow(hWnds.Setting, 1);
+
+				// 체크박스
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TOPMOST, Cl.Config->GetWindowTopMost());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_MAGNETIC_TOPMOST, Cl.Config->GetMagneticTopMost());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN, !Cl.Config->GetWindowVisible());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD, Cl.Config->GetHideWinUnWatchClip());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, Cl.Config->GetHideWinUnlockHotkey());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipboardWatch());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_WNDCLICK_THOUGH, Cl.Config->GetClickThough());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_USE_MAGNETIC, Cl.Config->GetMagneticMode());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_SIZABLE_MODE, Cl.Config->GetSizableMode());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, Cl.Config->GetRepeatTextProc());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTEND_NAME, Cl.Config->GetTextEndNameProc());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_FORCE_ANEDIC, Cl.Config->GetForceAneDic());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_ANE_REMOCON, Cl.Config->GetRemoconMode());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_EXTERN_HOTKEY, Cl.Config->GetExternHotkey());
+
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_LEFT, false);
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_MID, false);
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_RIGHT, false);
+
+				switch (Cl.Config->GetTextAlign())
+				{
+					case 0:
+					{
+						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_LEFT, true);
+					}
+						break;
+					case 1:
+					{
+						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_MID, true);
+					}
+						break;
+					case 2:
+					{
+						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_RIGHT, true);
+					}
+						break;
+				}
+
 			}
 			else
 			{
@@ -505,6 +540,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	{
 	case WM_CREATE:
 	{
+		//CheckDlgButton(hWnd, IDC_SETTING_TOPMOST, true);
 	}
 		break;
 	case WM_COMMAND:
@@ -513,10 +549,20 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+		case IDM_SETTING_EXIT:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TERMINATE_ANEMONE, 0);
 			break;
-		case IDM_EXIT:
+		case IDM_SETTING_OPENDIC:
+			ExecuteFile(L".\\AneDic.txt");
+			break;
+		case IDM_SETTING_OPENINI:
+			ExecuteFile(L".\\Anemone.ini");
+			break;
+		case IDM_SETTING_WINRESET:
+			break;
+		case IDM_SETTING_ADV:
+			break;
+		case IDM_SETTING_CLOSE:
 			DestroyWindow(hWnd);
 			break;
 		default:

@@ -93,3 +93,14 @@ static render_attr *rdTrans;
 
 INT IsWritableMemory(LPVOID pMemoryAddr);
 INT IsReadableMemory(LPVOID pMemoryAddr);
+
+typedef struct oldfileinfostruct
+{
+	int filesize;
+	void *m_loc;
+} OLDFILEINFO;
+
+typedef struct {
+	DWORD pid;
+	HWND hwnd;
+} WINDOWPROCESSINFO;

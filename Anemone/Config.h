@@ -54,7 +54,17 @@ private:
 	bool cfg_temp_sizable_mode = false;
 	bool cfg_clipboard_watch = true;
 	int cfg_window_hide = 0;
-
+	bool cfg_window_topmost = true;
+	bool cfg_window_magnetic_topmost = false;
+	bool cfg_hidewin_unwatch_clipboard = true;
+	bool cfg_hidewin_unlock_hotkey = true;
+	bool cfg_magnetic_mode = false;
+	bool cfg_repeat_text = false;
+	bool cfg_textend_name = false;
+	bool cfg_force_anedic = false;
+	bool cfg_ane_remocon = false;
+	bool cfg_extern_hotkey = true;
+	int cfg_text_align = 0;
 
 public:
 	CConfig();
@@ -62,6 +72,39 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetTextAlign() { return cfg_text_align; }
+	void SetTextAlign(int i) { cfg_text_align = i; }
+
+	bool GetExternHotkey() { return cfg_extern_hotkey; }
+	void SetExternHotkey(bool b) { cfg_extern_hotkey = b; }
+
+	bool GetRemoconMode() { return cfg_ane_remocon; }
+	void SetRemoconMode(bool b) { cfg_ane_remocon = b; }
+
+	bool GetForceAneDic() { return cfg_force_anedic; }
+	void SetForceAneDic(bool b) { cfg_force_anedic = b; }
+
+	bool GetTextEndNameProc() { return cfg_textend_name; }
+	void SetTextEndNameProc(bool b) { cfg_textend_name = b; }
+
+	bool GetRepeatTextProc() { return cfg_repeat_text; }
+	void SetRepeatTextProc(bool b) { cfg_repeat_text = b; }
+
+	bool GetMagneticMode() { return cfg_magnetic_mode; }
+	void SetMagneticMode(bool b) { cfg_magnetic_mode = b; }
+
+	bool GetHideWinUnlockHotkey() { return cfg_hidewin_unlock_hotkey; }
+	void SetHideWinUnlockHotkey(bool b) { cfg_hidewin_unlock_hotkey = b; }
+
+	bool GetHideWinUnWatchClip() { return cfg_hidewin_unwatch_clipboard; }
+	void SetHideWinUnWatchClip(bool b) { cfg_hidewin_unwatch_clipboard = b; }
+
+	bool GetMagneticTopMost() { return cfg_window_magnetic_topmost; }
+	void SetMagneticTopMost(bool b) { cfg_window_magnetic_topmost = b; }
+
+	bool GetWindowTopMost() { return cfg_window_topmost; }
+	void SetWindowTopMost(bool b) { cfg_window_topmost = b; }
 
 	bool GetWindowVisible() { return (cfg_window_hide == 0 ? true : false); }
 	void SetWindowVisible(bool b) { (b ? cfg_window_hide = 0 : cfg_window_hide = 1); }

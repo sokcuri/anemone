@@ -4,10 +4,15 @@
 //
 #define IDC_MYICON                      2
 #define IDOK2                           3
+#define IDM_SETTING_OPENDIC             3
 #define IDOK3                           4
+#define IDM_SETTING_OPENINI             4
 #define IDOK4                           5
+#define IDM_SETTING_WINRESET            5
 #define IDOK5                           6
+#define IDM_SETTING_ADV                 6
 #define IDOK6                           7
+#define IDM_SETTING_CLOSE               7
 #define IDD_ANEMONE_DIALOG              102
 #define IDS_APP_TITLE                   103
 #define IDD_ABOUTBOX                    103
@@ -22,25 +27,45 @@
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_TEMP_SIZABLE_MODE           1003
 #define IDC_CHECK1                      1004
+#define IDC_SETTING_TOPMOST             1004
 #define IDC_RADIO1                      1005
+#define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_CHECK2                      1006
+#define IDC_SETTING_MAGNETIC_TOPMOST    1006
 #define IDC_CHECK3                      1007
+#define IDC_SETTING_HIDEWIN             1007
 #define IDC_CHECK4                      1008
+#define IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD 1008
 #define IDC_CHECK5                      1009
+#define IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY 1009
 #define IDC_CHECK6                      1010
+#define IDC_SETTING_CLIPBOARD_WATCH     1010
 #define IDC_CHECK7                      1011
+#define IDC_SETTING_WNDCLICK_THOUGH     1011
 #define IDC_CHECK8                      1012
+#define IDC_SETTING_USE_MAGNETIC        1012
 #define IDC_CHECK9                      1013
+#define IDC_SETTING_SIZABLE_MODE        1013
 #define IDC_CHECK10                     1014
+#define IDC_SETTING_PRINT_ORGTEXT       1014
 #define IDC_CHECK11                     1015
+#define IDC_SETTING_PRINT_ORGNAME       1015
 #define IDC_CHECK12                     1016
+#define IDC_SETTING_SEPERATE_NAME       1016
 #define IDC_CHECK13                     1017
+#define IDC_SETTING_REPEAT_TEXT         1017
 #define IDC_CHECK14                     1018
+#define IDC_SETTING_TEXTEND_NAME        1018
 #define IDC_CHECK15                     1019
+#define IDC_SETTING_FORCE_ANEDIC        1019
 #define IDC_CHECK16                     1020
+#define IDC_SETTING_ANE_REMOCON         1020
 #define IDC_CHECK17                     1021
+#define IDC_SETTING_EXTERN_HOTKEY       1021
 #define IDC_RADIO2                      1022
+#define IDC_SETTING_TEXTALIGN_MID       1022
 #define IDC_RADIO3                      1023
+#define IDC_SETTING_TEXTALIGN_RIGHT     1023
 #define IDC_SLIDER1                     1024
 #define IDC_BUTTON1                     1025
 #define IDC_CHECK18                     1026
@@ -65,6 +90,7 @@
 #define IDC_SLIDER3                     1045
 #define IDC_BUTTON16                    1046
 #define IDC_CHECK22                     1047
+#define IDM_SETTING_EXIT                1047
 #define IDC_SLIDER4                     1049
 #define IDC_SLIDER5                     1050
 #define IDM_WINDOW_SETTING              1201
@@ -80,8 +106,8 @@
 #define IDM_WINDOW_THROUGH_CLICK        32778
 #define IDM_SIZEABLE_MODE               32779
 #define IDM_WINDOW_SIZEABLE_MODE        32780
-#define IDM_TEMP_WINDOW_HIDE			32781
-#define IDM_WINDOW_VISIBLE				32782
+#define IDM_TEMP_WINDOW_HIDE            32781
+#define IDM_WINDOW_VISIBLE              32782
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -91,7 +117,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
