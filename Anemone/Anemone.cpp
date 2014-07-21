@@ -1561,6 +1561,30 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return (INT_PTR)FALSE;
 }
+WNDPROC pEditProc[2];
+LRESULT CALLBACK EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC pEdit;
+	
+	switch (msg)
+	{
+	case WM_CHAR:
+		if (wParam == 1) return -1;
+	}
+	
+	if (msg == WM_KEYDOWN) {
+		if (GetKeyState(VK_CONTROL) & 0x8000 && wParam == 'A') {
+			SendMessage(hwnd, EM_SETSEL, 0, -1);
+			return -1;
+		}
+	}
+	if (hwnd == GetDlgItem(hWnds.Trans, IDC_TRANSWIN_SRC))
+		pEdit = pEditProc[0];
+	else if (hwnd == GetDlgItem(hWnds.Trans, IDC_TRANSWIN_DEST))
+		pEdit = pEditProc[1];
+
+	return CallWindowProc(pEdit, hwnd, msg, wParam, lParam);
+}
 
 INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1568,8 +1592,14 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	switch (message)
 	{
-	case WM_CREATE:
+	case WM_SHOWWINDOW:
 	{
+		if (!(pEditProc[0] = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, IDC_TRANSWIN_SRC), GWL_WNDPROC, (LONG)&EditProc)) ||
+			!(pEditProc[1] = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), GWL_WNDPROC, (LONG)&EditProc)))
+		{
+			//assert(false);
+			return false;
+		}
 	}
 		break;
 	case WM_COMMAND:
@@ -1584,10 +1614,13 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			break;
 		case IDC_TRANSWIN_COPY:
 		{
-			int length = SendMessage(hWnd, IDC_TRANSWIN_DEST, WM_GETTEXTLENGTH, 0);
+			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), WM_GETTEXTLENGTH, 0, 0) + 1;
 			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
 
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
+			MessageBox(hWnd, pStr, L"복사", 0);
+
+			free(pStr);
 		}
 			break;
 		case IDC_TRANSWIN_TRANSLATE:
@@ -1599,7 +1632,8 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDCANCEL:
 		case IDM_EXIT:
 		case IDC_TRANSWIN_CLOSE:
-			EndDialog(hWnd, LOWORD(wParam));
+			//EndDialog(hWnd, LOWORD(wParam));
+			DestroyWindow(hWnd);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

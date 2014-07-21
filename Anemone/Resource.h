@@ -144,7 +144,6 @@
 #define IDC_SETTING_TEXTMARGIN_NAME_TEXT 1064
 #define IDC_EDIT2                       1064
 #define IDC_TRANSWIN_TRANSLATE          1064
-#define IDC_EDIT3                       1065
 #define IDC_TRANSWIN_DEST               1065
 #define IDM_WINDOW_SETTING              1201
 #define IDM_SETTING_CHECK               1202
