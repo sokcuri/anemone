@@ -43,9 +43,9 @@ IDC_ANEMONE MENU
 BEGIN
     POPUP "ANEMONE_MENU"
     BEGIN
-        MENUITEM "클립보드 감시",                     ID_ANEMONE_32774
-        MENUITEM "창 너머 클릭",                     ID_ANEMONE_32775
-        MENUITEM "크기 조절 모드",                    ID_Menu32776
+        MENUITEM "클립보드 감시",                     IDM_CLIPBOARD_SWITCH
+        MENUITEM "창 너머 클릭",                     IDM_TEMP_CLICK_THOUGH
+        MENUITEM "크기 조절 모드",                    IDM_TEMP_SIZABLE_MODE
         MENUITEM SEPARATOR
         POPUP "번역 윈도우"
         BEGIN

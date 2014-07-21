@@ -52,6 +52,8 @@ private:
 
 	bool cfg_temp_click_though = false;
 	bool cfg_temp_sizable_mode = false;
+	bool cfg_clipboard_watch = true;
+	int cfg_window_hide = 0;
 
 
 public:
@@ -60,6 +62,15 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	bool GetWindowVisible() { return (cfg_window_hide == 0 ? true : false); }
+	void SetWindowVisible(bool b) { (b ? cfg_window_hide = 0 : cfg_window_hide = 1); }
+
+	bool GetTempWinHide() { return (cfg_window_hide == 2 ? true : false); }
+	void SetTempWinHide(bool b) { (b ? cfg_window_hide = 2 : cfg_window_hide = 0); }
+
+	bool GetClipboardWatch() { return cfg_clipboard_watch; }
+	void SetClipboardWatch(bool b) { cfg_clipboard_watch = b; }
 
 	bool GetClickThough() { return cfg_temp_click_though; }
 	void SetClickThough(bool b) { cfg_temp_click_though = b; }

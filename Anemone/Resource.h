@@ -68,14 +68,20 @@
 #define IDC_SLIDER4                     1049
 #define IDC_SLIDER5                     1050
 #define IDM_WINDOW_SETTING              1201
+#define IDM_TEXT_PREV                   1202
+#define IDM_TEXT_NEXT                   1203
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
 #define ID_ANEMONE_32774                32774
 #define ID_ANEMONE_32775                32775
 #define ID_Menu32776                    32776
-#define IDM_TEXT_PREV					1202
-#define IDM_TEXT_NEXT					1203
+#define IDM_CLIPBOARD_SWITCH            32777
+#define IDM_WINDOW_THROUGH_CLICK        32778
+#define IDM_SIZEABLE_MODE               32779
+#define IDM_WINDOW_SIZEABLE_MODE        32780
+#define IDM_TEMP_WINDOW_HIDE			32781
+#define IDM_WINDOW_VISIBLE				32782
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -84,7 +90,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32777
+#define _APS_NEXT_COMMAND_VALUE         32784
 #define _APS_NEXT_CONTROL_VALUE         1029
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

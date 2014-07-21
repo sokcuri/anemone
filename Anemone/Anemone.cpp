@@ -13,7 +13,8 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
-bool IsActive = false;
+int IsActive = 0;
+//bool IsActive = FALSE;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				MainWndClassRegister(HINSTANCE hInstance);
@@ -65,7 +66,6 @@ int APIENTRY _tWinMain(
 		MessageBox(0, L"이지트랜스가 설치되지 않았거나 레지스트리에서 이지트랜스 경로를 찾을 수 없습니다.\r\n이지트랜스가 설치되어 있어야 아네모네 실행이 가능합니다.\r\n이지트랜스가 설치되어 있다면 INI 파일의 이지트랜스 경로를 설정해 주세요.", 0, MB_ICONERROR);
 		return false;
 	}
-
 	// 번역엔진 초기화
 	Cl.TransEngine = new CTransEngine();
 
@@ -98,11 +98,8 @@ int APIENTRY _tWinMain(
 	{
 		MessageBox(0, L"아네모네 리모콘 초기화가 실패했습니다.", 0, MB_ICONERROR);
 	}
-
+		
 	//ShowWindow(hWnds.Remocon, true);
-
-	IsActive = false;
-	Cl.TextRenderer->Paint();
 
 	// 윈도우 표시
 	ShowWindow(hWnds.Main, true);
@@ -155,9 +152,14 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	// Display the shortcut menu. Track the right mouse 
 	// button. 
 
+	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipboardWatch() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, IDM_TEMP_SIZABLE_MODE, (Cl.Config->GetSizableMode() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
+
 	TrackPopupMenu(hmenuTrackPopup,
 		TPM_LEFTALIGN | TPM_RIGHTBUTTON,
 		pt.x, pt.y, 0, hwnd, NULL);
+
 
 	// Destroy the menu. 
 
@@ -321,9 +323,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
 			}
 			break;
+		case IDM_TEMP_WINDOW_HIDE:
+		{
+			(Cl.Config->GetTempWinHide() ? Cl.Config->SetTempWinHide(false) : (Cl.Config->GetWindowVisible() ? Cl.Config->SetTempWinHide(true) : Cl.Config->SetTempWinHide(false)));
+			if (Cl.Config->GetTempWinHide())
+			{
+				ShowWindow(hWnd, false);
+			}
+			else
+			{
+				ShowWindow(hWnd, true);
+			}
+		}
+			break;
+		case IDM_WINDOW_VISIBLE:
+		{
+			(Cl.Config->GetWindowVisible() ? Cl.Config->SetWindowVisible(false) : Cl.Config->SetWindowVisible(true));
+			if (!Cl.Config->GetWindowVisible())
+			{
+				ShowWindow(hWnd, false);
+			}
+			else
+			{
+				ShowWindow(hWnd, true);
+			}
+		}
+			break;
 		case IDM_TEMP_SIZABLE_MODE:
 			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
 			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+		case IDM_CLIPBOARD_SWITCH:
+		{
+			(Cl.Config->GetClipboardWatch() ? Cl.Config->SetClipboardWatch(false) : Cl.Config->SetClipboardWatch(true));
+
+			if (Cl.Config->GetClipboardWatch())
+			{
+				Cl.TextProcess->StartWatchClip();
+			}
+			else
+			{
+				Cl.TextProcess->EndWatchClip();
+			}
+		}
 			break;
 		case IDM_TEXT_PREV:
 			break;

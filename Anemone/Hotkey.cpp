@@ -25,6 +25,9 @@ bool CHotkey::LoadKeyMap()
 
 	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
 	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
+
+	RegKey(VK_NUMPAD0, false, false, false, IDM_TEMP_WINDOW_HIDE);
+	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE);
 	return true;
 }
 

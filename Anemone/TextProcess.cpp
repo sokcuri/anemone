@@ -10,12 +10,22 @@ CTextProcess::CTextProcess()
 
 void CTextProcess::StartWatchClip()
 {
-	hWnds.Clip = SetClipboardViewer(hWnds.Main);
+	if (IsActive == 0)
+	{
+		hWnds.Clip = SetClipboardViewer(hWnds.Main);
+		IsActive = 0;
+		Cl.TextRenderer->Paint();
+	}
+	else
+	{
+		IsActive = 2;
+		hWnds.Clip = SetClipboardViewer(hWnds.Main);
+	}
 }
 
 void CTextProcess::EndWatchClip()
 {
-	ChangeClipboardChain(hWnds.Clip, NULL);
+	ChangeClipboardChain(hWnds.Main, NULL);
 }
 
 std::wstring CTextProcess::eztrans_proc(std::wstring &input)
@@ -26,7 +36,7 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	std::wstring szContext, output;
 
 	szContext = HangulEncode(input);
-	
+
 	// 이지트랜스 오류 잡아주기
 	// 「よろしければ今度２人でお話しなどできないでしょうか」
 	szContext = replaceAll(szContext, L"できないでしょ", L"@X@でき@X@ないでしょ");
@@ -74,23 +84,12 @@ std::wstring CTextProcess::HangulEncode(std::wstring &input)
 	std::wstring::iterator it = input.begin();
 	for (; it != input.end(); it++)
 	{
-		if ((*it) == L'\\')
-		{
-			output += L"\\\\";
-			continue;
-		}
-		else
-		if ((*it) == L'@')
-		{
-			output += L"@@";
-			continue;
-		}
-		else
-		if ((*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
+		if (*it == L'@' ||
+			(*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
 			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
 			(*it >= 0xD7B0 && *it <= 0xD7FF))
 		{
-			swprintf_s(buf, L"\\x%04X", *it);
+			swprintf_s(buf, L"+x%04X", *it);
 			output += buf;
 		}
 		else
@@ -105,41 +104,34 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 {
 	std::wstring output;
 	wchar_t buf[8];
-
+	
 	std::wstring::iterator it = input.begin();
-	for (; it != input.end(); it++)
+	for (DWORD count = 0; it != input.end(); it++, count++)
 	{
 		// @X = 삭제
-		if (it + 2 < input.end() && (*it) == L'@' && *(it + 1) == L'X' && *(it + 2) == L'@')
+		if (count + 2 < input.length() && (*it) == L'@' && *(it + 1) == L'X' && *(it + 2) == L'@')
 		{
 			it += 2;
 			continue;
 		}
-		
-		// \, @ 처리
-		else if (it + 1 < input.end() && ((*it) == L'\\' || (*it) == L'@') && (*it) == *(it + 1))
-		{
-			output += (*it);
-			it++;
-			continue;
-		}
 		else
-		if (it + 5 < input.end() && (*it) == '\\' && *(it + 1) == 'x' &&
-		   ((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) && 
-		   ((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
-		   ((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
-		   ((*(it + 5) >= L'A' && *(it + 5) <= L'Z') || (*(it + 5) >= L'a' && *(it + 5) <= L'z') || (*(it + 5) >= L'0' && *(it + 5) <= L'9')))
+		if (count + 5 < input.length() && *(it + 1) == 'x' &&
+			((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) &&
+			((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
+			((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
+			((*(it + 5) >= L'A' && *(it + 5) <= L'Z') || (*(it + 5) >= L'a' && *(it + 5) <= L'z') || (*(it + 5) >= L'0' && *(it + 5) <= L'9')))
 		{
-			buf[0] = *(it + 2);
-			buf[1] = *(it + 3);
-			buf[2] = *(it + 4);
-			buf[3] = *(it + 5);
-			buf[4] = 0x00;
+		buf[0] = *(it + 2);
+		buf[1] = *(it + 3);
+		buf[2] = *(it + 4);
+		buf[3] = *(it + 5);
+		buf[4] = 0x00;
 
-			swscanf_s(buf, L"%04x", &buf[0]);
+		swscanf_s(buf, L"%04x", &buf[0]);
 
-			output += buf;
-			it += 5;
+		output += buf;
+		it += 5;
+
 		}
 		else
 		{
@@ -217,6 +209,13 @@ bool CTextProcess::OnDrawClipboard()
 {
 	std::wstring wName, wNameT, wText, wTextT, wContext, wContextT;
 
+	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
+	if (IsActive == 2)
+	{
+		IsActive = 1;
+		return 0;
+	}
+
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
 	
@@ -250,6 +249,13 @@ bool CTextProcess::OnDrawClipboard()
 	
 	IsActive = true;
 	Cl.TextRenderer->Paint();
+
+	// 임시 창 숨김 상태일때 클립보드 요청이 들어오면 창을 다시 띄운다
+	if (Cl.Config->GetTempWinHide())
+	{
+		PostMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_WINDOW_HIDE, 0);
+	}
+
 	return true;
 }
 

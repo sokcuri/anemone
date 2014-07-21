@@ -52,7 +52,7 @@ struct _hWnds
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;
-extern bool IsActive;
+extern int IsActive;
 
 // 클래스 모음
 struct _Class
