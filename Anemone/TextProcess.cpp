@@ -104,7 +104,6 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 {
 	std::wstring output;
 	wchar_t buf[8];
-	
 	std::wstring::iterator it = input.begin();
 	for (DWORD count = 0; it != input.end(); it++, count++)
 	{
@@ -112,6 +111,7 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 		if (count + 2 < input.length() && (*it) == L'@' && *(it + 1) == L'X' && *(it + 2) == L'@')
 		{
 			it += 2;
+			count += 2;
 			continue;
 		}
 		else
@@ -131,6 +131,7 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 
 		output += buf;
 		it += 5;
+		count += 5;
 
 		}
 		else

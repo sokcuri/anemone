@@ -74,7 +74,6 @@ int APIENTRY _tWinMain(
 		MessageBox(0, L"이지트랜스 엔진 초기화가 실패했습니다.", 0, MB_ICONERROR);
 		return false;
 	}
-
 	// 렌더러 초기화
 	Cl.TextRenderer = new CTextRenderer();
 	if (!Cl.TextRenderer->Init())
@@ -82,7 +81,6 @@ int APIENTRY _tWinMain(
 		MessageBox(0, L"GDI+ 엔진 초기화를 실패했습니다.\r\n시스템의 리소스가 부족할 경우 GDI+ 초기화가 실패할 수 있습니다.\r\n실행되고 있는 다른 프로그램들을 종료하고 다시 실행하세요.", 0, MB_ICONERROR);
 		return false;
 	}
-
 	// 텍스트 처리 클래스
 	Cl.TextProcess = new CTextProcess();
 
@@ -475,6 +473,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			(Cl.Config->GetTextSwitch(CFG_NAME) ? Cl.Config->SetTextSwitch(CFG_NAME, false) : Cl.Config->SetTextSwitch(CFG_NAME, true));
 			SendMessage(hWnd, WM_PAINT, 0, 0);
 			break;
+		case IDM_EXTERN_HOTKEY:
+			(Cl.Config->GetExternHotkey() ? Cl.Config->SetExternHotkey(false) : Cl.Config->SetExternHotkey(true));
+			break;
 
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -643,6 +644,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_ANE_REMOCON:
 			break;
 		case IDC_SETTING_EXTERN_HOTKEY:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_EXTERN_HOTKEY, 0);
 			break;
 		case IDC_SETTING_TEXTALIGN_LEFT:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_LEFT, 0);

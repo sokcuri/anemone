@@ -104,6 +104,7 @@
 #define IDM_TEXTALIGN_MID               1209
 #define IDM_TEXTALIGN_RIGHT             1210
 #define IDM_SEPERATE_NAME               1211
+#define IDM_EXTERN_HOTKEY               1212
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773

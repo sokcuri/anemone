@@ -106,9 +106,9 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 			{
 				if ((*it).Code == pHookKey->vkCode)
 				{
-					bool bCtrl = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) ? false : true);
-					bool bShift = ((GetAsyncKeyState(VK_SHIFT) & 0x8000) ? false : true);
-					bool bAlt = ((GetAsyncKeyState(VK_MENU) & 0x8000) ? false : true);
+					bool bCtrl = ((GetKeyState(VK_CONTROL) & 0x8000) ? false : true);
+					bool bShift = ((GetKeyState(VK_SHIFT) & 0x8000) ? false : true);
+					bool bAlt = ((GetKeyState(VK_MENU) & 0x8000) ? false : true);
 					
 					if ((*it).Alt == true && bAlt) continue;
 					else
