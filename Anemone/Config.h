@@ -7,7 +7,6 @@
 #define CFG_A 0
 #define CFG_B 1
 #define CFG_C 2
-#define CFG_D 3
 #define CFG_ALL 4
 
 class CConfig
@@ -15,6 +14,7 @@ class CConfig
 private:
 	bool cfg_bg_switch          = true;
 	DWORD cfg_bg_color          = 0x130091FB;
+	DWORD cfg_shadow_color      = 0x32000000;
 	
 	bool cfg_name_switch        = true;
 	bool cfg_name_org_switch    = true;
@@ -23,7 +23,6 @@ private:
 	DWORD cfg_name_color_a      = 0xFFFFFFFF;
 	DWORD cfg_name_color_b      = 0xFFFF5E00;
 	DWORD cfg_name_color_c      = 0xFFFFA850;
-	DWORD cfg_name_color_d      = 0x32000000;
 	int cfg_name_size_a         = 25;
 	int cfg_name_size_b         = 3;
 	int cfg_name_size_c         = 3;
@@ -34,7 +33,6 @@ private:
 	DWORD cfg_org_color_a       = 0xFFFFFFFF;
 	DWORD cfg_org_color_b       = 0xFFFF0000;
 	DWORD cfg_org_color_c       = 0xFFFBAAAA;
-	DWORD cfg_org_color_d       = 0x32000000;
 	int cfg_org_size_a          = 25;
 	int cfg_org_size_b          = 3;
 	int cfg_org_size_c          = 3;
@@ -45,7 +43,6 @@ private:
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
 	DWORD cfg_trans_color_b     = 0xFF4374D9;
 	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
-	DWORD cfg_trans_color_d     = 0x32000000;
 	int cfg_trans_size_a        = 25;
 	int cfg_trans_size_b        = 3;
 	int cfg_trans_size_c        = 3;
@@ -65,6 +62,9 @@ private:
 	bool cfg_ane_remocon = false;
 	bool cfg_extern_hotkey = true;
 	int cfg_text_align = 0;
+	int cfg_text_margin_x = 0;
+	int cfg_text_margin_y = 0;
+	int cfg_text_margin_name = 0;
 
 public:
 	CConfig();
@@ -72,6 +72,15 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetTextMarginX() { return cfg_text_margin_x; }
+	void SetTextMarginX(int i) { cfg_text_margin_x = i; }
+
+	int GetTextMarginY() { return cfg_text_margin_y; }
+	void SetTextMarginY(int i) { cfg_text_margin_y = i; }
+
+	int GetTextMarginName() { return cfg_text_margin_name; }
+	void SetTextMarginName(int i) { cfg_text_margin_name = i; }
 
 	int GetTextAlign() { return cfg_text_align; }
 	void SetTextAlign(int i) { cfg_text_align = i; }
@@ -199,6 +208,16 @@ public:
 		}
 	}
 
+	DWORD GetShadowColor()
+	{
+		return cfg_shadow_color;
+	}
+
+	void SetShadowColor(int c)
+	{
+		cfg_shadow_color = c;
+	}
+
 	DWORD GetTextColor(int type, int n)
 	{
 		switch (type)
@@ -208,7 +227,6 @@ public:
 				if (n == CFG_A) return cfg_name_color_a;
 				else if (n == CFG_B) return cfg_name_color_b;
 				else if (n == CFG_C) return cfg_name_color_c;
-				else if (n == CFG_D) return cfg_name_color_d;
 			}
 			break;
 		case CFG_ORG:
@@ -216,7 +234,6 @@ public:
 				if (n == CFG_A) return cfg_org_color_a;
 				else if (n == CFG_B) return cfg_org_color_b;
 				else if (n == CFG_C) return cfg_org_color_c;
-				else if (n == CFG_D) return cfg_org_color_d;
 			}
 			break;
 		case CFG_TRANS:
@@ -224,7 +241,6 @@ public:
 				if (n == CFG_A) return cfg_trans_color_a;
 				else if (n == CFG_B) return cfg_trans_color_b;
 				else if (n == CFG_C) return cfg_trans_color_c;
-				else if (n == CFG_D) return cfg_trans_color_d;
 			}
 			break;
 		}
@@ -240,7 +256,6 @@ public:
 				if (n == CFG_A) cfg_name_color_a = c;
 				else if (n == CFG_B) cfg_name_color_b = c;
 				else if (n == CFG_C) cfg_name_color_c = c;
-				else if (n == CFG_D) cfg_name_color_d = c;
 			}
 			break;
 		case CFG_ORG:
@@ -248,7 +263,6 @@ public:
 				if (n == CFG_A) cfg_org_color_a = c;
 				else if (n == CFG_B) cfg_org_color_b = c;
 				else if (n == CFG_C) cfg_org_color_c = c;
-				else if (n == CFG_D) cfg_org_color_d = c;
 			}
 			break;
 		case CFG_TRANS:
@@ -256,7 +270,6 @@ public:
 				if (n == CFG_A) cfg_trans_color_a = c;
 				else if (n == CFG_B) cfg_trans_color_b = c;
 				else if (n == CFG_C) cfg_trans_color_c = c;
-				else if (n == CFG_D) cfg_trans_color_d = c;
 			}
 			break;
 		}
