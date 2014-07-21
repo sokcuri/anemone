@@ -371,6 +371,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_TEXT_NEXT:
 			break;
+		case IDM_OPENDIC:
+			ExecuteFile(L".\\AneDic.txt");
+			break;
+		case IDM_OPENINI:
+			ExecuteFile(L".\\Anemone.ini");
+			break;
+		case IDM_TOPMOST:
+			(Cl.Config->GetWindowTopMost() ? Cl.Config->SetWindowTopMost(false) : Cl.Config->SetWindowTopMost(true));
+
+			if (Cl.Config->GetWindowTopMost())
+			{
+				SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+			else
+			{
+				SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+			break;
 		case IDM_WINDOW_SETTING:
 		{
 			if (IsWindow(hWnds.Setting) == false)
@@ -385,7 +403,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				SetWindowPos(hWnds.Setting, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
 				ShowWindow(hWnds.Setting, 1);
-
+			}
+			else
+			{
+				DestroyWindow(hWnds.Setting);
+				hWnds.Setting = NULL;
+				break;
+			}
+		}
+		case IDM_SETTING_CHECK:
+		{
+			if (IsWindow(hWnds.Setting))
+			{
 				// 체크박스
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_TOPMOST, Cl.Config->GetWindowTopMost());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_MAGNETIC_TOPMOST, Cl.Config->GetMagneticTopMost());
@@ -411,34 +440,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				switch (Cl.Config->GetTextAlign())
 				{
-					case 0:
-					{
-						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_LEFT, true);
-					}
-						break;
-					case 1:
-					{
-						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_MID, true);
-					}
-						break;
-					case 2:
-					{
-						CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_RIGHT, true);
-					}
-						break;
+				case 0:
+				{
+					CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_LEFT, true);
 				}
-
+					break;
+				case 1:
+				{
+					CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_MID, true);
+				}
+					break;
+				case 2:
+				{
+					CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTALIGN_RIGHT, true);
+				}
+					break;
+				}
 			}
-			else
-			{
-				DestroyWindow(hWnds.Setting);
-				hWnds.Setting = NULL;
-			}
+		}
 			break;
+		case IDM_TEXTALIGN_LEFT:
+			Cl.Config->SetTextAlign(0);
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+		case IDM_TEXTALIGN_MID:
+			Cl.Config->SetTextAlign(1);
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+		case IDM_TEXTALIGN_RIGHT:
+			Cl.Config->SetTextAlign(2);
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+		case IDM_SEPERATE_NAME:
+			(Cl.Config->GetTextSwitch(CFG_NAME) ? Cl.Config->SetTextSwitch(CFG_NAME, false) : Cl.Config->SetTextSwitch(CFG_NAME, true));
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
 	}
 	case WM_NCRBUTTONUP:
 	case WM_CONTEXTMENU:
@@ -553,10 +592,10 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TERMINATE_ANEMONE, 0);
 			break;
 		case IDM_SETTING_OPENDIC:
-			ExecuteFile(L".\\AneDic.txt");
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_OPENDIC, 0);
 			break;
 		case IDM_SETTING_OPENINI:
-			ExecuteFile(L".\\Anemone.ini");
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_OPENINI, 0);
 			break;
 		case IDM_SETTING_WINRESET:
 			break;
@@ -565,9 +604,59 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDM_SETTING_CLOSE:
 			DestroyWindow(hWnd);
 			break;
+		case IDC_SETTING_TOPMOST:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TOPMOST, 0);
+			break;
+		case IDC_SETTING_MAGNETIC_TOPMOST:
+			break;
+		case IDC_SETTING_HIDEWIN:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_WINDOW_VISIBLE, 0);
+			break;
+		case IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD:
+			break;
+		case IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY:
+			break;
+		case IDC_SETTING_CLIPBOARD_WATCH:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_CLIPBOARD_SWITCH, 0);
+			break;
+		case IDC_SETTING_WNDCLICK_THOUGH:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_CLICK_THOUGH, 0);
+			break;
+		case IDC_SETTING_USE_MAGNETIC:
+			break;
+		case IDC_SETTING_SIZABLE_MODE:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_SIZABLE_MODE, 0);
+			break;
+		case IDC_SETTING_PRINT_ORGTEXT:
+			break;
+		case IDC_SETTING_PRINT_ORGNAME:
+			break;
+		case IDC_SETTING_SEPERATE_NAME:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_SEPERATE_NAME, 0);
+			break;
+		case IDC_SETTING_REPEAT_TEXT:
+			break;
+		case IDC_SETTING_TEXTEND_NAME:
+			break;
+		case IDC_SETTING_FORCE_ANEDIC:
+			break;
+		case IDC_SETTING_ANE_REMOCON:
+			break;
+		case IDC_SETTING_EXTERN_HOTKEY:
+			break;
+		case IDC_SETTING_TEXTALIGN_LEFT:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_LEFT, 0);
+			break;
+		case IDC_SETTING_TEXTALIGN_MID:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_MID, 0);
+			break;
+		case IDC_SETTING_TEXTALIGN_RIGHT:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_RIGHT, 0);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
+		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);

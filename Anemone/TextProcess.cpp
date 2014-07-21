@@ -254,6 +254,7 @@ bool CTextProcess::OnDrawClipboard()
 	if (Cl.Config->GetTempWinHide())
 	{
 		PostMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_WINDOW_HIDE, 0);
+		PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 	}
 
 	return true;

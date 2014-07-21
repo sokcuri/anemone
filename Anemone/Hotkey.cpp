@@ -117,6 +117,7 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 					if ((*it).Ctrl == true && bCtrl) continue;
 					
 					SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
+					SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 					return -1;
 				}
 			}
