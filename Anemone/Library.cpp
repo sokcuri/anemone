@@ -220,3 +220,27 @@ bool ColorDialog(HWND hWnd, CHOOSECOLOR &cc, DWORD ColorVar)
 	}
 	else return false;
 }
+
+bool FontDialog(HWND hWnd, CHOOSEFONT &cf, LOGFONT &lf)
+{
+	ZeroMemory(&cf, sizeof(cf));
+	cf.lStructSize = sizeof(cf);
+	cf.hwndOwner = hWnd;
+	cf.hDC = (HDC)NULL;
+	cf.lpLogFont = &lf;
+	cf.iPointSize = 10;
+	cf.Flags = CF_SCREENFONTS | CF_NOVERTFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
+	cf.rgbColors = RGB(0, 0, 0);
+	cf.lCustData = 0L;
+	cf.lpfnHook = (LPCFHOOKPROC)NULL;
+	cf.hInstance = (HINSTANCE)NULL;
+	cf.nFontType = SCREEN_FONTTYPE;
+	cf.nSizeMin = 0;
+	cf.nSizeMax = 0;
+
+	if (ChooseFont(&cf) == TRUE)
+	{
+		return true;
+	}
+	return false;
+}

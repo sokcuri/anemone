@@ -10,3 +10,4 @@ std::wstring replaceAll(const std::wstring &str, const std::wstring &pattern, co
 static BOOL CALLBACK OnGetWindowByProcess(HWND hwnd, LPARAM lParam);
 void ExecuteFile(const std::wstring &filename);
 bool ColorDialog(HWND hWnd, CHOOSECOLOR &cc, DWORD ColorVar);
+bool FontDialog(HWND hWnd, CHOOSEFONT &cf, LOGFONT &lf);

@@ -550,7 +550,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					int n = Cl.Config->GetTextMarginX();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_X_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 200));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_X_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 300));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_X_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
@@ -567,7 +567,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					int n = Cl.Config->GetTextMarginY();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_Y_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 200));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_Y_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 300));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_Y_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
@@ -584,7 +584,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					int n = Cl.Config->GetTextMarginName();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 200));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 300));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
@@ -598,6 +598,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_TEXTMARGIN_NAME_TEXT, str.c_str());
 				}
 
+				{
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"글꼴 : ";
+					ws << L"";
+					ws << Cl.Config->GetTextFont(CFG_NAME);
+					ws << L"";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_NAME_FONT, str.c_str());
+				}
+
+				{
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"글꼴 : ";
+					ws << L"";
+					ws << Cl.Config->GetTextFont(CFG_ORG);
+					ws << L"";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_ORG_FONT, str.c_str());
+				}
+
+				{
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"글꼴 : ";
+					ws << L"";
+					ws << Cl.Config->GetTextFont(CFG_TRANS);
+					ws << L"";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_TRANS_FONT, str.c_str());
+				}
 			}
 		}
 			break;
@@ -984,6 +1019,67 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			(Cl.Config->GetTextShadow(CFG_TRANS) ? Cl.Config->SetTextShadow(CFG_TRANS, false) : Cl.Config->SetTextShadow(CFG_TRANS, true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
+
+		case IDC_SETTING_NAME_FONT:
+		{
+			CHOOSEFONT cf;
+			LOGFONT lf;
+
+			ZeroMemory(&lf, sizeof(lf));
+			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_NAME));
+
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hWnd, &ps);
+			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+			EndPaint(hWnd, &ps);
+
+			if (FontDialog(hWnd, cf, lf))
+			{
+				Cl.Config->SetTextFont(CFG_NAME, lf.lfFaceName);
+			}
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+			break;
+		case IDC_SETTING_ORG_FONT:
+		{
+			CHOOSEFONT cf;
+			LOGFONT lf;
+
+			ZeroMemory(&lf, sizeof(lf));
+			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_ORG));
+
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hWnd, &ps);
+			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+			EndPaint(hWnd, &ps);
+
+			if (FontDialog(hWnd, cf, lf))
+			{
+				Cl.Config->SetTextFont(CFG_ORG, lf.lfFaceName);
+			}
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+			break;
+		case IDC_SETTING_TRANS_FONT:
+		{
+			CHOOSEFONT cf;
+			LOGFONT lf;
+
+			ZeroMemory(&lf, sizeof(lf));
+			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_TRANS));
+
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hWnd, &ps);
+			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+			EndPaint(hWnd, &ps);
+
+			if (FontDialog(hWnd, cf, lf))
+			{
+				Cl.Config->SetTextFont(CFG_TRANS, lf.lfFaceName);
+			}
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -1250,7 +1346,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			}
 
-			if (i > 200) break;
+			if (i > 300) break;
 
 			Cl.Config->SetTextMarginX(i);
 
@@ -1278,7 +1374,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			}
 
-			if (i > 200) break;
+			if (i > 300) break;
 
 			Cl.Config->SetTextMarginY(i);
 
@@ -1306,7 +1402,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			}
 
-			if (i > 200) break;
+			if (i > 300) break;
 
 			Cl.Config->SetTextMarginName(i);
 
