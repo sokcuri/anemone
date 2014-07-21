@@ -23,6 +23,7 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
@@ -633,6 +634,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_TRANS_FONT, str.c_str());
 				}
+			}
+		}
+		break;
+		case IDM_WINDOW_TRANS:
+		{
+			if (IsWindow(hWnds.Trans) == false)
+			{
+				RECT rect;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
+				hWnds.Trans = CreateDialog(hInst, MAKEINTRESOURCE(IDD_TRANSWIN), hWnd, TransWinProc);
+
+				GetWindowRect(hWnds.Trans, &rect);
+
+				SetWindowPos(hWnds.Trans, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWnds.Trans, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.Trans);
+				hWnds.Trans = NULL;
+				break;
 			}
 		}
 			break;
@@ -1536,4 +1560,57 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
+INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_CREATE:
+	{
+	}
+		break;
+	case WM_COMMAND:
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDC_TRANSWIN_CLEAR:
+			break;
+		case IDC_TRANSWIN_COPY:
+			break;
+		case IDC_TRANSWIN_TRANSLATE:
+			break;
+		case IDC_TRANSWIN_FILETRANS:
+			break;
+		case IDOK:
+		case IDCANCEL:
+		case IDM_EXIT:
+		case IDC_TRANSWIN_CLOSE:
+			EndDialog(hWnd, LOWORD(wParam));
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+
+
+	}
+	return 0;
 }

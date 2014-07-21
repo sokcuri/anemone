@@ -55,6 +55,7 @@ struct _hWnds
 	HWND Remocon;
 	HWND View;
 	HWND Clip;
+	HWND Trans;
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;

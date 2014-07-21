@@ -5,12 +5,16 @@
 #define IDC_MYICON                      2
 #define IDOK2                           3
 #define IDM_SETTING_OPENDIC             3
+#define IDC_TRANSWIN_COPY               3
 #define IDOK3                           4
 #define IDM_SETTING_OPENINI             4
+#define IDC_TRANSWIN_FILETRANS          4
 #define IDOK4                           5
 #define IDM_SETTING_WINRESET            5
+#define IDC_TRANSWIN_CLEAR              5
 #define IDOK5                           6
 #define IDM_SETTING_ADV                 6
+#define IDC_TRANSWIN_CLOSE              6
 #define IDOK6                           7
 #define IDM_SETTING_CLOSE               7
 #define IDD_ANEMONE_DIALOG              102
@@ -23,6 +27,7 @@
 #define IDC_ANEMONE                     109
 #define IDR_MAINFRAME                   128
 #define IDD_SETTING                     129
+#define IDD_TRANSWIN                    130
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_TEMP_SIZABLE_MODE           1003
@@ -133,9 +138,14 @@
 #define IDC_SETTING_SHADOW_TEXT         1060
 #define IDC_SETTING_TEXTMARGIN_Y_TEXT   1061
 #define IDC_SETTING_TEXTMARGIN_X_TEXT   1062
-#define IDC_SETTING_TEXTMARGIN_Y_TRACKBAR2 1063
 #define IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR 1063
+#define IDC_EDIT1                       1063
+#define IDC_TRANSWIN_SRC                1063
 #define IDC_SETTING_TEXTMARGIN_NAME_TEXT 1064
+#define IDC_EDIT2                       1064
+#define IDC_TRANSWIN_TRANSLATE          1064
+#define IDC_EDIT3                       1065
+#define IDC_TRANSWIN_DEST               1065
 #define IDM_WINDOW_SETTING              1201
 #define IDM_SETTING_CHECK               1202
 #define IDM_TEXT_PREV                   1203
@@ -164,6 +174,8 @@
 #define IDM_WINDOW_SIZEABLE_MODE        32780
 #define IDM_TEMP_WINDOW_HIDE            32781
 #define IDM_WINDOW_VISIBLE              32782
+#define IDM_WINDOW_TRANS                32784
+#define IDM_WINDOW_FILETRANS            32785
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -171,9 +183,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_COMMAND_VALUE         32786
+#define _APS_NEXT_CONTROL_VALUE         1065
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
