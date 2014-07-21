@@ -28,10 +28,12 @@ bool CHotkey::LoadKeyMap()
 
 	RegKey(VK_NUMPAD0, false, false, false, IDM_TEMP_WINDOW_HIDE);
 	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE);
+
+	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
 	return true;
 }
 
-inline void CHotkey::RegKey(int code, bool bCtrl, bool bAlt, bool bShift, int func)
+inline void CHotkey::RegKey(int code, bool bCtrl, bool bAlt, bool bShift, int func, bool bAlways)
 {
 	struct _key_map kmap;
 	kmap.Alt = bAlt;
@@ -39,6 +41,7 @@ inline void CHotkey::RegKey(int code, bool bCtrl, bool bAlt, bool bShift, int fu
 	kmap.Ctrl = bCtrl;
 	kmap.Code = code;
 	kmap.func = func;
+	kmap.Always = bAlways;
 	key_map.push_back(kmap);
 }
 
@@ -106,19 +109,20 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 			{
 				if ((*it).Code == pHookKey->vkCode)
 				{
-					bool bCtrl = ((GetKeyState(VK_CONTROL) & 0x8000) ? false : true);
-					bool bShift = ((GetKeyState(VK_SHIFT) & 0x8000) ? false : true);
-					bool bAlt = ((GetKeyState(VK_MENU) & 0x8000) ? false : true);
+					bool bCtrl = ((GetKeyState(VK_CONTROL) & 0x8000) ? true : false);
+					bool bShift = ((GetKeyState(VK_SHIFT) & 0x8000) ? true : false);
+					bool bAlt = ((GetKeyState(VK_MENU) & 0x8000) ? true : false);
 					
-					if ((*it).Alt == true && bAlt) continue;
-					else
-					if ((*it).Shift == true && bShift) continue;
-					else
-					if ((*it).Ctrl == true && bCtrl) continue;
+					if ((*it).Alt != bAlt) continue;
+					if ((*it).Shift != bShift) continue;
+					if ((*it).Ctrl != bCtrl) continue;
 					
-					SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
-					SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
-					return -1;
+					if (Cl.Config->GetExternHotkey() || !Cl.Config->GetExternHotkey() && (*it).Always == true)
+					{
+						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
+						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+						return -1;
+					}
 				}
 			}
 

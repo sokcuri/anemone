@@ -83,6 +83,7 @@ struct _key_map
 	bool Shift = false;
 	DWORD Code;
 	DWORD func;
+	bool Always = false;
 };
 
 extern std::vector<_key_map> key_map;
