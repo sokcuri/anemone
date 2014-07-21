@@ -1579,10 +1579,19 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		switch (wmId)
 		{
 		case IDC_TRANSWIN_CLEAR:
+			SetDlgItemText(hWnd, IDC_TRANSWIN_SRC, L"");
+			SetDlgItemText(hWnd, IDC_TRANSWIN_DEST, L"");
 			break;
 		case IDC_TRANSWIN_COPY:
+		{
+			int length = SendMessage(hWnd, IDC_TRANSWIN_DEST, WM_GETTEXTLENGTH, 0);
+			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
+
+			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
+		}
 			break;
 		case IDC_TRANSWIN_TRANSLATE:
+			
 			break;
 		case IDC_TRANSWIN_FILETRANS:
 			break;
