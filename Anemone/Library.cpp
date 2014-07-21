@@ -189,3 +189,34 @@ void ExecuteFile(const std::wstring &filename)
 
 	}
 }
+
+bool ColorDialog(HWND hWnd, CHOOSECOLOR &cc, DWORD ColorVar)
+{
+	static COLORREF acrCustClr[16]; // array of custom colors
+	wchar_t w_rgbZero[2] = L"0";
+
+	int alpha, c1, c2, c3;
+
+	alpha = (ColorVar >> 24) & 0xFF;
+	c1 = (ColorVar >> 16) & 0xFF;
+	c2 = (ColorVar >> 8) & 0xFF;
+	c3 = (ColorVar)& 0xFF;
+
+	COLORREF rgbCurrent = ((COLORREF)(((BYTE)(c1) | (((BYTE)(c2)) << 8)) | (((BYTE)(c3)) << 16)));
+
+	// Initialize CHOOSECOLOR 
+	ZeroMemory(&cc, sizeof(cc));
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = hWnd;
+	cc.lpCustColors = (LPDWORD)acrCustClr;
+	cc.rgbResult = rgbCurrent;
+	cc.lCustData = alpha;
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT | CC_ENABLEHOOK;
+	cc.lpfnHook = SettingColorWndHookProc;
+
+	if (ChooseColor(&cc) == TRUE)
+	{
+		return true;
+	}
+	else return false;
+}

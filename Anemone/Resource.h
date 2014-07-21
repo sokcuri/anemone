@@ -115,6 +115,8 @@
 #define IDM_EXTERN_HOTKEY               1212
 #define IDM_PRINT_ORGTEXT               1213
 #define IDM_PRINT_ORGNAME               1214
+#define IDC_COLORDLG_ALPHA_TRACKBAR     1215
+#define IDC_COLORDLG_ALPHA_EDIT         1216
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773

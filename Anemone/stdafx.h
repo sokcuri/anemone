@@ -111,3 +111,5 @@ typedef struct {
 	DWORD pid;
 	HWND hwnd;
 } WINDOWPROCESSINFO;
+
+UINT CALLBACK SettingColorWndHookProc(HWND, UINT, WPARAM, LPARAM);

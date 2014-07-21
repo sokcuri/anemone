@@ -9,3 +9,4 @@ int UTF8toUCS2(wchar_t *ucs2, char *src);
 std::wstring replaceAll(const std::wstring &str, const std::wstring &pattern, const std::wstring &replace);
 static BOOL CALLBACK OnGetWindowByProcess(HWND hwnd, LPARAM lParam);
 void ExecuteFile(const std::wstring &filename);
+bool ColorDialog(HWND hWnd, CHOOSECOLOR &cc, DWORD ColorVar);

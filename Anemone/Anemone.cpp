@@ -351,7 +351,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_TEMP_SIZABLE_MODE:
 			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_CLIPBOARD_SWITCH:
 		{
@@ -466,6 +466,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				int nBGAlpha = (Cl.Config->GetBGColor() >> 24) & 0xFF;
 
+				SendDlgItemMessage(hWnds.Setting, IDC_SETTING_BACKGROUND_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 255));
 				SendDlgItemMessage(hWnds.Setting, IDC_SETTING_BACKGROUND_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nBGAlpha);
 
 				ws << L"투명도 설정";
@@ -480,30 +481,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_TEXTALIGN_LEFT:
 			Cl.Config->SetTextAlign(0);
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_TEXTALIGN_MID:
 			Cl.Config->SetTextAlign(1);
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_TEXTALIGN_RIGHT:
 			Cl.Config->SetTextAlign(2);
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_SEPERATE_NAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME) ? Cl.Config->SetTextSwitch(CFG_NAME, false) : Cl.Config->SetTextSwitch(CFG_NAME, true));
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_EXTERN_HOTKEY:
 			(Cl.Config->GetExternHotkey() ? Cl.Config->SetExternHotkey(false) : Cl.Config->SetExternHotkey(true));
 			break;
 		case IDM_PRINT_ORGTEXT:
 			(Cl.Config->GetTextSwitch(CFG_ORG) ? Cl.Config->SetTextSwitch(CFG_ORG, false) : Cl.Config->SetTextSwitch(CFG_ORG, true));
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDM_PRINT_ORGNAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME_ORG) ? Cl.Config->SetTextSwitch(CFG_NAME_ORG, false) : Cl.Config->SetTextSwitch(CFG_NAME_ORG, true));
-			SendMessage(hWnd, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 
 		default:
@@ -688,11 +689,30 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_BACKGROUND_SWITCH:
 			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 		case IDC_SETTING_BACKGROUND_COLOR:
+			{
+				CHOOSECOLOR cc; 
+				if (ColorDialog(hWnd, cc, Cl.Config->GetBGColor()))
+				{
+					DWORD dw;
+
+					dw = (cc.lCustData & 0xFF) << 24;
+					dw |= (cc.rgbResult & 0xFF) << 16;
+					dw |= ((cc.rgbResult >> 8) & 0xFF) << 8;
+					dw |= ((cc.rgbResult >> 16) & 0xFF);
+
+					Cl.Config->SetBGColor(dw);
+					
+					SetDlgItemTextW(hWnd, wmId, L"");
+					PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+				}
+			}
+				break;
+
 			break;
-		case IDC_SETTING_BACKGROUND_TRACKBAR:
+		case IDC_SETTING_TEXTSIZE_MINUS:
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -709,44 +729,183 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	{
 		RECT *prc = (RECT *)lParam;
 		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
-		if (message == WM_SIZING) Cl.TextRenderer->Paint();
 	}
 		break;
-	//default:
-	//	return DefWindowProc(hWnd, message, wParam, lParam);
 
 	case WM_DRAWITEM:
 	{
 		switch (wParam)
 		{
-			case IDC_SETTING_BACKGROUND_COLOR:
+		case IDC_SETTING_BACKGROUND_COLOR:
+		{
+			LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
+
+			DWORD ColorVar;
+
+			switch (wParam)
 			{
-				LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
-
-				DWORD ColorVar;
-
-				switch (wParam)
-				{
-				case IDC_SETTING_BACKGROUND_COLOR:
-					ColorVar = Cl.Config->GetBGColor();
-					break;
-				}
-
-				int c1, c2, c3;
-				c1 = (ColorVar >> 16) & 0xFF;
-				c2 = (ColorVar >> 8) & 0xFF;
-				c3 = (ColorVar) & 0xFF;
-
-				COLORREF color = ((COLORREF)(((BYTE)(c1) | ((WORD)((BYTE)(c2)) << 8)) | (((DWORD)(BYTE)(c3)) << 16)));
-
-				HBRUSH hBrush = CreateSolidBrush(color);
-				FillRect(pdis->hDC, &pdis->rcItem, hBrush);
+			case IDC_SETTING_BACKGROUND_COLOR:
+				ColorVar = Cl.Config->GetBGColor();
+				break;
 			}
+
+			int c1, c2, c3;
+			c1 = (ColorVar >> 16) & 0xFF;
+			c2 = (ColorVar >> 8) & 0xFF;
+			c3 = (ColorVar)& 0xFF;
+
+			COLORREF color = ((COLORREF)(((BYTE)(c1) | ((WORD)((BYTE)(c2)) << 8)) | (((DWORD)(BYTE)(c3)) << 16)));
+
+			HBRUSH hBrush = CreateSolidBrush(color);
+			FillRect(pdis->hDC, &pdis->rcItem, hBrush);
+		}
 		}
 	}
 		break;
+
+	case WM_HSCROLL:
+	{
+		if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_BACKGROUND_TRACKBAR))
+		{
+			int i_bgAlpha;
+
+			switch (LOWORD(wParam))
+			{
+			case TB_LINEUP:
+			case TB_LINEDOWN:
+			case TB_PAGEUP:
+			case TB_PAGEDOWN:
+			case TB_TOP:
+			case TB_BOTTOM:
+			case TB_ENDTRACK:
+				i_bgAlpha = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_BACKGROUND_TRACKBAR, TBM_GETPOS, 0, 0);
+				break;
+
+			case TB_THUMBTRACK:
+				i_bgAlpha = (INT)HIWORD(wParam);
+				break;
+			}
+
+			// 투명도 255 이상이면 무시
+			if (i_bgAlpha > 255) break;
+
+			DWORD BGColor = (i_bgAlpha << 24);
+			BGColor |= (Cl.Config->GetBGColor() & 0xFFFFFF);
+
+			Cl.Config->SetBGColor(BGColor);
+
+			std::wstringstream ws;
+
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+	}
 	}
 	return 0;
+}
+CHOOSECOLOR *pCC;
+UINT CALLBACK SettingColorWndHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	HFONT hFont;
+
+	switch (uMsg) {
+	case WM_INITDIALOG:
+	{
+		RECT rect;
+		GetWindowRect(hDlg, &rect);
+
+		SetWindowPos(hDlg, NULL, rect.left, rect.top, rect.right - rect.left + 60, rect.bottom - rect.top, 0);
+
+		hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+
+		HWND hTrackBar = CreateWindow(L"msctls_trackbar32", L"", TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_CHILD | WS_VISIBLE,
+			540, 2, 25, 225, hDlg, (HMENU)IDC_COLORDLG_ALPHA_TRACKBAR, hInst, NULL);
+		HWND hStatic = CreateWindow(L"STATIC", L"불투명도", WS_CHILD | WS_VISIBLE,
+			528, 256, 150, 15, hDlg, 0, hInst, NULL);
+		HWND hEdit = CreateWindow(L"EDIT", L"", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_BORDER,
+			540, 230, 25, 18, hDlg, (HMENU)IDC_COLORDLG_ALPHA_EDIT, hInst, NULL);
+
+		pCC = (CHOOSECOLOR *)lParam;
+		int iAlpha = pCC->lCustData;
+
+		SendDlgItemMessage(hDlg, IDC_COLORDLG_ALPHA_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 255));
+
+		std::wstring bgAlpha;
+
+		SendDlgItemMessage(hDlg, IDC_COLORDLG_ALPHA_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)iAlpha);
+
+		std::wstringstream ws;
+		std::wstring str;
+
+		ws << iAlpha;
+		str = ws.str();
+		SetDlgItemTextW(hDlg, IDC_COLORDLG_ALPHA_EDIT, str.c_str());
+
+		SendMessage(hTrackBar, WM_SETFONT, (WPARAM)hFont, NULL);
+		SendMessage(hStatic, WM_SETFONT, (WPARAM)hFont, NULL);
+		SendMessage(hEdit, WM_SETFONT, (WPARAM)hFont, NULL);
+
+		int nExStyleValue = GetWindowLong(hDlg, GWL_EXSTYLE);
+
+		nExStyleValue |= WS_EX_NOACTIVATE;
+
+		SetWindowLong(hDlg, GWL_EXSTYLE, nExStyleValue);
+
+		//GetCursorPos(&pt); // 현재 커서 위치를 얻어 내고
+		//SetWindowPos(hDlg, NULL, pt.x, pt.y, 0, 0,
+		//            SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+	}
+		return TRUE;
+
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	{
+		int i_AlphaInt;
+
+		switch (LOWORD(wParam))
+		{
+		case TB_LINEUP:
+		case TB_LINEDOWN:
+		case TB_PAGEUP:
+		case TB_PAGEDOWN:
+		case TB_TOP:
+		case TB_BOTTOM:
+		case TB_ENDTRACK:
+			i_AlphaInt = (INT)SendDlgItemMessage(hDlg, IDC_COLORDLG_ALPHA_TRACKBAR, TBM_GETPOS, 0, 0);
+			break;
+
+		case TB_THUMBTRACK:
+			i_AlphaInt = (INT)HIWORD(wParam);
+			break;
+		}
+
+		std::wstringstream ws;
+
+		// Event Id = LOWORD(wParam) 5(Clicked) / 8(Out-Clicked)
+		//if (LOWORD(wParam) == 8) break;
+
+		ws << i_AlphaInt;
+		std::wstring str(ws.str());
+		SetDlgItemTextW(hDlg, IDC_COLORDLG_ALPHA_EDIT, str.c_str());
+
+		pCC->lCustData = i_AlphaInt;
+
+	}
+		break;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hDlg, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+
+		/*
+		case WM_LBUTTONDOWN:
+		MessageBox(hDlg,0,0,0);
+		break;*/
+	}
+	return FALSE;
 }
 
 // 정보 대화 상자의 메시지 처리기입니다.

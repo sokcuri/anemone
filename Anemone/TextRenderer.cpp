@@ -150,14 +150,14 @@ bool CTextRenderer::Paint()
 
 	if (!Cl.Config->GetSizableMode())
 	{
-		if (!IsActive) graphics.Clear(Color(75, 0, 216, 255));
+		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
 		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 		else graphics.Clear(Color(0, 0, 0, 0));
 	}
 	// 크기 조절 모드
 	else
 	{
-		if (!IsActive) graphics.Clear(Color(0x80, 0, 216, 255));
+		if (!IsActive && !bBGSwitch) graphics.Clear(Color(0x80, 0, 216, 255));
 		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 		else graphics.Clear(Color(1, 0, 0, 0));
 
