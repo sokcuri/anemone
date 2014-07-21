@@ -115,7 +115,7 @@ std::wstring CTextProcess::HangulDecode(std::wstring &input)
 			continue;
 		}
 		else
-		if (count + 5 < input.length() && *(it + 1) == 'x' &&
+			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'x' &&
 			((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) &&
 			((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
 			((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&

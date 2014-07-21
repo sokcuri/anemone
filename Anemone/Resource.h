@@ -67,12 +67,18 @@
 #define IDC_RADIO3                      1023
 #define IDC_SETTING_TEXTALIGN_RIGHT     1023
 #define IDC_SLIDER1                     1024
+#define IDC_SETTING_BACKGROUND_TRACKBAR 1024
 #define IDC_BUTTON1                     1025
+#define IDC_SETTING_BACKGROUND_COLOR    1025
 #define IDC_CHECK18                     1026
+#define IDC_SETTING_BACKGROUND_SWITCH   1026
 #define IDC_BUTTON2                     1027
+#define IDC_SETTING_TEXTSIZE_MINUS      1027
 #define IDC_CHECK19                     1028
 #define IDC_BUTTON3                     1029
+#define IDC_SETTING_TEXTSIZE_PLUS       1029
 #define IDC_SLIDER2                     1030
+#define IDC_TEXTSIZE_TRACKBAR           1030
 #define IDC_BUTTON4                     1031
 #define IDC_BUTTON5                     1032
 #define IDC_BUTTON6                     1033
@@ -91,8 +97,10 @@
 #define IDC_BUTTON16                    1046
 #define IDC_CHECK22                     1047
 #define IDM_SETTING_EXIT                1047
+#define IDC_SETTING_BACKGROUND_TEXT     1048
 #define IDC_SLIDER4                     1049
 #define IDC_SLIDER5                     1050
+#define IDC_TEXTSIZE_TEXT               1051
 #define IDM_WINDOW_SETTING              1201
 #define IDM_SETTING_CHECK               1202
 #define IDM_TEXT_PREV                   1203
@@ -105,6 +113,8 @@
 #define IDM_TEXTALIGN_RIGHT             1210
 #define IDM_SEPERATE_NAME               1211
 #define IDM_EXTERN_HOTKEY               1212
+#define IDM_PRINT_ORGTEXT               1213
+#define IDM_PRINT_ORGNAME               1214
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -126,7 +136,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1048
+#define _APS_NEXT_CONTROL_VALUE         1052
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

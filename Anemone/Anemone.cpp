@@ -320,6 +320,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				nExStyle &= ~WS_EX_TRANSPARENT;
 				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
 			}
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			break;
 		case IDM_TEMP_WINDOW_HIDE:
 		{
@@ -349,6 +350,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_TEMP_SIZABLE_MODE:
 			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			SendMessage(hWnd, WM_PAINT, 0, 0);
 			break;
 		case IDM_CLIPBOARD_SWITCH:
@@ -363,6 +365,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				Cl.TextProcess->EndWatchClip();
 			}
+
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		}
 			break;
 		case IDM_TEXT_PREV:
@@ -411,6 +415,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		case IDM_SETTING_CHECK:
 		{
+			std::wstringstream ws;
+			std::wstring str;
+
 			if (IsWindow(hWnds.Setting))
 			{
 				// 체크박스
@@ -454,6 +461,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 					break;
 				}
+
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_BACKGROUND_SWITCH, Cl.Config->GetBGSwitch());
+
+				int nBGAlpha = (Cl.Config->GetBGColor() >> 24) & 0xFF;
+
+				SendDlgItemMessage(hWnds.Setting, IDC_SETTING_BACKGROUND_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nBGAlpha);
+
+				ws << L"투명도 설정";
+				ws << L" (";
+				ws << nBGAlpha;
+				ws << L")";
+				str = ws.str();
+				SetDlgItemTextW(hWnds.Setting, IDC_SETTING_BACKGROUND_TEXT, str.c_str());
+
 			}
 		}
 			break;
@@ -475,6 +496,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_EXTERN_HOTKEY:
 			(Cl.Config->GetExternHotkey() ? Cl.Config->SetExternHotkey(false) : Cl.Config->SetExternHotkey(true));
+			break;
+		case IDM_PRINT_ORGTEXT:
+			(Cl.Config->GetTextSwitch(CFG_ORG) ? Cl.Config->SetTextSwitch(CFG_ORG, false) : Cl.Config->SetTextSwitch(CFG_ORG, true));
+			SendMessage(hWnd, WM_PAINT, 0, 0);
+			break;
+		case IDM_PRINT_ORGNAME:
+			(Cl.Config->GetTextSwitch(CFG_NAME_ORG) ? Cl.Config->SetTextSwitch(CFG_NAME_ORG, false) : Cl.Config->SetTextSwitch(CFG_NAME_ORG, true));
+			SendMessage(hWnd, WM_PAINT, 0, 0);
 			break;
 
 		default:
@@ -629,8 +658,10 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_SIZABLE_MODE, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGTEXT:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_PRINT_ORGTEXT, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGNAME:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_PRINT_ORGNAME, 0);
 			break;
 		case IDC_SETTING_SEPERATE_NAME:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SEPERATE_NAME, 0);
@@ -655,6 +686,14 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_TEXTALIGN_RIGHT:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_RIGHT, 0);
 			break;
+		case IDC_SETTING_BACKGROUND_SWITCH:
+			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
+			Cl.TextRenderer->Paint();
+			break;
+		case IDC_SETTING_BACKGROUND_COLOR:
+			break;
+		case IDC_SETTING_BACKGROUND_TRACKBAR:
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -665,9 +704,47 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	case WM_ERASEBKGND:
 		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+		if (message == WM_SIZING) Cl.TextRenderer->Paint();
+	}
+		break;
 	//default:
 	//	return DefWindowProc(hWnd, message, wParam, lParam);
 
+	case WM_DRAWITEM:
+	{
+		switch (wParam)
+		{
+			case IDC_SETTING_BACKGROUND_COLOR:
+			{
+				LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
+
+				DWORD ColorVar;
+
+				switch (wParam)
+				{
+				case IDC_SETTING_BACKGROUND_COLOR:
+					ColorVar = Cl.Config->GetBGColor();
+					break;
+				}
+
+				int c1, c2, c3;
+				c1 = (ColorVar >> 16) & 0xFF;
+				c2 = (ColorVar >> 8) & 0xFF;
+				c3 = (ColorVar) & 0xFF;
+
+				COLORREF color = ((COLORREF)(((BYTE)(c1) | ((WORD)((BYTE)(c2)) << 8)) | (((DWORD)(BYTE)(c3)) << 16)));
+
+				HBRUSH hBrush = CreateSolidBrush(color);
+				FillRect(pdis->hDC, &pdis->rcItem, hBrush);
+			}
+		}
+	}
+		break;
 	}
 	return 0;
 }

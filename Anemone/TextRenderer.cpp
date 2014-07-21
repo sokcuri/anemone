@@ -159,7 +159,7 @@ bool CTextRenderer::Paint()
 	{
 		if (!IsActive) graphics.Clear(Color(0x80, 0, 216, 255));
 		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
-		else graphics.Clear(Color(0, 0, 0, 0));
+		else graphics.Clear(Color(1, 0, 0, 0));
 
 		int nBorderWidth = 10;
 		Pen nBorderPen(Color(0x80, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
