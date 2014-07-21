@@ -41,13 +41,21 @@ IDI_SMALL               ICON                    "small.ico"
 
 IDC_ANEMONE MENU
 BEGIN
-    POPUP "?뚯씪(&F)"
+    POPUP "ANEMONE_MENU"
     BEGIN
-        MENUITEM "?앸궡湲?&X)",                    IDM_EXIT
-    END
-    POPUP "?꾩?留?&H)"
-    BEGIN
-        MENUITEM "?뺣낫(&A)...",                  IDM_ABOUT
+        MENUITEM "클립보드 감시",                     ID_ANEMONE_32774
+        MENUITEM "창 너머 클릭",                     ID_ANEMONE_32775
+        MENUITEM "크기 조절 모드",                    ID_Menu32776
+        MENUITEM SEPARATOR
+        POPUP "번역 윈도우"
+        BEGIN
+            MENUITEM "단문 번역기",                      ID_32772
+            MENUITEM "텍스트 번역기",                     ID_32773
+        END
+        MENUITEM "환경설정",                        IDM_WINDOW_SETTING
+        MENUITEM SEPARATOR
+        MENUITEM "아네모네 정보",                     IDM_ABOUT
+        MENUITEM "나가기",                         IDM_EXIT
     END
 END
 

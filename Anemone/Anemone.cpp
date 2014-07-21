@@ -99,6 +99,8 @@ int APIENTRY _tWinMain(
 		MessageBox(0, L"아네모네 리모콘 초기화가 실패했습니다.", 0, MB_ICONERROR);
 	}
 
+	//ShowWindow(hWnds.Remocon, true);
+
 	IsActive = false;
 	Cl.TextRenderer->Paint();
 
@@ -131,8 +133,64 @@ int APIENTRY _tWinMain(
 	return (int) msg.wParam;
 }
 
+//
+// 우클릭 메뉴
+//
 
+VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
+{
+	HMENU hmenu;            // top-level menu 
+	HMENU hmenuTrackPopup;  // shortcut menu 
 
+	// Load the menu resource. 
+
+	if ((hmenu = LoadMenu(hInst, MAKEINTRESOURCE(IDC_ANEMONE))) == NULL)
+		return;
+
+	// TrackPopupMenu cannot display the menu bar so get 
+	// a handle to the first shortcut menu. 
+
+	hmenuTrackPopup = GetSubMenu(hmenu, 0);
+
+	// Display the shortcut menu. Track the right mouse 
+	// button. 
+
+	TrackPopupMenu(hmenuTrackPopup,
+		TPM_LEFTALIGN | TPM_RIGHTBUTTON,
+		pt.x, pt.y, 0, hwnd, NULL);
+
+	// Destroy the menu. 
+
+	DestroyMenu(hmenu);
+}
+
+BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
+{
+	RECT rc;                    // client area of window 
+	POINT pt = { x, y };        // location of mouse click 
+
+	// Get the bounding rectangle of the client area. 
+
+	GetClientRect(hwnd, &rc);
+
+	// Convert the mouse position to client coordinates. 
+
+	ScreenToClient(hwnd, &pt);
+
+	// If the position is in the client area, display a  
+	// shortcut menu. 
+
+	if (PtInRect(&rc, pt))
+	{
+		ClientToScreen(hwnd, &pt);
+		DisplayContextMenu(hwnd, pt);
+		return TRUE;
+	}
+
+	// Return FALSE if no menu is displayed. 
+
+	return FALSE;
+}
 //
 // 윈도우 클래스 등록
 //
@@ -267,7 +325,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
 			SendMessage(hWnd, WM_PAINT, 0, 0);
 			break;
-
+		case IDM_TEXT_PREV:
+			break;
+		case IDM_TEXT_NEXT:
+			break;
 		case IDM_WINDOW_SETTING:
 		{
 			if (IsWindow(hWnds.Setting) == false)
@@ -275,18 +336,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
-				int width = 630;
-				int height = 650;
-
+				RECT rect;
 
 				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnd, SettingProc);
+			
+				GetWindowRect(hWnds.Setting, &rect);
+
 				/*
 				hWnds.Setting = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szSettingClass, NULL, WS_POPUP | WS_BORDER,
 				(cx - width) / 2, (cy - height) / 2, width, height,
 				hWnd, (HMENU)NULL, hInst, NULL);
 				*/
-				SetWindowLong(hWnds.Setting, GWL_STYLE, WS_POPUP | WS_BORDER);
-				SetWindowLong(hWnds.Setting, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE);
+				SetWindowPos(hWnds.Setting, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				//SetWindowLong(hWnds.Setting, GWL_STYLE, WS_POPUP | WS_BORDER);
+				//SetWindowLong(hWnds.Setting, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE);
 				ShowWindow(hWnds.Setting, 1);
 			}
 			else
@@ -300,6 +363,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
+	case WM_NCRBUTTONUP:
+	case WM_CONTEXTMENU:
+	{
+		POINT pt;
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		if (!OnContextMenu(hWnd, pt.x,pt.y))
+			return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+		break;
 	case WM_PAINT:
 	{
 		Cl.TextRenderer->Paint();

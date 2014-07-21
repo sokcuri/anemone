@@ -51,7 +51,6 @@ bool CRemocon::CreateInstance()
 		return false;
 	}
 
-	ShowWindow(hWnds.Remocon, true);
 	UpdateWindow(hWnds.Remocon);
 
 	Paint();

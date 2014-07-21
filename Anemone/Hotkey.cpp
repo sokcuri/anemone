@@ -22,6 +22,9 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F7, false, false, false, IDM_TEMP_SIZABLE_MODE);
 	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING);
 	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
+
+	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
+	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
 	return true;
 }
 
