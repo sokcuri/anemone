@@ -65,6 +65,7 @@ private:
 	int cfg_text_margin_x = 0;
 	int cfg_text_margin_y = 0;
 	int cfg_text_margin_name = 0;
+	bool cfg_trans_onego = true;
 
 public:
 	CConfig();
@@ -72,6 +73,9 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetTransOneGo() { return cfg_trans_onego; }
+	void SetTransOneGo(bool b) { cfg_trans_onego = b; }
 
 	int GetTextMarginX() { return cfg_text_margin_x; }
 	void SetTextMarginX(int i) { cfg_text_margin_x = i; }

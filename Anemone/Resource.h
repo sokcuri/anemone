@@ -33,6 +33,8 @@
 #define IDM_TEMP_SIZABLE_MODE           1003
 #define IDC_CHECK1                      1004
 #define IDC_SETTING_TOPMOST             1004
+#define IDC_TRANSWIN_                   1004
+#define IDC_TRANSWIN_TRANS_ONEGO        1004
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_CHECK2                      1006

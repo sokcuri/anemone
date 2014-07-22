@@ -109,6 +109,32 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 	}
 
 	std::list<std::wstring>::iterator iter;
+	if (Cl.Config->GetTransOneGo() && list.size() > 10)
+	{
+		std::wstring line;
+		std::list<std::wstring> list2 = list;
+		list.clear();
+		int j = 1;
+		for (i = 1, iter = list2.begin(); iter != list2.end(); iter++, i++)
+		{
+			if ((float)i > (float)(list2.size() * j / 10))
+			{
+				list.push_back(line);
+				line = L"";
+				j++;
+			}
+
+			line += (*iter);
+
+			if (i == list2.size())
+			{
+				list.push_back(line);
+				line = L"";
+			}
+
+		}
+	}
+
 	for (i=0, iter = list.begin(); iter != list.end(); iter++, i++)
 	{
 		if (nStatus == 2)
@@ -116,7 +142,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 			nStatus = 0;
 			std::wstringstream logstream;
 			logstream << L"번역 중지 (";
-			logstream << i;
+			logstream << i + 1;
 			logstream << L"/";
 			logstream << list.size();
 			logstream << L")";
@@ -132,7 +158,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 
 		std::wstringstream logstream;
 		logstream << L"번역중... (";
-		logstream << i;
+		logstream << i + 1;
 		logstream << L"/";
 		logstream << list.size();
 		logstream << L")";
