@@ -145,6 +145,8 @@
 #define IDC_EDIT2                       1064
 #define IDC_TRANSWIN_TRANSLATE          1064
 #define IDC_TRANSWIN_DEST               1065
+#define IDC_COLORDLG_ALPHA_TRACKBAR     1066
+#define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDM_WINDOW_SETTING              1201
 #define IDM_SETTING_CHECK               1202
 #define IDM_TEXT_PREV                   1203
@@ -159,8 +161,11 @@
 #define IDM_EXTERN_HOTKEY               1212
 #define IDM_PRINT_ORGTEXT               1213
 #define IDM_PRINT_ORGNAME               1214
-#define IDC_COLORDLG_ALPHA_TRACKBAR     1215
-#define IDC_COLORDLG_ALPHA_EDIT         1216
+#define IDM_TRANS_PROGRESS              1215
+#define IDM_TRANS_COMPLETE              1216
+#define IDM_TRANS_ABORT                 1217
+#define IDM_TRANS_ERROR                 1218
+#define IDM_TRANS_START                 1219
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773

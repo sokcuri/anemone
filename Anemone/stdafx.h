@@ -12,6 +12,7 @@
 
 // Windows 헤더 파일:
 #include <windows.h>
+#include <process.h>
 
 // C 런타임 헤더 파일입니다.
 #include <ios>
@@ -39,6 +40,7 @@ using namespace Gdiplus;
 // STL
 #include <string>
 #include <sstream>
+#include <hash_map>
 
 // control
 #include <commctrl.h>
@@ -114,3 +116,6 @@ typedef struct {
 } WINDOWPROCESSINFO;
 
 UINT CALLBACK SettingColorWndHookProc(HWND, UINT, WPARAM, LPARAM);
+
+extern int Elapsed_Prepare;
+extern int Elapsed_Translate;

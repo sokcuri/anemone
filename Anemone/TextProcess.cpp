@@ -27,13 +27,151 @@ void CTextProcess::EndWatchClip()
 {
 	ChangeClipboardChain(hWnds.Main, NULL);
 }
+/*
+std::wstring CTextProcess::eztrans_mt_proc(std::wstring &input)
+{
+	std::hash_map<int, std::wstring> h1;
+	
+	int i = 0;
+	std::wstring::size_type nprev = 0;
+	std::wstring::size_type npos = -1;
+	for (;i < 10; i++)
+	{
+		nprev = npos + 1;
+		npos = input.find(L"\n", nprev);
+		if (npos != std::string::npos)
+		{
+			h1[i] = input.substr(nprev, npos-nprev);
+		}
+		else
+		{
+			h1[i] = input.substr(nprev);
+			//MessageBox(0, h1[1].c_str(), 0, 0);
+			break;
+		}
+	}
+	//MessageBox(0, str, 0, 0);
 
-std::wstring CTextProcess::eztrans_proc(std::wstring &input)
+	std::wstring output = L"END";
+
+	std::hash_map<int, std::wstring> *pt;
+	pt = &h1;
+	for (int j = 0; j < i; j++)
+	{
+		HANDLE hThread = NULL;
+		DWORD dwThreadID = NULL;
+		hThread = (HANDLE)_beginthreadex(NULL, 0, this->ThreadFunction, pt, 0, (unsigned*)&dwThreadID);
+		if (hThread == 0) MessageBox(0, L"_beginthreadex Error\n", 0, 0);
+	}
+	
+	HANDLE hThread = NULL;
+	DWORD dwThreadID = NULL;
+	hThread = (HANDLE)_beginthreadex(NULL, 0, this->ThreadFunction, NULL, 0, (unsigned*)&dwThreadID);
+	if (hThread == 0) MessageBox(0, L"_beginthreadex Error\n", 0, 0);
+	return output;
+}
+
+unsigned int WINAPI CTextProcess::ThreadFunction(void *arg)
+{
+	return 0;
+}
+*/
+std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
+{
+	Elapsed_Prepare = 0;
+	Elapsed_Translate = 0;
+
+	std::wstring::size_type nprev = 0;
+	std::wstring::size_type npos = -1;
+	std::list<std::wstring> list;
+	std::wstring output;
+	int i = 0, length = input.size();
+	std::wstring empty = L"Abort";
+
+	if (nStatus != 0) return empty;
+	nStatus = 1;
+
+	PostMessage(hWnd, WM_COMMAND, IDM_TRANS_START, 0);
+
+	for (; ; i++)
+	{
+		nprev = npos + 1;
+		npos = input.find(L"\n", nprev);
+		if (npos != std::string::npos)
+		{
+			list.push_back(input.substr(nprev, npos - nprev + 1));
+		}
+		else
+		{
+			list.push_back(input.substr(nprev));
+			break;
+		}
+	}
+
+	std::list<std::wstring>::iterator iter;
+	for (i=0, iter = list.begin(); iter != list.end(); iter++, i++)
+	{
+		if (nStatus == 2)
+		{
+			nStatus = 0;
+			std::wstringstream logstream;
+			logstream << L"번역 중지 (";
+			logstream << i;
+			logstream << L"/";
+			logstream << list.size();
+			logstream << L")";
+
+			proclog = logstream.str();
+			PostMessage(hWnd, WM_COMMAND, IDM_TRANS_ABORT, (LPARAM)proclog.c_str());
+
+			std::wstring abort_msg = L"Abort";
+			return abort_msg;
+		}
+
+		output += eztrans_proc(*iter);
+
+		std::wstringstream logstream;
+		logstream << L"번역중... (";
+		logstream << i;
+		logstream << L"/";
+		logstream << list.size();
+		logstream << L")";
+		logstream << L"\r\n";
+		logstream << L"Prepare : ";
+		logstream << Elapsed_Prepare;
+		logstream << L"ms\r\n";
+		logstream << L"Translate : ";
+		logstream << Elapsed_Translate;
+		logstream << L"ms";
+
+		proclog = logstream.str();
+		PostMessage(hWnd, WM_COMMAND, IDM_TRANS_PROGRESS, (LPARAM)proclog.c_str());
+	}
+
+	proclog = output;
+	PostMessage(hWnd, WM_COMMAND, IDM_TRANS_COMPLETE, (LPARAM)proclog.c_str());
+
+	nStatus = 0;
+
+	return output;
+}
+
+void CTextProcess::TranslateAbort()
+{
+	if (nStatus == 1) nStatus = 2;
+	return;
+}
+
+std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 {
 	int nBufLen;
 	char *szBuff, *szBuff2;
 	wchar_t *lpszBuff;
 	std::wstring szContext, output;
+
+	int start, end;
+
+	start = GetTickCount();
 
 	szContext = HangulEncode(input);
 
@@ -54,7 +192,20 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 
 	WideCharToMultiByte(932, 0, szContext.c_str(), -1, szBuff, nBufLen, NULL, NULL);
 
+	end = GetTickCount();
+
+	Elapsed_Prepare += (end - start);
+
+	start = GetTickCount();
+
 	szBuff2 = (char *)Cl.TransEngine->J2K_TranslateMMNT(0, szBuff);
+
+	end = GetTickCount();
+
+	Elapsed_Translate += (end - start);
+
+	start = GetTickCount();
+
 	HeapFree(AneHeap, 0, szBuff);
 
 	nBufLen = MultiByteToWideChar(949, 0, szBuff2, -1, NULL, NULL);
@@ -73,15 +224,19 @@ std::wstring CTextProcess::eztrans_proc(std::wstring &input)
 	Cl.TransEngine->J2K_FreeMem(szBuff2);
 
 	output = HangulDecode(output);
+
+	end = GetTickCount();
+
+	Elapsed_Prepare += (end - start);
 	return output;
 }
 
-std::wstring CTextProcess::HangulEncode(std::wstring &input)
+std::wstring CTextProcess::HangulEncode(const std::wstring &input)
 {
 	std::wstring output;
 	wchar_t buf[8];
 
-	std::wstring::iterator it = input.begin();
+	std::wstring::const_iterator it = input.begin();
 	for (; it != input.end(); it++)
 	{
 		if (*it == L'@' ||
@@ -100,11 +255,11 @@ std::wstring CTextProcess::HangulEncode(std::wstring &input)
 
 	return output;
 }
-std::wstring CTextProcess::HangulDecode(std::wstring &input)
+std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 {
 	std::wstring output;
 	wchar_t buf[8];
-	std::wstring::iterator it = input.begin();
+	std::wstring::const_iterator it = input.begin();
 	for (DWORD count = 0; it != input.end(); it++, count++)
 	{
 		// @X = 삭제

@@ -14,6 +14,8 @@ TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
 int IsActive = 0;
+int Elapsed_Prepare = 0;
+int Elapsed_Translate = 0;
 //bool IsActive = FALSE;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
@@ -301,10 +303,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
 		case IDM_TERMINATE_ANEMONE:
-			PostQuitMessage(0);
+			DestroyWindow(hWnd);
 			break;
 		case IDM_TEMP_CLICK_THOUGH:
 			(Cl.Config->GetClickThough() ? Cl.Config->SetClickThough(false) : Cl.Config->SetClickThough(true));
@@ -651,6 +651,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				SetWindowPos(hWnds.Trans, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
 				ShowWindow(hWnds.Trans, 1);
+
+				SendMessage(GetDlgItem(hWnds.Trans, IDC_TRANSWIN_DEST), EM_SETLIMITTEXT, -1, 0);
+				SendMessage(GetDlgItem(hWnds.Trans, IDC_TRANSWIN_SRC), EM_SETLIMITTEXT, -1, 0);
 			}
 			else
 			{
@@ -1611,6 +1614,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDC_TRANSWIN_CLEAR:
 			SetDlgItemText(hWnd, IDC_TRANSWIN_SRC, L"");
 			SetDlgItemText(hWnd, IDC_TRANSWIN_DEST, L"");
+			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_SRC));
 			break;
 		case IDC_TRANSWIN_COPY:
 		{
@@ -1624,7 +1628,41 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		}
 			break;
 		case IDC_TRANSWIN_TRANSLATE:
-			
+		{
+			Cl.TextProcess->TranslateAbort();
+
+			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
+			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), L"번역중...");
+			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_SRC), WM_GETTEXTLENGTH, 0, 0) + 1;
+			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
+
+			GetDlgItemText(hWnd, IDC_TRANSWIN_SRC, pStr, length);
+
+			std::wstring original_context = pStr;
+			free(pStr);
+
+			Cl.TextProcess->TranslateText(hWnd, original_context);
+
+			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
+		}
+			break;
+		case IDM_TRANS_START:
+		{
+			SetDlgItemText(hWnd, IDC_TRANSWIN_TRANSLATE, L"번역중지");
+		}
+			break;
+		case IDM_TRANS_PROGRESS:
+		{
+			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), (LPCWSTR)lParam);
+		}
+			break;
+		case IDM_TRANS_COMPLETE:
+		case IDM_TRANS_ERROR:
+		case IDM_TRANS_ABORT:
+		{
+			SetDlgItemText(hWnd, IDC_TRANSWIN_TRANSLATE, L"번역하기");
+			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), (LPCWSTR)lParam);
+		}
 			break;
 		case IDC_TRANSWIN_FILETRANS:
 			break;
@@ -1632,6 +1670,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDCANCEL:
 		case IDM_EXIT:
 		case IDC_TRANSWIN_CLOSE:
+			Cl.TextProcess->TranslateAbort();
 			//EndDialog(hWnd, LOWORD(wParam));
 			DestroyWindow(hWnd);
 			break;
