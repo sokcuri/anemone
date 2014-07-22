@@ -12,8 +12,8 @@ void CTextProcess::StartWatchClip()
 {
 	if (IsActive == 0)
 	{
+		IsActive = 3;
 		hWnds.Clip = SetClipboardViewer(hWnds.Main);
-		IsActive = 0;
 		Cl.TextRenderer->Paint();
 	}
 	else
@@ -397,6 +397,12 @@ bool CTextProcess::OnDrawClipboard()
 		IsActive = 1;
 		return 0;
 	}
+	else if (IsActive == 3)
+	{
+		IsActive = 0;
+		return 0;
+	}
+
 
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
