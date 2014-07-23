@@ -323,6 +323,45 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 	}
 	return output;
 }
+
+bool CTextProcess::DoubleTextFix(std::wstring &input)
+{
+	std::wstring output;
+	std::wstring text = input;
+	bool nHardFix = false;
+
+	std::wsmatch m;
+	std::wregex regex(L"^([^「」『』（）()]+)(.*)$");
+
+	if (std::regex_match(input, m, regex))
+	{
+		nHardFix = true;
+		output = m[1];
+		text = m[2];
+	}
+
+	for (unsigned int i = 0; i < text.size() / 2 * 2; i++)
+	{
+		if (text[i] == text[i + 1])
+		{
+			output += text[i];
+			i++;
+		}
+		else if (text[i] == 0x0D || text[i] == 0x0A) 
+		{
+			output += text[i];
+		}
+		else if (nHardFix == true)
+		{
+			output += text[i];
+		}
+		else return false;
+	}
+
+	input = output;
+	return true;
+}
+
 std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 {
 	// 이름인식 최대길이
@@ -341,6 +380,9 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wregex rx_name, rx_name2, rx_name3, rx_name4, rx_repeat;
 	
 	rx_repeat.assign(L"");
+
+	// 늘어짐 문장 수정
+	if (Cl.Config->GetRepeatTextProc()) DoubleTextFix(input);
 
 	if (Cl.Config->GetRepeatTextProc())
 	{
