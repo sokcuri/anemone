@@ -344,6 +344,8 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 	else text = input;
 	*/
 
+	if (text.size() < 8) return false;
+
 	for (unsigned int i = 0; i < text.size(); i++)
 	{
 		if (text[i] == text[i + 1])
@@ -357,7 +359,11 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 		}
 		else
 		{
-			output += text[i];
+			// 4자 (중복 8자)도 안되면 문제가 있을 수 있음. 무조건 리턴
+			if (i < 4 * 2) return false;
+
+			for (; i < text.size(); i++)
+				output += text[i];
 		}
 	}
 
@@ -372,6 +378,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 
 	/*
 	* [2013-12-13] 이름인식 정규식 by MYC Gamer
+	* [2013-07-23] 이름인식 정규식 V2 (대사 끝에 붙어 있는 이름 인식, 일반 괄호 반복 인식)
 	*
 	*【AA】【AA】【AA】【AA】BB
 	*【AA】【AA】BB
@@ -380,27 +387,34 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	*【AACAACAAC】BB
 	*
 	*/
-	std::wregex rx_name, rx_name2, rx_name3, rx_name4, rx_repeat;
+	std::wregex reg_front_r1, reg_front_r2, reg_front_r3, reg_front_r4, reg_front_r5;
+	std::wregex reg_tail_r1, reg_tail_r2, reg_tail_r3, reg_tail_r4, reg_tail_r5;
 	
-	rx_repeat.assign(L"");
-
-	if (Cl.Config->GetRepeatTextProc())
+	if (Cl.Config->GetRepeatTextProc() > 0)
 	{
-		rx_name.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
-		rx_name2.assign(L"^([^「」『』（）()]+?)(?:[「『（(](?:\\1)+|[」』）)]\\1+|(?!([^」』）)])\\1*[」』）)])\\1*([「」『』（）()].*))"); 
+		reg_front_r1.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
+		reg_front_r2.assign(L"^([^「]+?)(?:[「](?:\\1)+|[」]\\1+|(?!([^」])\\1*[」])\\1*([「](.*」|[^」]+?)$))");
+		reg_front_r3.assign(L"^([^『]+?)(?:[『](?:\\1)+|[』]\\1+|(?!([^』])\\1*[』])\\1*([『](.*』|[^』]+?)$))");
+		reg_front_r4.assign(L"^([^(]+?)(?:[(](?:\\1)+|[)]\\1+|(?!([^)])\\1*[)])\\1*([(].*[)]))");
+		reg_front_r5.assign(L"^([^（]+?)(?:[（](?:\\1)+|[）]\\1+|(?!([^）])\\1*[）])\\1*([（].*[）]))");
+		//rx_head5.assign(L"^([^「」『』（）()]+?)(?:[「『（(](?:\\1)+|[」』）)]\\1+|(?!([^」』）)])\\1*[」』）)])\\1*([「」『』（）()].*[）)]))");
 		//rx_name.assign(L"【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
 		//rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
+		//rx_name4.assign(L"^([「」『』（）()].*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
 
-		rx_name3.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
-		rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
+		reg_tail_r1.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
+		reg_tail_r2.assign(L"^([「].*[」]|[^「]+?[^「][」])([^「]+?)(?:[「](?:\\2)+|[」]\\2+|(?!([^」])\\2*[」])\\2*)$");
+		reg_tail_r3.assign(L"^([『].*[』]|[^『]+?[^『][』])([^『]+?)(?:[『](?:\\2)+|[』]\\2+|(?!([^』])\\2*[』])\\2*)$");
+		reg_tail_r4.assign(L"^([(].*[)])([^(]+?)(?:[(](?:\\2)+|[)]\\2+|(?!([^)])\\2*[)])\\2*)");
+		reg_tail_r5.assign(L"^([（].*[）])([^（]+?)(?:[（](?:\\2)+|[）]\\2+|(?!([^）])\\2*[）])\\2*)");
 	}
 	else
 	{
-		rx_name.assign(L"^【((?:[^】]+$|(.+)))】([^【】]+?)$");
-		rx_name2.assign(L"^([^「」『』（）()]+?)()(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
+		reg_front_r1.assign(L"^【((?:[^】]+$|(.+)))】([^【】]+?)$");
+		reg_front_r2.assign(L"^([^「」『』（）()]+?)()(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
 
-		rx_name3.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
-		rx_name4.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
+		reg_tail_r1.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
+		reg_tail_r2.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
 	}
 
 	std::wsmatch m;
@@ -412,7 +426,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wstring wEmpty = L"";
 
 	// 【이름】
-	if (std::regex_match(input, m, rx_name))
+	if (std::regex_match(input, m, reg_front_r1))
 	{
 		wName = L"";
 		wName += L"【";
@@ -425,7 +439,10 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wName = replaceAll(wName, L"【】", wEmpty);
 	}
 	// 이름 처리
-	else if (std::regex_match(input, m, rx_name2))
+	else if (std::regex_match(input, m, reg_front_r2) || 
+			std::regex_match(input, m, reg_front_r3) || 
+			std::regex_match(input, m, reg_front_r4) || 
+			std::regex_match(input, m, reg_front_r5))
 	{
 		wName = m[1];
 		wText = m[3];
@@ -440,7 +457,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		if (Cl.Config->GetReviseName())
 		{
 			// 【이름】
-			if (std::regex_match(input, m, rx_name3))
+			if (std::regex_match(input, m, reg_tail_r1))
 			{
 				wName = L"";
 				wName += L"【";
@@ -453,7 +470,10 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 				wName = replaceAll(wName, L"【】", wEmpty);
 			}
 			// 이름 처리
-			else if (std::regex_match(input, m, rx_name4))
+			else if (std::regex_match(input, m, reg_tail_r2) || 
+					std::regex_match(input, m, reg_tail_r3) || 
+					std::regex_match(input, m, reg_tail_r4) || 
+					std::regex_match(input, m, reg_tail_r5))
 			{
 				wName = m[2];
 				wText = m[1];
@@ -507,16 +527,63 @@ bool CTextProcess::OnDrawClipboard()
 	// 문장이 2개로 출력되어 나오면 잘라준다
 	if (Cl.Config->GetRepeatTextProc() > 1)
 	{
-		std::wstring full = wContext;
+		int nResult = 1;
+		std::wstring str;
+		int index = wContext.size() / 2;
 
-		for (unsigned int i = 0; ; i++)
+		for (unsigned int i = 0; i < wContext.size(); i++, index++)
 		{
-			if (i == full.size() / 2)
+			if (i == wContext.size() / 2)
 			{
-				wContext = wContext.substr(0, full.size() / 2);
+				nResult = 1;
 				break;
 			}
-			else if (full[i] != full[i + full.size() / 2]) break;
+
+			if (wContext[i] != wContext[index])
+			{
+				nResult = 0;
+				break;
+			}
+		}
+
+		if (nResult == 0)
+		{
+			index = wContext.size() / 2 + 1;
+
+			for (unsigned int i = 0; i < wContext.size(); i++, index++)
+			{
+				if (index == wContext.size())
+				{
+					nResult = 2;
+					break;
+				}
+
+				if (wContext[i] != wContext[index])
+				{
+					nResult = 0;
+					break;
+				}
+			}
+		}
+
+		if (nResult == 1)
+		{
+			// 1234 12345
+			if (wContext.size() % 2 == 1)
+			{
+				wContext = wContext.substr(wContext.size() / 2, wContext.size() / 2 + 1);
+			}
+			// 1234 1234
+			else
+			{
+				wContext = wContext.substr(0, wContext.size() / 2);
+			}
+		}
+
+		// 12345 1234
+		else if (nResult == 2)
+		{
+			wContext = wContext.substr(0, wContext.size() / 2 + 1);
 		}
 	}
 	
