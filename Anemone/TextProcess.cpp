@@ -355,11 +355,10 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 		{
 			output += text[i];
 		}
-		else if (nHardFix == true)
+		else
 		{
 			output += text[i];
 		}
-		else return false;
 	}
 
 	input = output;
@@ -471,10 +470,6 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wText = input;
 	}
 
-	// 늘어짐 문장 수정
-	if (Cl.Config->GetRepeatTextProc() > 0) DoubleTextFix(wText);
-	if (Cl.Config->GetRepeatTextProc() > 1) DoubleTextFix(wName);
-
 	if (nCode == 0) return wName;
 	return wText;
 }
@@ -509,10 +504,30 @@ bool CTextProcess::OnDrawClipboard()
 	wContext = (wchar_t*)GlobalLock(hClipData);
 	GlobalUnlock(hClipData);
 
+	// 문장이 2개로 출력되어 나오면 잘라준다
+	if (Cl.Config->GetRepeatTextProc() > 1)
+	{
+		std::wstring full = wContext;
+
+		for (unsigned int i = 0; ; i++)
+		{
+			if (i == full.size() / 2)
+			{
+				wContext = wContext.substr(0, full.size() / 2);
+				break;
+			}
+			else if (full[i] != full[i + full.size() / 2]) break;
+		}
+	}
+	
 	wName = NameSplit(0, wContext);
+	if (Cl.Config->GetRepeatTextProc() > 1)
+		DoubleTextFix(wName);
 	wNameT = eztrans_proc(wName);
 
 	wText = NameSplit(1, wContext);
+	if (Cl.Config->GetRepeatTextProc() > 0)
+		DoubleTextFix(wText);
 	wTextT = eztrans_proc(wText);
 
 	wContextT = wNameT;
