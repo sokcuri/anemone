@@ -530,6 +530,9 @@ bool CTextProcess::OnDrawClipboard()
 		DoubleTextFix(wText);
 	wTextT = eztrans_proc(wText);
 
+	wContext = wName;
+	wContext += wText;
+
 	wContextT = wNameT;
 	wContextT += wTextT;
 

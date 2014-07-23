@@ -54,6 +54,7 @@ int APIENTRY _tWinMain(
 
 	// 환경설정 클래스
 	Cl.Config = new CConfig();
+	Cl.Config->LoadConfig();
 
 	// 응용 프로그램 초기화를 수행합니다.
 	if (!InitInstance(hInstance, false))
@@ -116,6 +117,9 @@ int APIENTRY _tWinMain(
 	}
 
 	ShowWindow(hWnds.Main, false);
+
+	// 설정 저장
+	Cl.Config->SaveConfig();
 
 	delete Cl.Config;
 	delete Cl.TransEngine;
@@ -829,6 +833,11 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	case WM_CREATE:
 	{
 		//CheckDlgButton(hWnd, IDC_SETTING_TOPMOST, true);
+	}
+		break;
+	case WM_DESTROY:
+	{
+		Cl.Config->SaveConfig();
 	}
 		break;
 	case WM_COMMAND:

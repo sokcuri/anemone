@@ -7,8 +7,8 @@
 #define OEMRESOURCE
 #include "targetver.h"
 
-// wstring → string 변환 경고 끄기
-#pragma warning(disable: 4244)
+#pragma warning(disable: 4244) // wstring-string 경고
+#pragma warning(disable: 4996) // wcscpy
 
 // Windows 헤더 파일:
 #include <windows.h>
