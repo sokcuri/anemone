@@ -370,8 +370,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wstring wEmpty = L"";
 
 	// 【이름】
-	if (std::regex_match(input, m, rx_name) ||
-		Cl.Config->GetReviseName() && std::regex_match(input, m, rx_name3))
+	if (std::regex_match(input, m, rx_name))
 	{
 		wName = L"";
 		wName += L"【";
@@ -380,12 +379,11 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wText = m[3];
 
 		wName = replaceAll(wName, wSpace, wEmpty);
-		wName = replaceAll(wName, wTab, wEmpty);
+		wName = replaceAll(wName, wTab, wEmpty); //(이름)대사
 		wName = replaceAll(wName, L"【】", wEmpty);
 	}
 	// 이름 처리
-	else if (std::regex_match(input, m, rx_name2) ||
-			 Cl.Config->GetReviseName() && std::regex_match(input, m, rx_name4))
+	else if (std::regex_match(input, m, rx_name2))
 	{
 		wName = m[1];
 		wText = m[3];
@@ -396,6 +394,42 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	{
 		wName = wEmpty;
 		wText = input;
+
+		if (Cl.Config->GetReviseName())
+		{
+			if (Cl.Config->GetRepeatTextProc())
+			{
+				rx_name3.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
+				rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*)$");
+			}
+			else
+			{
+				rx_name3.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
+				rx_name4.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
+			}
+
+			// 【이름】
+			if (std::regex_match(input, m, rx_name3))
+			{
+				wName = L"";
+				wName += L"【";
+				wName += m[2];
+				wName += L"】";
+				wText = m[1];
+
+				wName = replaceAll(wName, wSpace, wEmpty);
+				wName = replaceAll(wName, wTab, wEmpty); //(이름)대사
+				wName = replaceAll(wName, L"【】", wEmpty);
+			}
+			// 이름 처리
+			else if (std::regex_match(input, m, rx_name4))
+			{
+				wName = m[2];
+				wText = m[1];
+				wName = replaceAll(wName, wSpace, wEmpty);
+				wName = replaceAll(wName, wTab, wEmpty);
+			}
+		}
 	}
 
 	// 이름인식 길이를 넘어서면 이름 X
