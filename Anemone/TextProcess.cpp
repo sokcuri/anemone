@@ -327,18 +327,20 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 bool CTextProcess::DoubleTextFix(std::wstring &input)
 {
 	std::wstring output;
-	std::wstring text = input;
+	std::wstring text;
 	bool nHardFix = false;
 
 	std::wsmatch m;
-	std::wregex regex(L"^([^「」『』（）()]+)(.*)$");
+	std::wregex regex(L"(?:(.*[^「『（(])([「『（(].*))$");
 
 	if (std::regex_match(input, m, regex))
 	{
 		nHardFix = true;
 		output = m[1];
 		text = m[2];
+		if (m[2] == L"") text = input;
 	}
+	else text = input;
 
 	for (unsigned int i = 0; i < text.size() / 2 * 2; i++)
 	{
@@ -387,17 +389,17 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	if (Cl.Config->GetRepeatTextProc())
 	{
 		rx_name.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
-		rx_name2.assign(L"^([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*([「」『』（）()].*))"); 
+		rx_name2.assign(L"^([^「」『』（）()]+?)(?:[「『（(](?:\\1)+|[」』）)]\\1+|(?!([^」』）)])\\1*[」』）)])\\1*([「」『』（）()].*))"); 
 		//rx_name.assign(L"【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
 		//rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
 
 		rx_name3.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
-		rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*)$");
+		rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
 	}
 	else
 	{
 		rx_name.assign(L"^【((?:[^】]+$|(.+)))】([^【】]+?)$");
-		rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
+		rx_name2.assign(L"^([^「」『』（）()]+?)()(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
 
 		rx_name3.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
 		rx_name4.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
@@ -439,17 +441,6 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 
 		if (Cl.Config->GetReviseName())
 		{
-			if (Cl.Config->GetRepeatTextProc())
-			{
-				rx_name3.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
-				rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*)$");
-			}
-			else
-			{
-				rx_name3.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
-				rx_name4.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
-			}
-
 			// 【이름】
 			if (std::regex_match(input, m, rx_name3))
 			{
