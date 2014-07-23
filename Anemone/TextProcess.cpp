@@ -344,7 +344,7 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 	else text = input;
 	*/
 
-	for (unsigned int i = 0; i < text.size() / 2 * 2; i++)
+	for (unsigned int i = 0; i < text.size(); i++)
 	{
 		if (text[i] == text[i + 1])
 		{
