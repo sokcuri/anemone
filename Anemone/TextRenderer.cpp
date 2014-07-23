@@ -58,8 +58,8 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 
 	Gdiplus::REAL emSize = graphics->GetDpiY() * fntSize / 72;
 
-	int shadowX = Cl.Config->GetShadowX()-50;
-	int shadowY = Cl.Config->GetShadowY()-50;
+	int shadowX = Cl.Config->GetShadowX()-10+4;
+	int shadowY = Cl.Config->GetShadowY()-10+4;
 
 	if (shadowVisible)
 	{
@@ -68,6 +68,7 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 
 		Pen pen_shadow(shadowColor, (Gdiplus::REAL)outlineTotalThick);
 		pen_shadow.SetLineJoin(LineJoinRound);
+
 		graphics->DrawPath(&pen_shadow, &path_shadow);
 	}
 
@@ -160,15 +161,102 @@ bool CTextRenderer::Paint()
 	// 크기 조절 모드
 	else
 	{
-		if (!IsActive && !bBGSwitch) graphics.Clear(Color(0x80, 0, 216, 255));
+		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
 		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 		else graphics.Clear(Color(1, 0, 0, 0));
 
-		int nBorderWidth = 10;
+		int nBorderWidth = 8;
 		Pen nBorderPen(Color(0x80, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2) - 1, (nBorderWidth / 2) - 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
 	}
+
+
+	StringFormat strformat = StringFormat::GenericTypographic();
+	strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
+
+	int pad_y = 20;
+
+	bool bNameSwitch = Cl.Config->GetTextSwitch(CFG_NAME);
+	bool bNameOrgSwitch = Cl.Config->GetTextSwitch(CFG_NAME_ORG);
+	bool bNameShadow = Cl.Config->GetTextShadow(CFG_NAME);
+
+	wchar_t *fnName = Cl.Config->GetTextFont(CFG_NAME);
+
+	//DWORD dwShadow = Cl.Config->GetShadowColor();
+
+	int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
+	int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
+	int nNameC = Cl.Config->GetTextSize(CFG_NAME, CFG_C);
+
+	DWORD dwNameA = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
+	DWORD dwNameB = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
+	DWORD dwNameC = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
+	DWORD dwNameS = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
+
+	bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
+	bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
+
+	wchar_t *fnOrg = Cl.Config->GetTextFont(CFG_ORG);
+
+	int nOrgA = Cl.Config->GetTextSize(CFG_ORG, CFG_A);
+	int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
+	int nOrgC = Cl.Config->GetTextSize(CFG_ORG, CFG_C);
+
+	DWORD dwOrgA = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
+	DWORD dwOrgB = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
+	DWORD dwOrgC = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+	DWORD dwOrgS = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
+
+	bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
+	bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
+
+	wchar_t *fnTrans = Cl.Config->GetTextFont(CFG_TRANS);
+
+	int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
+	int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
+	int nTransC = Cl.Config->GetTextSize(CFG_TRANS, CFG_C);
+
+	DWORD dwTransA = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
+	DWORD dwTransB = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
+	DWORD dwTransC = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
+	DWORD dwTransS = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
+
+	if (Cl.Config->GetTextSize(CFG_NAME, CFG_B) == 0)
+		dwNameB = dwNameB & 0xFFFFFF;
+	if (Cl.Config->GetTextSize(CFG_NAME, CFG_C) == 0)
+		dwNameC = dwNameC & 0xFFFFFF;
+
+	if (Cl.Config->GetTextSize(CFG_ORG, CFG_B) == 0)
+		dwOrgB = dwOrgB & 0xFFFFFF;
+	if (Cl.Config->GetTextSize(CFG_ORG, CFG_C) == 0)
+		dwOrgC = dwOrgC & 0xFFFFFF;
+
+	if (Cl.Config->GetTextSize(CFG_TRANS, CFG_B) == 0)
+		dwTransB = dwTransB & 0xFFFFFF;
+	if (Cl.Config->GetTextSize(CFG_TRANS, CFG_C) == 0)
+		dwTransC = dwTransC & 0xFFFFFF;
+
+
+	// 원문 이름 괄호 옆에 붙이기
+	std::wstring szNameConv = (*szNameT);
+	szNameConv += L" ";
+
+	if (bNameSwitch)
+	{
+		if (bNameOrgSwitch)
+		{
+			szNameConv += L"(";
+			szNameConv += (*szName);
+			szNameConv += L")";
+
+			szNameConv = replaceAll(szNameConv, L"()", L"");
+		}
+	}
+
+	int mar_x = Cl.Config->GetTextMarginX();
+	int mar_y = Cl.Config->GetTextMarginY();
+	int mar_name = Cl.Config->GetTextMarginName();
 
 	if (!IsActive)
 	{
@@ -177,110 +265,24 @@ bool CTextRenderer::Paint()
 
 		SolidBrush brush(Color(32, 0, 0, 0));
 		Pen pen(Color(16, 255, 255, 255), 10);
-		
+
 		//for (int i = 1; i <= 10; i++)
 		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
-		
-		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", L"맑은 고딕", 25, 3, 3, Color(255, 255, 255, 255), Color(255, 67, 116, 217), Color(255, 139, 189, 255), Color(32, 0, 0, 0), true, true, true, true, &Gdiplus::Rect(20, 20, width - 40, height + 300));
+
+		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 
 		if (!Cl.Config->GetSizableMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 	else
 	{
-		StringFormat strformat = StringFormat::GenericTypographic();
-		strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
-
-		int pad_y = 20;
-
-		bool bNameSwitch = Cl.Config->GetTextSwitch(CFG_NAME);
-		bool bNameOrgSwitch = Cl.Config->GetTextSwitch(CFG_NAME_ORG);
-		bool bNameShadow = Cl.Config->GetTextShadow(CFG_NAME);
-
-		wchar_t *fnName = Cl.Config->GetTextFont(CFG_NAME);
-
-		//DWORD dwShadow = Cl.Config->GetShadowColor();
-
-		int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
-		int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
-		int nNameC = Cl.Config->GetTextSize(CFG_NAME, CFG_C);
-
-		DWORD dwNameA = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
-		DWORD dwNameB = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
-		DWORD dwNameC = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
-		DWORD dwNameS = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
-
-		bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
-		bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
-
-		wchar_t *fnOrg = Cl.Config->GetTextFont(CFG_ORG);
-
-		int nOrgA = Cl.Config->GetTextSize(CFG_ORG, CFG_A);
-		int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
-		int nOrgC = Cl.Config->GetTextSize(CFG_ORG, CFG_C);
-
-		DWORD dwOrgA = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
-		DWORD dwOrgB = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
-		DWORD dwOrgC = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
-		DWORD dwOrgS = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
-
-		bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
-		bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
-
-		wchar_t *fnTrans = Cl.Config->GetTextFont(CFG_TRANS);
-
-		int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
-		int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
-		int nTransC = Cl.Config->GetTextSize(CFG_TRANS, CFG_C);
-
-		DWORD dwTransA = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
-		DWORD dwTransB = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
-		DWORD dwTransC = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
-		DWORD dwTransS = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
-
-		if (Cl.Config->GetTextSize(CFG_NAME, CFG_B) == 0)
-			dwNameB = dwNameB & 0xFFFFFF;
-		if (Cl.Config->GetTextSize(CFG_NAME, CFG_C) == 0)
-			dwNameC = dwNameC & 0xFFFFFF;
-
-		if (Cl.Config->GetTextSize(CFG_ORG, CFG_B) == 0)
-			dwOrgB = dwOrgB & 0xFFFFFF;
-		if (Cl.Config->GetTextSize(CFG_ORG, CFG_C) == 0)
-			dwOrgC = dwOrgC & 0xFFFFFF;
-
-		if (Cl.Config->GetTextSize(CFG_TRANS, CFG_B) == 0)
-			dwTransB = dwTransB & 0xFFFFFF;
-		if (Cl.Config->GetTextSize(CFG_TRANS, CFG_C) == 0)
-			dwTransC = dwTransC & 0xFFFFFF;
-
-
-		// 원문 이름 괄호 옆에 붙이기
-		std::wstring szNameConv = (*szNameT);
-		szNameConv += L" ";
-
-		if (bNameSwitch)
-		{
-			if (bNameOrgSwitch)
-			{
-				szNameConv += L"(";
-				szNameConv += (*szName);
-				szNameConv += L")";
-
-				szNameConv = replaceAll(szNameConv, L"()", L"");
-			}
-		}
-
-		int mar_x = Cl.Config->GetTextMarginX();
-		int mar_y = Cl.Config->GetTextMarginY();
-		int mar_name = Cl.Config->GetTextMarginName();
-
 		pad_y += DrawText(&graphics, (bNameSwitch ? (szNameConv).c_str() : L" "), fnName, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwNameS >> 24) & 0xFF, (dwNameS >> 16) & 0xFF, (dwNameS >> 8) & 0xFF, (dwNameS)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20 + mar_name, pad_y, width - 40 - mar_name, height + 300));
 		if (bOrgSwitch)   pad_y += DrawText(&graphics, (bNameSwitch ? (*szText).c_str() : (*szContext).c_str()), fnOrg, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 		if (bTransSwitch) pad_y += DrawText(&graphics, (bNameSwitch ? (*szTextT).c_str() : (*szContextT).c_str()), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS) & 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
-		
-		int nBorderWidth = 5;
-		//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
-		//graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
+	int nBorderWidth = 5;
+	//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+	//graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
+
 	POINT dcOffset = { 0, 0 };
 	SIZE size = { rect.right - rect.left, rect.bottom - rect.top };
 

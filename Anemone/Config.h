@@ -16,10 +16,11 @@ private:
 	bool cfg_bg_switch          = true;
 	DWORD cfg_bg_color          = 0x130091FB;
 
-	int cfg_shadow_x            = 54;
-	int cfg_shadow_y            = 54;
+	int cfg_shadow_x            = 10;
+	int cfg_shadow_y            = 10;
 
 	bool cfg_name_switch        = true;
+	bool cfg_name_revise        = true;
 	bool cfg_name_org_switch    = true;
 	bool cfg_name_shadow        = true;
 	wchar_t cfg_name_font[255];
@@ -62,8 +63,7 @@ private:
 	bool cfg_hidewin_unwatch_clipboard = true;
 	bool cfg_hidewin_unlock_hotkey = true;
 	bool cfg_magnetic_mode = false;
-	bool cfg_repeat_text = false;
-	bool cfg_textend_name = false;
+	bool cfg_repeat_text = true;
 	bool cfg_force_anedic = false;
 	bool cfg_ane_remocon = false;
 	bool cfg_extern_hotkey = true;
@@ -79,6 +79,9 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetReviseName() { return cfg_name_revise; }
+	void SetReviseName(bool b) { cfg_name_revise = b; }
 
 	int GetTransOneGo() { return cfg_trans_onego; }
 	void SetTransOneGo(bool b) { cfg_trans_onego = b; }
@@ -103,9 +106,6 @@ public:
 
 	bool GetForceAneDic() { return cfg_force_anedic; }
 	void SetForceAneDic(bool b) { cfg_force_anedic = b; }
-
-	bool GetTextEndNameProc() { return cfg_textend_name; }
-	void SetTextEndNameProc(bool b) { cfg_textend_name = b; }
 
 	bool GetRepeatTextProc() { return cfg_repeat_text; }
 	void SetRepeatTextProc(bool b) { cfg_repeat_text = b; }

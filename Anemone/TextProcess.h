@@ -12,8 +12,8 @@ public:
 	//unsigned int WINAPI ThreadFunction(void *arg);
 	std::wstring TranslateText(HWND hWnd, const std::wstring &input);
 	void CTextProcess::TranslateAbort();
-private:
 	std::wstring eztrans_proc(const std::wstring &input);
+private:
 	std::wstring HangulEncode(const std::wstring &input);
 	std::wstring HangulDecode(const std::wstring &input);
 	std::wstring NameSplit(int nCode, std::wstring &input);

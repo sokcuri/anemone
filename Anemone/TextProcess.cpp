@@ -76,6 +76,7 @@ unsigned int WINAPI CTextProcess::ThreadFunction(void *arg)
 	return 0;
 }
 */
+
 std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 {
 	Elapsed_Prepare = 0;
@@ -337,9 +338,29 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	*【AACAACAAC】BB
 	*
 	*/
+	std::wregex rx_name, rx_name2, rx_name3, rx_name4, rx_repeat;
+	
+	rx_repeat.assign(L"");
 
-	std::wregex rx_name(L"【([^】]+?)(?:】(?:【\\1】|【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
-	std::wregex rx_name2(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
+	if (Cl.Config->GetRepeatTextProc())
+	{
+		rx_name.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
+		rx_name2.assign(L"^([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*([「」『』（）()].*))"); 
+		//rx_name.assign(L"【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
+		//rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
+
+		rx_name3.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
+		rx_name4.assign(L"^(.*[「」『』（）()])([^「」『』（）()]+?)(?:[「」『』（）()](?:\\1)+|[「」『』（）()]\\1+|(?!([^「」『』（）()])\\1*[「」『』（）()])\\1*)$");
+	}
+	else
+	{
+		rx_name.assign(L"^【((?:[^】]+$|(.+)))】([^【】]+?)$");
+		rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
+
+		rx_name3.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
+		rx_name4.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
+	}
+
 	std::wsmatch m;
 
 	std::wstring wName, wText;
@@ -349,7 +370,8 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wstring wEmpty = L"";
 
 	// 【이름】
-	if (std::regex_match(input, m, rx_name))
+	if (std::regex_match(input, m, rx_name) ||
+		Cl.Config->GetReviseName() && std::regex_match(input, m, rx_name3))
 	{
 		wName = L"";
 		wName += L"【";
@@ -358,18 +380,18 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wText = m[3];
 
 		wName = replaceAll(wName, wSpace, wEmpty);
-		wName = replaceAll(wName, wTab, wEmpty);//(이름)대사
+		wName = replaceAll(wName, wTab, wEmpty);
 		wName = replaceAll(wName, L"【】", wEmpty);
 	}
 	// 이름 처리
-	else if (std::regex_match(input, m, rx_name2))
+	else if (std::regex_match(input, m, rx_name2) ||
+			 Cl.Config->GetReviseName() && std::regex_match(input, m, rx_name4))
 	{
 		wName = m[1];
-		wText = m[2];
+		wText = m[3];
 		wName = replaceAll(wName, wSpace, wEmpty);
 		wName = replaceAll(wName, wTab, wEmpty);
 	}
-	// 이름이 없을때
 	else
 	{
 		wName = wEmpty;

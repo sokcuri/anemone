@@ -432,7 +432,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, Cl.Config->GetRepeatTextProc());
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTEND_NAME, Cl.Config->GetTextEndNameProc());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTEND_NAME, Cl.Config->GetReviseName());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_FORCE_ANEDIC, Cl.Config->GetForceAneDic());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_ANE_REMOCON, Cl.Config->GetRemoconMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_EXTERN_HOTKEY, Cl.Config->GetExternHotkey());
@@ -534,7 +534,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					int n = Cl.Config->GetShadowX();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 20));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
@@ -542,7 +542,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					ws << L"그림자 X축";
 					ws << L" (";
-					ws << n-50;
+					ws << n-10;
 					ws << L")";
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_X_TEXT, str.c_str());
@@ -551,7 +551,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					int n = Cl.Config->GetShadowY();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 20));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
@@ -559,7 +559,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					ws << L"그림자 Y축";
 					ws << L" (";
-					ws << n-50;
+					ws << n-10;
 					ws << L")";
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_Y_TEXT, str.c_str());
@@ -869,8 +869,10 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SEPERATE_NAME, 0);
 			break;
 		case IDC_SETTING_REPEAT_TEXT:
+			(Cl.Config->GetRepeatTextProc() ? Cl.Config->SetRepeatTextProc(false) : Cl.Config->SetRepeatTextProc(true));
 			break;
 		case IDC_SETTING_TEXTEND_NAME:
+			(Cl.Config->GetReviseName() ? Cl.Config->SetReviseName(false) : Cl.Config->SetReviseName(true));
 			break;
 		case IDC_SETTING_FORCE_ANEDIC:
 			break;
@@ -948,7 +950,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
 					break;
 				case IDC_SETTING_TRANS_SHADOW_COLOR:
-					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
+					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
 					break;
 				}
 
