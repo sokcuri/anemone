@@ -7,6 +7,7 @@
 #define CFG_A 0
 #define CFG_B 1
 #define CFG_C 2
+#define CFG_S 3
 #define CFG_ALL 4
 
 class CConfig
@@ -14,8 +15,10 @@ class CConfig
 private:
 	bool cfg_bg_switch          = true;
 	DWORD cfg_bg_color          = 0x130091FB;
-	DWORD cfg_shadow_color      = 0x32000000;
-	
+
+	int cfg_shadow_x            = 54;
+	int cfg_shadow_y            = 54;
+
 	bool cfg_name_switch        = true;
 	bool cfg_name_org_switch    = true;
 	bool cfg_name_shadow        = true;
@@ -23,6 +26,7 @@ private:
 	DWORD cfg_name_color_a      = 0xFFFFFFFF;
 	DWORD cfg_name_color_b      = 0xFFFF5E00;
 	DWORD cfg_name_color_c      = 0xFFFFA850;
+	DWORD cfg_name_color_s      = 0x32000000;
 	int cfg_name_size_a         = 25;
 	int cfg_name_size_b         = 3;
 	int cfg_name_size_c         = 3;
@@ -33,6 +37,7 @@ private:
 	DWORD cfg_org_color_a       = 0xFFFFFFFF;
 	DWORD cfg_org_color_b       = 0xFFFF0000;
 	DWORD cfg_org_color_c       = 0xFFFBAAAA;
+	DWORD cfg_org_color_s       = 0x32000000;
 	int cfg_org_size_a          = 25;
 	int cfg_org_size_b          = 3;
 	int cfg_org_size_c          = 3;
@@ -43,6 +48,7 @@ private:
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
 	DWORD cfg_trans_color_b     = 0xFF4374D9;
 	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
+	DWORD cfg_trans_color_s     = 0x32000000;
 	int cfg_trans_size_a        = 25;
 	int cfg_trans_size_b        = 3;
 	int cfg_trans_size_c        = 3;
@@ -212,15 +218,11 @@ public:
 		}
 	}
 
-	DWORD GetShadowColor()
-	{
-		return cfg_shadow_color;
-	}
+	DWORD GetShadowX() { return cfg_shadow_x; }
+	void SetShadowX(int c) { cfg_shadow_x = c; }
 
-	void SetShadowColor(int c)
-	{
-		cfg_shadow_color = c;
-	}
+	DWORD GetShadowY() { return cfg_shadow_y; }
+	void SetShadowY(int c) { cfg_shadow_y = c; }
 
 	DWORD GetTextColor(int type, int n)
 	{
@@ -231,6 +233,7 @@ public:
 				if (n == CFG_A) return cfg_name_color_a;
 				else if (n == CFG_B) return cfg_name_color_b;
 				else if (n == CFG_C) return cfg_name_color_c;
+				else if (n == CFG_S) return cfg_name_color_s;
 			}
 			break;
 		case CFG_ORG:
@@ -238,6 +241,7 @@ public:
 				if (n == CFG_A) return cfg_org_color_a;
 				else if (n == CFG_B) return cfg_org_color_b;
 				else if (n == CFG_C) return cfg_org_color_c;
+				else if (n == CFG_S) return cfg_org_color_s;
 			}
 			break;
 		case CFG_TRANS:
@@ -245,6 +249,7 @@ public:
 				if (n == CFG_A) return cfg_trans_color_a;
 				else if (n == CFG_B) return cfg_trans_color_b;
 				else if (n == CFG_C) return cfg_trans_color_c;
+				else if (n == CFG_S) return cfg_trans_color_s;
 			}
 			break;
 		}
@@ -260,6 +265,7 @@ public:
 				if (n == CFG_A) cfg_name_color_a = c;
 				else if (n == CFG_B) cfg_name_color_b = c;
 				else if (n == CFG_C) cfg_name_color_c = c;
+				else if (n == CFG_S) cfg_name_color_s = c;
 			}
 			break;
 		case CFG_ORG:
@@ -267,6 +273,7 @@ public:
 				if (n == CFG_A) cfg_org_color_a = c;
 				else if (n == CFG_B) cfg_org_color_b = c;
 				else if (n == CFG_C) cfg_org_color_c = c;
+				else if (n == CFG_S) cfg_org_color_s = c;
 			}
 			break;
 		case CFG_TRANS:
@@ -274,6 +281,7 @@ public:
 				if (n == CFG_A) cfg_trans_color_a = c;
 				else if (n == CFG_B) cfg_trans_color_b = c;
 				else if (n == CFG_C) cfg_trans_color_c = c;
+				else if (n == CFG_S) cfg_trans_color_s = c;
 			}
 			break;
 		}

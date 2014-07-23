@@ -532,20 +532,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_TRANS_SHADOW, Cl.Config->GetTextShadow(CFG_TRANS));
 
 				{
-					int nBGAlpha = (Cl.Config->GetShadowColor() >> 24) & 0xFF;
+					int n = Cl.Config->GetShadowX();
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 255));
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nBGAlpha);
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
 
 					std::wstringstream ws;
 					std::wstring str;
 
-					ws << L"투명도 설정";
+					ws << L"그림자 X축";
 					ws << L" (";
-					ws << nBGAlpha;
+					ws << n-50;
 					ws << L")";
 					str = ws.str();
-					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_TEXT, str.c_str());
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_X_TEXT, str.c_str());
+				}
+
+				{
+					int n = Cl.Config->GetShadowY();
+
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
+
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"그림자 Y축";
+					ws << L" (";
+					ws << n-50;
+					ws << L")";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_Y_TEXT, str.c_str());
 				}
 
 				{
@@ -879,13 +896,15 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_NAME_COLOR:
 		case IDC_SETTING_NAME_OUTLINE1:
 		case IDC_SETTING_NAME_OUTLINE2:
+		case IDC_SETTING_NAME_SHADOW_COLOR:
 		case IDC_SETTING_ORG_COLOR:
 		case IDC_SETTING_ORG_OUTLINE1:
 		case IDC_SETTING_ORG_OUTLINE2:
+		case IDC_SETTING_ORG_SHADOW_COLOR:
 		case IDC_SETTING_TRANS_COLOR:
 		case IDC_SETTING_TRANS_OUTLINE1:
 		case IDC_SETTING_TRANS_OUTLINE2:
-		case IDC_SETTING_SHADOW_COLOR:
+		case IDC_SETTING_TRANS_SHADOW_COLOR:
 			{
 				CHOOSECOLOR cc; 
 				DWORD dwColor;
@@ -904,6 +923,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				case IDC_SETTING_NAME_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
 					break;
+				case IDC_SETTING_NAME_SHADOW_COLOR:
+					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
+					break;
 				case IDC_SETTING_ORG_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
 					break;
@@ -912,6 +934,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					break;
 				case IDC_SETTING_ORG_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+					break;
+				case IDC_SETTING_ORG_SHADOW_COLOR:
+					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
 					break;
 				case IDC_SETTING_TRANS_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
@@ -922,8 +947,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				case IDC_SETTING_TRANS_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
 					break;
-				case IDC_SETTING_SHADOW_COLOR:
-					dwColor = Cl.Config->GetShadowColor();
+				case IDC_SETTING_TRANS_SHADOW_COLOR:
+					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
 					break;
 				}
 
@@ -950,6 +975,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					case IDC_SETTING_NAME_OUTLINE2:
 						Cl.Config->SetTextColor(CFG_NAME, CFG_C, dw);
 						break;
+					case IDC_SETTING_NAME_SHADOW_COLOR:
+						Cl.Config->SetTextColor(CFG_NAME, CFG_S, dw);
+						break;
 					case IDC_SETTING_ORG_COLOR:
 						Cl.Config->SetTextColor(CFG_ORG, CFG_A, dw);
 						break;
@@ -958,6 +986,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 						break;
 					case IDC_SETTING_ORG_OUTLINE2:
 						Cl.Config->SetTextColor(CFG_ORG, CFG_C, dw);
+						break;
+					case IDC_SETTING_ORG_SHADOW_COLOR:
+						Cl.Config->SetTextColor(CFG_ORG, CFG_S, dw);
 						break;
 					case IDC_SETTING_TRANS_COLOR:
 						Cl.Config->SetTextColor(CFG_TRANS, CFG_A, dw);
@@ -968,8 +999,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					case IDC_SETTING_TRANS_OUTLINE2:
 						Cl.Config->SetTextColor(CFG_TRANS, CFG_C, dw);
 						break;
-					case IDC_SETTING_SHADOW_COLOR:
-						Cl.Config->SetShadowColor(dw);
+					case IDC_SETTING_TRANS_SHADOW_COLOR:
+						Cl.Config->SetTextColor(CFG_TRANS, CFG_S, dw);
 						break;
 					}
 					
@@ -1133,13 +1164,15 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_NAME_COLOR:
 		case IDC_SETTING_NAME_OUTLINE1:
 		case IDC_SETTING_NAME_OUTLINE2:
+		case IDC_SETTING_NAME_SHADOW_COLOR:
 		case IDC_SETTING_ORG_COLOR:
 		case IDC_SETTING_ORG_OUTLINE1:
 		case IDC_SETTING_ORG_OUTLINE2:
+		case IDC_SETTING_ORG_SHADOW_COLOR:
 		case IDC_SETTING_TRANS_COLOR:
 		case IDC_SETTING_TRANS_OUTLINE1:
 		case IDC_SETTING_TRANS_OUTLINE2:
-		case IDC_SETTING_SHADOW_COLOR:
+		case IDC_SETTING_TRANS_SHADOW_COLOR:
 		{
 			LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
 
@@ -1159,6 +1192,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			case IDC_SETTING_NAME_OUTLINE2:
 				ColorVar = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
 				break;
+			case IDC_SETTING_NAME_SHADOW_COLOR:
+				ColorVar = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
+				break;
 			case IDC_SETTING_ORG_COLOR:
 				ColorVar = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
 				break;
@@ -1167,6 +1203,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			case IDC_SETTING_ORG_OUTLINE2:
 				ColorVar = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+				break;
+			case IDC_SETTING_ORG_SHADOW_COLOR:
+				ColorVar = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
 				break;
 			case IDC_SETTING_TRANS_COLOR:
 				ColorVar = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
@@ -1177,17 +1216,18 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			case IDC_SETTING_TRANS_OUTLINE2:
 				ColorVar = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
 				break;
-			case IDC_SETTING_SHADOW_COLOR:
-				ColorVar = Cl.Config->GetShadowColor();
+			case IDC_SETTING_TRANS_SHADOW_COLOR:
+				ColorVar = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
 				break;
 			}
 
-			int c1, c2, c3;
+			int a, c1, c2, c3;
+			a = (ColorVar >> 24) & 0xFF;
 			c1 = (ColorVar >> 16) & 0xFF;
 			c2 = (ColorVar >> 8) & 0xFF;
 			c3 = (ColorVar)& 0xFF;
 
-			COLORREF color = ((COLORREF)(((BYTE)(c1) | ((WORD)((BYTE)(c2)) << 8)) | (((DWORD)(BYTE)(c3)) << 16)));
+			COLORREF color = ((COLORREF)(((BYTE)(c1) | (((BYTE)(c2)) << 8)) | (((BYTE)(c3)) << 16)));
 
 			HBRUSH hBrush = CreateSolidBrush(color);
 			FillRect(pdis->hDC, &pdis->rcItem, hBrush);
@@ -1320,7 +1360,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
-		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_TRACKBAR))
+		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_X_TRACKBAR))
 		{
 			int i;
 
@@ -1333,7 +1373,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			case TB_TOP:
 			case TB_BOTTOM:
 			case TB_ENDTRACK:
-				i = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_SHADOW_TRACKBAR, TBM_GETPOS, 0, 0);
+				i = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_SHADOW_X_TRACKBAR, TBM_GETPOS, 0, 0);
 				break;
 
 			case TB_THUMBTRACK:
@@ -1341,13 +1381,33 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			}
 
-			// 투명도 255 이상이면 무시
-			if (i > 255) break;
+			Cl.Config->SetShadowX(i);
 
-			DWORD ShadowColor = (i << 24);
-			ShadowColor |= (Cl.Config->GetShadowColor() & 0xFFFFFF);
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_Y_TRACKBAR))
+		{
+			int i;
 
-			Cl.Config->SetShadowColor(ShadowColor);
+			switch (LOWORD(wParam))
+			{
+			case TB_LINEUP:
+			case TB_LINEDOWN:
+			case TB_PAGEUP:
+			case TB_PAGEDOWN:
+			case TB_TOP:
+			case TB_BOTTOM:
+			case TB_ENDTRACK:
+				i = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_SHADOW_Y_TRACKBAR, TBM_GETPOS, 0, 0);
+				break;
+
+			case TB_THUMBTRACK:
+				i = (INT)HIWORD(wParam);
+				break;
+			}
+
+			Cl.Config->SetShadowY(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
@@ -1622,9 +1682,15 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), WM_GETTEXTLENGTH, 0, 0) + 1;
 			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
-
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
-			MessageBox(hWnd, pStr, L"복사", 0);
+			
+			IsActive = 2;
+
+			OpenClipboard(hWnds.Clip);
+			EmptyClipboard();
+
+			SetClipboardData(CF_UNICODETEXT, pStr);
+			CloseClipboard();
 
 			free(pStr);
 		}

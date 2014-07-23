@@ -28,9 +28,6 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"BG_COLOR", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetBGColor((DWORD)wcstoul(buf, NULL, 16));
 
-	ReadINI_Str(L"SHADOW_COLOR", L"TEXT", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) SetShadowColor((DWORD)wcstoul(buf, NULL, 16));
-
 	ReadINI_Str(L"NAME_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_NAME, true) : SetTextSwitch(CFG_NAME, false);
 	ReadINI_Str(L"NAME_ORG_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
@@ -45,12 +42,16 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetTextSize(CFG_NAME, CFG_B, _wtoi(buf));
 	ReadINI_Str(L"NAME_SIZE_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_NAME, CFG_C, _wtoi(buf));
+	ReadINI_Str(L"NAME_SIZE_S", L"TEXT", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetTextSize(CFG_NAME, CFG_S, _wtoi(buf));
 	ReadINI_Str(L"NAME_COLOR_A", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_A, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_COLOR_B", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
+	ReadINI_Str(L"NAME_COLOR_S", L"TEXT", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetTextColor(CFG_NAME, CFG_S, (DWORD)wcstoul(buf, NULL, 16));
 
 	ReadINI_Str(L"ORG_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_ORG, true) : SetTextSwitch(CFG_ORG, false);
@@ -70,6 +71,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"ORG_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
+	ReadINI_Str(L"ORG_COLOR_S", L"TEXT", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetTextColor(CFG_ORG, CFG_S, (DWORD)wcstoul(buf, NULL, 16));
 
 	ReadINI_Str(L"TRANS_SWITCH", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_TRANS, true) : SetTextSwitch(CFG_TRANS, false);
@@ -89,6 +92,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_B, (DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"TRANS_COLOR_C", L"TEXT", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_C, (DWORD)wcstoul(buf, NULL, 16));
+	ReadINI_Str(L"TRANS_COLOR_S", L"TEXT", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetTextColor(CFG_TRANS, CFG_S, (DWORD)wcstoul(buf, NULL, 16));
 	return true;
 }
 

@@ -58,10 +58,13 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 
 	Gdiplus::REAL emSize = graphics->GetDpiY() * fntSize / 72;
 
+	int shadowX = Cl.Config->GetShadowX()-50;
+	int shadowY = Cl.Config->GetShadowY()-50;
+
 	if (shadowVisible)
 	{
 		path_shadow.AddString(contextText, wcslen(contextText),
-			&fontFamily, FontStyleRegular, emSize, Gdiplus::Rect(layoutRect->X + 4, layoutRect->Y + 4, layoutRect->Width, layoutRect->Height), &strformat);
+			&fontFamily, FontStyleRegular, emSize, Gdiplus::Rect(layoutRect->X + shadowX, layoutRect->Y + shadowY, layoutRect->Width, layoutRect->Height), &strformat);
 
 		Pen pen_shadow(shadowColor, (Gdiplus::REAL)outlineTotalThick);
 		pen_shadow.SetLineJoin(LineJoinRound);
@@ -195,7 +198,7 @@ bool CTextRenderer::Paint()
 
 		wchar_t *fnName = Cl.Config->GetTextFont(CFG_NAME);
 
-		DWORD dwShadow = Cl.Config->GetShadowColor();
+		//DWORD dwShadow = Cl.Config->GetShadowColor();
 
 		int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
 		int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
@@ -204,6 +207,7 @@ bool CTextRenderer::Paint()
 		DWORD dwNameA = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
 		DWORD dwNameB = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
 		DWORD dwNameC = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
+		DWORD dwNameS = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
 
 		bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
 		bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
@@ -217,6 +221,7 @@ bool CTextRenderer::Paint()
 		DWORD dwOrgA = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
 		DWORD dwOrgB = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
 		DWORD dwOrgC = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+		DWORD dwOrgS = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
 
 		bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
 		bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
@@ -230,6 +235,7 @@ bool CTextRenderer::Paint()
 		DWORD dwTransA = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
 		DWORD dwTransB = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
 		DWORD dwTransC = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
+		DWORD dwTransS = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
 
 		if (Cl.Config->GetTextSize(CFG_NAME, CFG_B) == 0)
 			dwNameB = dwNameB & 0xFFFFFF;
@@ -267,9 +273,9 @@ bool CTextRenderer::Paint()
 		int mar_y = Cl.Config->GetTextMarginY();
 		int mar_name = Cl.Config->GetTextMarginName();
 
-		pad_y += DrawText(&graphics, (bNameSwitch ? (szNameConv).c_str() : L" "), fnName, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwShadow >> 24) & 0xFF, (dwShadow >> 16) & 0xFF, (dwShadow >> 8) & 0xFF, (dwShadow)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20 + mar_name, pad_y, width - 40 - mar_name, height + 300));
-		if (bOrgSwitch)   pad_y += DrawText(&graphics, (bNameSwitch ? (*szText).c_str() : (*szContext).c_str()), fnOrg, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwShadow >> 24) & 0xFF, (dwShadow >> 16) & 0xFF, (dwShadow >> 8) & 0xFF, (dwShadow)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
-		if (bTransSwitch) pad_y += DrawText(&graphics, (bNameSwitch ? (*szTextT).c_str() : (*szContextT).c_str()), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwShadow >> 24) & 0xFF, (dwShadow >> 16) & 0xFF, (dwShadow >> 8) & 0xFF, (dwShadow) & 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
+		pad_y += DrawText(&graphics, (bNameSwitch ? (szNameConv).c_str() : L" "), fnName, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwNameS >> 24) & 0xFF, (dwNameS >> 16) & 0xFF, (dwNameS >> 8) & 0xFF, (dwNameS)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20 + mar_name, pad_y, width - 40 - mar_name, height + 300));
+		if (bOrgSwitch)   pad_y += DrawText(&graphics, (bNameSwitch ? (*szText).c_str() : (*szContext).c_str()), fnOrg, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
+		if (bTransSwitch) pad_y += DrawText(&graphics, (bNameSwitch ? (*szTextT).c_str() : (*szContextT).c_str()), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS) & 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 		
 		int nBorderWidth = 5;
 		//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
