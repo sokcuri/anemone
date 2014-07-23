@@ -431,7 +431,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, Cl.Config->GetRepeatTextProc());
+
+				{
+					(Cl.Config->GetRepeatTextProc() == 0) ? CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, false) :
+						CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, true);
+
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"반복 문자 처리";
+					if (Cl.Config->GetRepeatTextProc() == 1)
+						ws << L"(약)";
+					else if (Cl.Config->GetRepeatTextProc() == 2)
+						ws << L"(강)";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, str.c_str());
+				}
+
+
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTEND_NAME, Cl.Config->GetReviseName());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_FORCE_ANEDIC, Cl.Config->GetForceAneDic());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_ANE_REMOCON, Cl.Config->GetRemoconMode());
@@ -869,7 +886,18 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SEPERATE_NAME, 0);
 			break;
 		case IDC_SETTING_REPEAT_TEXT:
-			(Cl.Config->GetRepeatTextProc() ? Cl.Config->SetRepeatTextProc(false) : Cl.Config->SetRepeatTextProc(true));
+			switch (Cl.Config->GetRepeatTextProc())
+			{
+			case 0:
+				Cl.Config->SetRepeatTextProc(1);
+				break;
+			case 1:
+				Cl.Config->SetRepeatTextProc(2);
+				break;
+			case 2:
+				Cl.Config->SetRepeatTextProc(0);
+				break;
+			}
 			break;
 		case IDC_SETTING_TEXTEND_NAME:
 			(Cl.Config->GetReviseName() ? Cl.Config->SetReviseName(false) : Cl.Config->SetReviseName(true));

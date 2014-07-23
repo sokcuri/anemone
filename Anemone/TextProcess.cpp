@@ -327,10 +327,11 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 bool CTextProcess::DoubleTextFix(std::wstring &input)
 {
 	std::wstring output;
-	std::wstring text;
+	std::wstring text = input;
 	bool nHardFix = false;
 
 	std::wsmatch m;
+	/*
 	std::wregex regex(L"(?:(.*[^「『（(])([「『（(].*))$");
 
 	if (std::regex_match(input, m, regex))
@@ -341,6 +342,7 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 		if (m[2] == L"") text = input;
 	}
 	else text = input;
+	*/
 
 	for (unsigned int i = 0; i < text.size() / 2 * 2; i++)
 	{
@@ -382,9 +384,6 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wregex rx_name, rx_name2, rx_name3, rx_name4, rx_repeat;
 	
 	rx_repeat.assign(L"");
-
-	// 늘어짐 문장 수정
-	if (Cl.Config->GetRepeatTextProc()) DoubleTextFix(input);
 
 	if (Cl.Config->GetRepeatTextProc())
 	{
@@ -471,6 +470,10 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wName = wEmpty;
 		wText = input;
 	}
+
+	// 늘어짐 문장 수정
+	if (Cl.Config->GetRepeatTextProc() > 0) DoubleTextFix(wText);
+	if (Cl.Config->GetRepeatTextProc() > 1) DoubleTextFix(wName);
 
 	if (nCode == 0) return wName;
 	return wText;

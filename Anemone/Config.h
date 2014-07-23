@@ -63,7 +63,7 @@ private:
 	bool cfg_hidewin_unwatch_clipboard = true;
 	bool cfg_hidewin_unlock_hotkey = true;
 	bool cfg_magnetic_mode = false;
-	bool cfg_repeat_text = true;
+	int cfg_repeat_text = 1;
 	bool cfg_force_anedic = false;
 	bool cfg_ane_remocon = false;
 	bool cfg_extern_hotkey = true;
@@ -107,8 +107,8 @@ public:
 	bool GetForceAneDic() { return cfg_force_anedic; }
 	void SetForceAneDic(bool b) { cfg_force_anedic = b; }
 
-	bool GetRepeatTextProc() { return cfg_repeat_text; }
-	void SetRepeatTextProc(bool b) { cfg_repeat_text = b; }
+	int GetRepeatTextProc() { return cfg_repeat_text; }
+	void SetRepeatTextProc(int i) { cfg_repeat_text = i; }
 
 	bool GetMagneticMode() { return cfg_magnetic_mode; }
 	void SetMagneticMode(bool b) { cfg_magnetic_mode = b; }
