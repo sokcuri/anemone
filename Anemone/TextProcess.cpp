@@ -344,7 +344,7 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 	else text = input;
 	*/
 
-	if (text.size() < 8) return false;
+	//if (text.size() < 8) return false;
 
 	for (unsigned int i = 0; i < text.size(); i++)
 	{
@@ -360,7 +360,7 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 		else
 		{
 			// 4자 (중복 8자)도 안되면 문제가 있을 수 있음. 무조건 리턴
-			if (i < 4 * 2) return false;
+			//if (i < 4 * 2) return false;
 
 			for (; i < text.size(); i++)
 				output += text[i];
@@ -368,6 +368,72 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 	}
 
 	input = output;
+	return true;
+}
+
+bool CTextProcess::DoubleSentenceFix(std::wstring &input)
+{
+
+	int nResult = 1;
+	std::wstring str = input;
+	int index = str.size() / 2;
+
+	for (unsigned int i = 0; i < str.size(); i++, index++)
+	{
+		if (i == str.size() / 2)
+		{
+			nResult = 1;
+			break;
+		}
+
+		if (str[i] != str[index])
+		{
+			nResult = 0;
+			break;
+		}
+	}
+
+	if (nResult == 0)
+	{
+		index = str.size() / 2 + 1;
+
+		for (unsigned int i = 0; i < str.size(); i++, index++)
+		{
+			if (index == str.size() && str.size() / 2 - i < 1)
+			{
+				nResult = 2;
+				break;
+			}
+
+			if (str[i] != str[index])
+			{
+				nResult = 0;
+				break;
+			}
+		}
+	}
+
+	if (nResult == 1)
+	{
+		// 1234 12345
+		if (str.size() % 2 == 1)
+		{
+			str = str.substr(str.size() / 2, str.size() / 2 + 1);
+		}
+		// 1234 1234
+		else
+		{
+			str = str.substr(0, str.size() / 2);
+		}
+	}
+
+	// 12345 1234
+	else if (nResult == 2)
+	{
+		str = str.substr(0, str.size() / 2 + 1);
+	}
+
+	input = str;
 	return true;
 }
 
@@ -524,81 +590,34 @@ bool CTextProcess::OnDrawClipboard()
 	wContext = (wchar_t*)GlobalLock(hClipData);
 	GlobalUnlock(hClipData);
 
-	// 문장이 2개로 출력되어 나오면 잘라준다
-	if (Cl.Config->GetRepeatTextProc() > 1)
+	// 반복 처리
+	if (Cl.Config->GetRepeatTextProc() > 2)
 	{
-		int nResult = 1;
-		std::wstring str;
-		int index = wContext.size() / 2;
-
-		for (unsigned int i = 0; i < wContext.size(); i++, index++)
-		{
-			if (i == wContext.size() / 2)
-			{
-				nResult = 1;
-				break;
-			}
-
-			if (wContext[i] != wContext[index])
-			{
-				nResult = 0;
-				break;
-			}
-		}
-
-		if (nResult == 0)
-		{
-			index = wContext.size() / 2 + 1;
-
-			for (unsigned int i = 0; i < wContext.size(); i++, index++)
-			{
-				if (index == wContext.size())
-				{
-					nResult = 2;
-					break;
-				}
-
-				if (wContext[i] != wContext[index])
-				{
-					nResult = 0;
-					break;
-				}
-			}
-		}
-
-		if (nResult == 1)
-		{
-			// 1234 12345
-			if (wContext.size() % 2 == 1)
-			{
-				wContext = wContext.substr(wContext.size() / 2, wContext.size() / 2 + 1);
-			}
-			// 1234 1234
-			else
-			{
-				wContext = wContext.substr(0, wContext.size() / 2);
-			}
-		}
-
-		// 12345 1234
-		else if (nResult == 2)
-		{
-			wContext = wContext.substr(0, wContext.size() / 2 + 1);
-		}
+		DoubleSentenceFix(wContext);
 	}
-	
-	wName = NameSplit(0, wContext);
-	if (Cl.Config->GetRepeatTextProc() > 1)
-		DoubleTextFix(wName);
-	wNameT = eztrans_proc(wName);
 
+	// 이름 분리
+	wName = NameSplit(0, wContext);
+	if (Cl.Config->GetRepeatTextProc() > 2)
+		DoubleTextFix(wName);
+
+	// 대사 분리
 	wText = NameSplit(1, wContext);
-	if (Cl.Config->GetRepeatTextProc() > 0)
+	if (Cl.Config->GetRepeatTextProc() > 1)
 		DoubleTextFix(wText);
-	wTextT = eztrans_proc(wText);
+
+	// 이름이나 대사에 반복되는 경우가 있을 수 있음. 처리
+	if (Cl.Config->GetRepeatTextProc() > 3)
+	{
+		DoubleSentenceFix(wName);
+		DoubleSentenceFix(wText);
+	}
 
 	wContext = wName;
 	wContext += wText;
+
+	wNameT = eztrans_proc(wName);
+	wTextT = eztrans_proc(wText);
 
 	wContextT = wNameT;
 	wContextT += wTextT;

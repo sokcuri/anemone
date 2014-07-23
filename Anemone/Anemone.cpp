@@ -445,8 +445,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					ws << L"반복 문자 처리";
 					if (Cl.Config->GetRepeatTextProc() == 1)
-						ws << L"(약)";
+						ws << L"(미)";
 					else if (Cl.Config->GetRepeatTextProc() == 2)
+						ws << L"(약)";
+					else if (Cl.Config->GetRepeatTextProc() == 3)
+						ws << L"(중)";
+					else if (Cl.Config->GetRepeatTextProc() == 4)
 						ws << L"(강)";
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, str.c_str());
@@ -904,6 +908,12 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				Cl.Config->SetRepeatTextProc(2);
 				break;
 			case 2:
+				Cl.Config->SetRepeatTextProc(3);
+				break;
+			case 3:
+				Cl.Config->SetRepeatTextProc(4);
+				break;
+			case 4:
 				Cl.Config->SetRepeatTextProc(0);
 				break;
 			}

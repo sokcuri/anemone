@@ -18,6 +18,7 @@ private:
 	std::wstring HangulDecode(const std::wstring &input);
 	std::wstring NameSplit(int nCode, std::wstring &input);
 	bool DoubleTextFix(std::wstring &input);
+	bool DoubleSentenceFix(std::wstring &input);
 
 	int nStatus = 0;
 	std::wstring proclog;
