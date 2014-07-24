@@ -196,6 +196,7 @@
 #define IDM_HIDEWIN_UNLOCK_HOTKEY       32786
 #define IDM_HIDEWIN_UNWATCH_CLIPBOARD   32787
 #define IDM_MAGNETIC_MODE               32788
+#define IDM_RESTORE_PARENT              32789
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

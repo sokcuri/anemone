@@ -54,7 +54,6 @@ struct _hWnds
 {
 	HWND Main;
 	HWND Parent;
-	HWND Child;
 	HWND Setting;
 	HWND Remocon;
 	HWND View;

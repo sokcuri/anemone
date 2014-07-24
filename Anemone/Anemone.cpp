@@ -163,11 +163,11 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 	while (1)
 	{
-		//if (GetForegroundWindow() != GetActiveWindow())
-		//	SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+		// 부모 창이 날아갔을 때 긴급복구하기
 		if (!IsWindow(hWnds.Parent))
 		{
-			MessageBox(0, L"Parent 죽음", 0, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_RESTORE_PARENT, 0);
+			//MessageBox(0, L"복구", 0, 0);
 		}
 
 
@@ -442,11 +442,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    int x = 500;
    int y = 200;
 
-   hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
-	   0, 0, 0, 0, NULL, NULL, hInstance, NULL);
+   //hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
+	//   0, 0, 0, 0, NULL, NULL, hInstance, NULL);
+
+   hWnds.Parent = (HWND)2;
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
-      (cx-x)/2, (cy-y)/2, x, y, hWnds.Parent, NULL, hInstance, NULL);
+      (cx-x)/2, (cy-y)/2, x, y, NULL, NULL, hInstance, NULL);
+
+   SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
+   SetWindowLongPtr(hWnds.Main, -8, (LONG)NULL);
+
+//   SetParent(hWnds.Main, hWnds.Parent);
 
    HANDLE hThread = NULL;
    DWORD dwThreadID = NULL;
@@ -495,12 +502,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
+		// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
+		case IDM_RESTORE_PARENT:
+		{
+			hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
+			0, 0, 0, 0, NULL, NULL, hInst, NULL);
+
+			SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
+		}
+		break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case IDM_EXIT:
 		case IDM_TERMINATE_ANEMONE:
-		case WM_DESTROY:
 			CleanUp();
 			break;
 		case IDM_TEMP_CLICK_THOUGH:
@@ -2129,11 +2144,14 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	{
 	case WM_PAINT:
 		return 0;
+	case WM_NCDESTROY:
+	case WM_QUIT:
+	case WM_CLOSE:
 	case WM_DESTROY:
 	{
 		SetParent(hWnd, NULL);
 		return 1;
-		//MessageBox(0,L"파괴 메세지",0,0);
+		
 	}
 		break;
 	}
