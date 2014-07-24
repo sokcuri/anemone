@@ -117,6 +117,7 @@
 #define IDC_SETTING_TRANS_SHADOW        1044
 #define IDC_SLIDER3                     1045
 #define IDC_SETTING_SHADOW_TRACKBAR     1045
+#define IDC_SETTING_CLIP_TRACKBAR       1045
 #define IDC_BUTTON16                    1046
 #define IDC_CHECK22                     1047
 #define IDM_SETTING_EXIT                1047
@@ -148,6 +149,7 @@
 #define IDC_TRANSWIN_DEST               1065
 #define IDC_SETTING_NAME_SHADOW_COLOR   1065
 #define IDC_COLORDLG_ALPHA_TRACKBAR     1066
+#define IDC_SETTING_CLIP_TEXT           1066
 #define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDC_SETTING_TRANS_SHADOW_COLOR  1069
 #define IDC_SETTING_ORG_SHADOW_COLOR    1070
@@ -199,7 +201,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32786
-#define _APS_NEXT_CONTROL_VALUE         1065
+#define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

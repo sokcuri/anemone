@@ -13,6 +13,9 @@
 class CConfig
 {
 private:
+	bool cfg_clip_switch        = true;
+	int cfg_clip_length         = 300;
+
 	bool cfg_bg_switch          = true;
 	DWORD cfg_bg_color          = 0x130091FB;
 
@@ -131,9 +134,6 @@ public:
 	bool GetTempWinHide() { return (cfg_window_hide == 2 ? true : false); }
 	void SetTempWinHide(bool b) { (b ? cfg_window_hide = 2 : cfg_window_hide = 0); }
 
-	bool GetClipboardWatch() { return cfg_clipboard_watch; }
-	void SetClipboardWatch(bool b) { cfg_clipboard_watch = b; }
-
 	bool GetClickThough() { return cfg_temp_click_though; }
 	void SetClickThough(bool b) { cfg_temp_click_though = b; }
 
@@ -145,6 +145,12 @@ public:
 
 	void SetBGSwitch(bool var) { cfg_bg_switch = var; }
 	void SetBGColor(DWORD dw) { cfg_bg_color = dw; }
+
+	bool GetClipSwitch() { return cfg_clip_switch; }
+	void SetClipSwitch(bool b) { cfg_clip_switch = b; }
+
+	int GetClipLength() { return cfg_clip_length; }
+	void SetClipLength(int i) { cfg_clip_length = i; }
 
 	bool GetTextSwitch(int type)
 	{

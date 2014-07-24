@@ -616,6 +616,12 @@ bool CTextProcess::OnDrawClipboard()
 	wContext = (wchar_t*)GlobalLock(hClipData);
 	GlobalUnlock(hClipData);
 
+	if (wContext.length() > (unsigned int)Cl.Config->GetClipLength())
+	{
+		CloseClipboard();
+		return false;
+	}
+
 	// 반복 처리
 	if (Cl.Config->GetRepeatTextProc() > 2)
 		DoubleSentenceFix(wContext);

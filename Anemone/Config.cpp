@@ -23,6 +23,12 @@ bool CConfig::LoadConfig()
 	INIPath += L"\\anemone.ini";
 
 	wchar_t buf[255];
+
+	ReadINI_Str(L"CLIPBOARD_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetClipSwitch(true) : SetClipSwitch(false);
+	ReadINI_Str(L"CLIPBOARD_LENGTH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetClipLength(_wtoi(buf));
+
 	ReadINI_Str(L"BG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetBGSwitch(true) : SetBGSwitch(false);
 	ReadINI_Str(L"BG_COLOR", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -128,6 +134,11 @@ bool CConfig::SaveConfig()
 	INIPath += L"\\anemone.ini";
 
 	wchar_t buf[255];
+	wcscpy(buf, (GetClipSwitch() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"CLIPBOARD_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetClipLength());
+	WriteINI_Str(L"CLIPBOARD_LENGTH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
 	wcscpy(buf, (GetBGSwitch() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"BG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%08X", GetBGColor());

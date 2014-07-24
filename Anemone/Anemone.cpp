@@ -116,6 +116,12 @@ int APIENTRY _tWinMain(
 		}
 	}
 
+	return (int) msg.wParam;
+}
+
+void CleanUp()
+{
+	Cl.Config->SaveConfig();
 	ShowWindow(hWnds.Main, false);
 
 	// 설정 저장
@@ -132,7 +138,7 @@ int APIENTRY _tWinMain(
 	// Heap 삭제
 	HeapDestroy(AneHeap);
 
-	return (int) msg.wParam;
+	ExitProcess(0);
 }
 
 //
@@ -157,7 +163,7 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	// Display the shortcut menu. Track the right mouse 
 	// button. 
 
-	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipboardWatch() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_TEMP_SIZABLE_MODE, (Cl.Config->GetSizableMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 
@@ -308,7 +314,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_EXIT:
 		case IDM_TERMINATE_ANEMONE:
-			DestroyWindow(hWnd);
+		case WM_DESTROY:
+			CleanUp();
 			break;
 		case IDM_TEMP_CLICK_THOUGH:
 			(Cl.Config->GetClickThough() ? Cl.Config->SetClickThough(false) : Cl.Config->SetClickThough(true));
@@ -360,9 +367,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_CLIPBOARD_SWITCH:
 		{
-			(Cl.Config->GetClipboardWatch() ? Cl.Config->SetClipboardWatch(false) : Cl.Config->SetClipboardWatch(true));
+			(Cl.Config->GetClipSwitch() ? Cl.Config->SetClipSwitch(false) : Cl.Config->SetClipSwitch(true));
 
-			if (Cl.Config->GetClipboardWatch())
+			if (Cl.Config->GetClipSwitch())
 			{
 				Cl.TextProcess->StartWatchClip();
 			}
@@ -428,7 +435,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN, !Cl.Config->GetWindowVisible());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD, Cl.Config->GetHideWinUnWatchClip());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, Cl.Config->GetHideWinUnlockHotkey());
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipboardWatch());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipSwitch());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WNDCLICK_THOUGH, Cl.Config->GetClickThough());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_USE_MAGNETIC, Cl.Config->GetMagneticMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SIZABLE_MODE, Cl.Config->GetSizableMode());
@@ -676,6 +683,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_TRANS_FONT, str.c_str());
 				}
+
+				{
+					int n = Cl.Config->GetClipLength();
+
+					std::wstringstream ws;
+					std::wstring str;
+
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(100, 1000));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
+
+					ws << L"클립보드 최대 글자수 ";
+					ws << L"(";
+					ws << n;
+					ws << L")";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_CLIP_TEXT, str.c_str());
+				}
 			}
 		}
 		break;
@@ -819,9 +843,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return HTRIGHT;
 		}  return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
+	break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1545,6 +1567,34 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
+		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_CLIP_TRACKBAR))
+		{
+			int i;
+
+			switch (LOWORD(wParam))
+			{
+			case TB_LINEUP:
+			case TB_LINEDOWN:
+			case TB_PAGEUP:
+			case TB_PAGEDOWN:
+			case TB_TOP:
+			case TB_BOTTOM:
+			case TB_ENDTRACK:
+				i = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_CLIP_TRACKBAR, TBM_GETPOS, 0, 0);
+				break;
+
+			case TB_THUMBTRACK:
+				i = (INT)HIWORD(wParam);
+				break;
+			}
+
+			if (i > 1000) break;
+
+			Cl.Config->SetClipLength(i);
+
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
 	}
 	}
 	return 0;
@@ -1568,7 +1618,7 @@ UINT CALLBACK SettingColorWndHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 			540, 2, 25, 225, hDlg, (HMENU)IDC_COLORDLG_ALPHA_TRACKBAR, hInst, NULL);
 		HWND hStatic = CreateWindow(L"STATIC", L"불투명도", WS_CHILD | WS_VISIBLE,
 			528, 256, 150, 15, hDlg, 0, hInst, NULL);
-		HWND hEdit = CreateWindow(L"EDIT", L"", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_BORDER,
+		HWND hEdit = CreateWindow(L"EDIT", L"", ES_CENTER | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_BORDER,
 			540, 230, 25, 18, hDlg, (HMENU)IDC_COLORDLG_ALPHA_EDIT, hInst, NULL);
 
 		pCC = (CHOOSECOLOR *)lParam;
