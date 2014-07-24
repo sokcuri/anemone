@@ -25,6 +25,7 @@ ATOM				SettingClassRegister(HINSTANCE hInstance);
 ATOM				ParentClassRegister(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	ParentWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
@@ -162,23 +163,29 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 	while (1)
 	{
+		//if (GetForegroundWindow() != GetActiveWindow())
+		//	SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+		if (!IsWindow(hWnds.Parent))
+		{
+			MessageBox(0, L"Parent 죽음", 0, 0);
+		}
+
+
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
 			{
 				GetWindowRect(MagnetWnd.hWnd, &rect);
 
-				// 자석모드 윈도우 활성화시 아네모네도 최상위로 띄운다
-				if (IsForegroundCheck && GetForegroundWindow() == MagnetWnd.hWnd)
+				// 자석 타겟창에 맞춰서 항상위 변경
+				int nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
+				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+
+				if ((nExStyle_Target & WS_EX_TOPMOST) != (nExStyle_Main & WS_EX_TOPMOST))
 				{
-					IsForegroundCheck = true;
-					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+					SetWindowPos(hWnds.Parent, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				}
-				else IsForegroundCheck = false;
-				
-				// 자석 타겟창이 항상위가 변경되었을때 내가 건들필요가 있나?
-				//nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
-				//nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
 
 				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
 				{
@@ -229,7 +236,25 @@ unsigned int WINAPI MagneticThread(void *arg)
 						MagnetWnd.rect_y = rect.top;
 					}
 				}
-				
+
+				// 자석모드 윈도우 활성화시 아네모네도 최상위로 띄운다
+				if (GetForegroundWindow() == MagnetWnd.hWnd)
+				{
+					if (!IsForegroundCheck)
+					{
+						IsForegroundCheck = true;
+						Sleep(20);
+						SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+
+						RECT rectx;
+
+						GetWindowRect(MagnetWnd.hWnd, &rectx);
+
+						SetWindowPos(MagnetWnd.hWnd, HWND_TOP, rectx.left, rectx.top, rectx.right-rectx.left, rectx.bottom-rectx.top, SWP_SHOWWINDOW);
+					}
+				}
+				else IsForegroundCheck = false;
 			}
 		}
 		else if (MagnetWnd.IsMagnet)
@@ -240,18 +265,31 @@ unsigned int WINAPI MagneticThread(void *arg)
 				ShowWindow(hWnds.Main, true);
 				MagnetWnd.IsMinimize = false;
 			}
-
 			MagnetWnd.hWnd = NULL;
 			SetParent(hWnds.Parent, NULL);
 			Cl.Config->SetMagneticMode(false);
 
 			MagnetWnd.IsMagnet = false;
 
+			if (Cl.Config->GetWindowTopMost())
+			{
+				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+			else
+			{
+				SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+
+			Sleep(20);
+
+			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		}
 		Sleep(10);
 	}
-	MessageBox(0, L"스레드 종료", 0, 0);
 	return 0;
 }
 
@@ -349,7 +387,7 @@ ATOM ParentClassRegister(HINSTANCE hInstance)
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
+	wcex.lpfnWndProc = ParentWndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
@@ -551,6 +589,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				MagnetWnd.rect_x = rect_target.left;
 				MagnetWnd.rect_y = rect_target.top;
 
+				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
+				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
 				SetParent(hWnds.Parent, MagnetWnd.hWnd);
 				MagnetWnd.IsMagnet = true;
 			}
@@ -593,6 +635,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_TOPMOST:
 			(Cl.Config->GetWindowTopMost() ? Cl.Config->SetWindowTopMost(false) : Cl.Config->SetWindowTopMost(true));
+
+			// 자석 모드일때는 항상 위 표시 동작을 유보한다
+			if (Cl.Config->GetMagneticMode()) break;
 
 			if (Cl.Config->GetWindowTopMost())
 			{
@@ -2075,4 +2120,23 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	}
 	return 0;
+}
+
+
+LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_PAINT:
+		return 0;
+	case WM_DESTROY:
+	{
+		SetParent(hWnd, NULL);
+		return 1;
+		//MessageBox(0,L"파괴 메세지",0,0);
+	}
+		break;
+	}
+	//return DefWindowProc(hWnd, message, wParam, lParam);
+
 }

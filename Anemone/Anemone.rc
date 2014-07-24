@@ -97,13 +97,13 @@ BEGIN
     GROUPBOX        "일반 설정",IDC_STATIC,7,6,161,339
     CONTROL         "항상 위 표시",IDC_SETTING_TOPMOST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,21,55,10
     CONTROL         "자석모드 창이 최소화되면 창 숨김",IDC_SETTING_MAGNETIC_MINIMIZE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,36,121,10
-    LTEXT           "──────────────────────",IDC_STATIC,11,50,155,8,WS_DISABLED
-    CONTROL         "창 숨김 모드",IDC_SETTING_HIDEWIN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,63,55,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,94,121,10
+    LTEXT           "──────────────────────",IDC_STATIC,11,35,155,8,WS_DISABLED
+    CONTROL         "창 숨김 모드",IDC_SETTING_HIDEWIN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,46,55,10
     CONTROL         "창 숨김시 클립보드 감시 일시 해제",IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,78,123,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,62,123,10
     CONTROL         "창 숨김시 일부 단축키 일시 해제",IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,94,117,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,78,117,10
     LTEXT           "──────────────────────",IDC_STATIC,11,108,154,8,WS_DISABLED
     CONTROL         "클립보드 감시",IDC_SETTING_CLIPBOARD_WATCH,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,120,59,10
     CONTROL         "창 너머 클릭",IDC_SETTING_WNDCLICK_THOUGH,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,135,55,10
