@@ -425,6 +425,29 @@ ATOM SettingClassRegister(HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
+void TransWndText(HWND hTarget)
+{
+	HWND m_hWnd;
+	wchar_t buf[255];
+
+	m_hWnd = FindWindowEx(hTarget, NULL, NULL, NULL);
+	while (m_hWnd != NULL)
+	{
+		if (FindWindowEx(m_hWnd, NULL, NULL, NULL)) TransWndText(m_hWnd);
+
+		GetWindowText(m_hWnd, buf, 255);
+		//MessageBox(0, buf, 0, 0);
+		std::wstring str = Cl.TextProcess->eztrans_proc(buf);
+
+		SetWindowText(m_hWnd, str.c_str());
+		m_hWnd = FindWindowEx(hTarget, m_hWnd, NULL, NULL);
+		
+		InvalidateRect(m_hWnd, NULL, TRUE);
+		UpdateWindow(m_hWnd);
+
+	}
+}
+
 //
 //   함수: InitInstance(HINSTANCE, int)
 //
@@ -1033,6 +1056,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 
+		case IDM_TRANSTEXT_WNDNAME:
+		{
+			HWND hTargetWnd = GetForegroundWindow();
+			wchar_t buf[255];
+
+			// 아네모네 창은 번역하지 않는다
+			if (hTargetWnd == GetActiveWindow()) break;
+
+			GetWindowText(hTargetWnd, buf, 255);
+
+			std::wstring str = Cl.TextProcess->eztrans_proc(buf);
+			SetWindowText(hTargetWnd, str.c_str());
+
+		}
+			break;
+		case IDM_TRANSTEXT_WNDTEXT:
+		{
+			HWND hTargetWnd = GetForegroundWindow();
+
+			// 아네모네 창은 번역하지 않는다
+			if (hTargetWnd == GetActiveWindow()) break;
+
+			TransWndText(hTargetWnd);			
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}

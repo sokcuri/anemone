@@ -197,6 +197,8 @@
 #define IDM_HIDEWIN_UNWATCH_CLIPBOARD   32787
 #define IDM_MAGNETIC_MODE               32788
 #define IDM_RESTORE_PARENT              32789
+#define IDM_TRANSTEXT_WNDNAME			32790
+#define IDM_TRANSTEXT_WNDTEXT			32791
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

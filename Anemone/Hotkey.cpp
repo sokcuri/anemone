@@ -32,6 +32,9 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
 
 	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
+
+	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDNAME, true);
+	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT, true);
 	return true;
 }
 
