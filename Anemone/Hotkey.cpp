@@ -26,7 +26,7 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
 	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
 
-	RegKey(VK_NUMPAD0, false, false, false, IDM_TEMP_WINDOW_HIDE);
+	RegKey(VK_NUMPAD0, false, false, false, IDM_TEMP_WINDOW_HIDE, true);
 	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE, true);
 
 	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);

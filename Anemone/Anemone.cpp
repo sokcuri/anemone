@@ -128,6 +128,8 @@ int APIENTRY _tWinMain(
 
 void CleanUp()
 {
+	TerminateThread(MagnetWnd.hWnd, 0);
+
 	Cl.Config->SaveConfig();
 	ShowWindow(hWnds.Main, false);
 
@@ -285,6 +287,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 			Sleep(20);
 
 			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		}
@@ -545,6 +548,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 			{
 				ShowWindow(hWnd, true);
+
+				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
+				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
+				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+				SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
 			}
 		}
 			break;
@@ -558,6 +568,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 			{
 				ShowWindow(hWnd, true);
+
+				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
+				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
+				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+				SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 		}
 			break;
@@ -2155,6 +2171,6 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 		break;
 	}
-	//return DefWindowProc(hWnd, message, wParam, lParam);
+	return DefWindowProc(hWnd, message, wParam, lParam);
 
 }
