@@ -4,7 +4,7 @@
 
 CTextProcess::CTextProcess()
 {
-	StartWatchClip();
+	Cl.TextProcess->StartWatchClip();
 }
 
 
@@ -15,6 +15,7 @@ void CTextProcess::StartWatchClip()
 		IsActive = 3;
 		hWnds.Clip = SetClipboardViewer(hWnds.Main);
 		Cl.TextRenderer->Paint();
+		if (!Cl.Config->GetClipSwitch()) EndWatchClip();
 	}
 	else
 	{
@@ -602,6 +603,18 @@ bool CTextProcess::OnDrawClipboard()
 		return 0;
 	}
 
+	// 클립보드 감시가 꺼져있는지 확인
+	if (!Cl.Config->GetClipSwitch())
+	{
+		Cl.TextProcess->EndWatchClip();
+		return 0;
+	}
+
+	// 창 숨김시 클립보드 비활성화 옵션 확인
+	else if (!Cl.Config->GetWindowVisible() && !Cl.Config->GetTempWinHide() && Cl.Config->GetHideWinUnWatchClip())
+	{
+		return 0;
+	}
 
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
@@ -616,6 +629,7 @@ bool CTextProcess::OnDrawClipboard()
 	wContext = (wchar_t*)GlobalLock(hClipData);
 	GlobalUnlock(hClipData);
 
+	// 클립보드 인식 길이가 넘어가면 버리기
 	if (wContext.length() > (unsigned int)Cl.Config->GetClipLength())
 	{
 		CloseClipboard();

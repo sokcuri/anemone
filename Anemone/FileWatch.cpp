@@ -114,6 +114,9 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 	// 감시 모드가 작동중일때 파일변경시
 	if (c_config == true)
 	{
+		c_config = false;
+
+		//MessageBox(0, 0, 0, 0);
 		Cl.Config->LoadConfig();
 
 		PostMessage(hWnds.Main, WM_PAINT, 0, 0);
@@ -122,6 +125,7 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 
 	if (c_anedic == true)
 	{
+		c_anedic = false;
 		// 아네모네 사전 다시읽기
 		//PostMessage(hWnds.Main, UM_ReloadUserDict, 0, 0);
 	}

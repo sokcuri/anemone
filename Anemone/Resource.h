@@ -30,7 +30,7 @@
 #define IDD_TRANSWIN                    130
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
-#define IDM_TEMP_SIZABLE_MODE           1003
+#define IDM_WND_BORDER_MODE             1003
 #define IDC_CHECK1                      1004
 #define IDC_SETTING_TOPMOST             1004
 #define IDC_TRANSWIN_TRANS_ONEGO        1004
@@ -38,6 +38,7 @@
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006
+#define IDC_SETTING_MAGNETIC_MINIMIZE   1006
 #define IDC_CHECK3                      1007
 #define IDC_SETTING_HIDEWIN             1007
 #define IDC_CHECK4                      1008
@@ -51,7 +52,7 @@
 #define IDC_CHECK8                      1012
 #define IDC_SETTING_USE_MAGNETIC        1012
 #define IDC_CHECK9                      1013
-#define IDC_SETTING_SIZABLE_MODE        1013
+#define IDC_SETTING_WND_BORDER_MODE     1013
 #define IDC_CHECK10                     1014
 #define IDC_SETTING_PRINT_ORGTEXT       1014
 #define IDC_CHECK11                     1015
@@ -192,6 +193,9 @@
 #define IDM_WINDOW_VISIBLE              32782
 #define IDM_WINDOW_TRANS                32784
 #define IDM_WINDOW_FILETRANS            32785
+#define IDM_HIDEWIN_UNLOCK_HOTKEY       32786
+#define IDM_HIDEWIN_UNWATCH_CLIPBOARD   32787
+#define IDM_MAGNETIC_MODE               32788
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

@@ -151,21 +151,24 @@ bool CTextRenderer::Paint()
 	//130091FB
 	bool bBGSwitch = Cl.Config->GetBGSwitch();
 	DWORD BGColor = Cl.Config->GetBGColor();
+	BYTE BGAlpha = (BGColor >> 24) & 0xFF;
 
-	if (!Cl.Config->GetSizableMode())
+	if (BGAlpha == 0) BGAlpha = 1;
+
+	if (!Cl.Config->GetWndBorderMode())
 	{
 		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
-		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
-		else graphics.Clear(Color(0, 0, 0, 0));
+		else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		else graphics.Clear(Color(1, 0, 0, 0));
 	}
-	// 크기 조절 모드
+	// 테두리 표시 모드
 	else
 	{
 		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
-		else if (bBGSwitch) graphics.Clear(Color((BGColor >> 24) & 0xFF, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 		else graphics.Clear(Color(1, 0, 0, 0));
 
-		int nBorderWidth = 8;
+		int nBorderWidth = 5;
 		Pen nBorderPen(Color(0x80, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2) - 1, (nBorderWidth / 2) - 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
@@ -260,8 +263,8 @@ bool CTextRenderer::Paint()
 
 	if (!IsActive)
 	{
-		int nBorderWidth = 5;
-		Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
+		//int nBorderWidth = 5;
+		//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 
 		SolidBrush brush(Color(32, 0, 0, 0));
 		Pen pen(Color(16, 255, 255, 255), 10);
@@ -271,7 +274,7 @@ bool CTextRenderer::Paint()
 
 		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 
-		if (!Cl.Config->GetSizableMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
+		//if (!Cl.Config->GetWndBorderMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 	else
 	{

@@ -19,7 +19,7 @@ bool CHotkey::LoadKeyMap()
 	key_map.erase(key_map.begin(), key_map.end());
 
 	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
-	RegKey(VK_F7, false, false, false, IDM_TEMP_SIZABLE_MODE);
+	RegKey(VK_F7, false, false, false, IDM_WND_BORDER_MODE);
 	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING);
 	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
 
@@ -27,9 +27,11 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
 
 	RegKey(VK_NUMPAD0, false, false, false, IDM_TEMP_WINDOW_HIDE);
-	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE);
+	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE, true);
 
 	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
+
+	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
 	return true;
 }
 
@@ -117,7 +119,10 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 					if ((*it).Shift != bShift) continue;
 					if ((*it).Ctrl != bCtrl) continue;
 					
-					if (Cl.Config->GetExternHotkey() || !Cl.Config->GetExternHotkey() && (*it).Always == true)
+					if ((*it).Always == true || Cl.Config->GetExternHotkey() &&
+						(Cl.Config->GetWindowVisible() || !Cl.Config->GetWindowVisible() &&
+						(Cl.Config->GetTempWinHide() || !Cl.Config->GetTempWinHide() &&
+						!Cl.Config->GetHideWinUnlockHotkey())))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
 						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);

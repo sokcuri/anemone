@@ -58,14 +58,14 @@ private:
 	int cfg_trans_size_c        = 3;
 
 	bool cfg_temp_click_though = false;
-	bool cfg_temp_sizable_mode = false;
+	bool cfg_wnd_border_mode = false;
 	bool cfg_clipboard_watch = true;
 	int cfg_window_hide = 0;
 	bool cfg_window_topmost = true;
-	bool cfg_window_magnetic_topmost = false;
 	bool cfg_hidewin_unwatch_clipboard = true;
 	bool cfg_hidewin_unlock_hotkey = true;
 	bool cfg_magnetic_mode = false;
+	bool cfg_magnetic_minimize = true;
 	int cfg_repeat_text = 1;
 	bool cfg_force_anedic = false;
 	bool cfg_ane_remocon = false;
@@ -122,8 +122,8 @@ public:
 	bool GetHideWinUnWatchClip() { return cfg_hidewin_unwatch_clipboard; }
 	void SetHideWinUnWatchClip(bool b) { cfg_hidewin_unwatch_clipboard = b; }
 
-	bool GetMagneticTopMost() { return cfg_window_magnetic_topmost; }
-	void SetMagneticTopMost(bool b) { cfg_window_magnetic_topmost = b; }
+	bool GetMagneticMinimize() { return cfg_magnetic_minimize; }
+	void SetMagneticMinimize(bool b) { cfg_magnetic_minimize = b; }
 
 	bool GetWindowTopMost() { return cfg_window_topmost; }
 	void SetWindowTopMost(bool b) { cfg_window_topmost = b; }
@@ -137,8 +137,8 @@ public:
 	bool GetClickThough() { return cfg_temp_click_though; }
 	void SetClickThough(bool b) { cfg_temp_click_though = b; }
 
-	bool GetSizableMode() { return cfg_temp_sizable_mode; }
-	void SetSizableMode(bool b) { cfg_temp_sizable_mode = b; }
+	bool GetWndBorderMode() { return cfg_wnd_border_mode; }
+	void SetWndBorderMode(bool b) { cfg_wnd_border_mode = b; }
 
 	bool GetBGSwitch() { return cfg_bg_switch; }
 	DWORD GetBGColor() { return cfg_bg_color; }

@@ -53,6 +53,7 @@ extern HINSTANCE hInst;
 struct _hWnds
 {
 	HWND Main;
+	HWND Parent;
 	HWND Setting;
 	HWND Remocon;
 	HWND View;
@@ -62,6 +63,23 @@ struct _hWnds
 extern _hWnds hWnds;
 extern HANDLE AneHeap;
 extern int IsActive;
+
+// 자석 모드
+struct _MagnetWnd
+{
+	HANDLE hThread;
+	bool IsMagnet = false;
+	bool IsMinimize = false;
+	HWND hWnd;
+	int res_x;
+	int res_y;
+	int res_c;
+	int diff_x;
+	int diff_y;
+	int rect_x;
+	int rect_y;
+};
+extern _MagnetWnd MagnetWnd;
 
 // 클래스 모음
 struct _Class

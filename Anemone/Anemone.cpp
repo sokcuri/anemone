@@ -11,8 +11,9 @@
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
+TCHAR szParentClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
-HINSTANCE hInst; _hWnds hWnds; _Class Cl; HANDLE AneHeap;
+HINSTANCE hInst; _hWnds hWnds; _MagnetWnd MagnetWnd; _Class Cl; HANDLE AneHeap;
 int IsActive = 0;
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
@@ -21,11 +22,14 @@ int Elapsed_Translate = 0;
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				MainWndClassRegister(HINSTANCE hInstance);
 ATOM				SettingClassRegister(HINSTANCE hInstance);
+ATOM				ParentClassRegister(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
+
+unsigned int WINAPI MagneticThread(void *arg);
 
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
@@ -44,9 +48,11 @@ int APIENTRY _tWinMain(
 	// 전역 문자열을 초기화합니다.
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_ANEMONE, szWindowClass, MAX_LOADSTRING);
-	wcscpy_s(szSettingClass, L"Anemone_Setting_Class");
+	wcscpy(szSettingClass, L"Anemone_Setting_Class");
+	wcscpy(szParentClass, L"AneParentClass");
 
 	MainWndClassRegister(hInstance);
+	ParentClassRegister(hInstance);
 	SettingClassRegister(hInstance);
 
 	// Heap 생성 (1MB)
@@ -124,6 +130,8 @@ void CleanUp()
 	Cl.Config->SaveConfig();
 	ShowWindow(hWnds.Main, false);
 
+	DestroyWindow(hWnds.Parent);
+
 	// 설정 저장
 	Cl.Config->SaveConfig();
 
@@ -139,6 +147,112 @@ void CleanUp()
 	HeapDestroy(AneHeap);
 
 	ExitProcess(0);
+}
+
+//
+// 자석모드 쓰레드
+//
+
+unsigned int WINAPI MagneticThread(void *arg)
+{
+	bool IsForegroundCheck = false;
+	bool IsMinimizeOnce = false;
+	RECT rect;
+	//int nExStyle_Main, nExStyle_Target;
+
+	while (1)
+	{
+		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
+		{
+			if (Cl.Config->GetMagneticMode())
+			{
+				GetWindowRect(MagnetWnd.hWnd, &rect);
+
+				// 자석모드 윈도우 활성화시 아네모네도 최상위로 띄운다
+				if (IsForegroundCheck && GetForegroundWindow() == MagnetWnd.hWnd)
+				{
+					IsForegroundCheck = true;
+					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+				}
+				else IsForegroundCheck = false;
+				
+				// 자석 타겟창이 항상위가 변경되었을때 내가 건들필요가 있나?
+				//nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
+				//nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+
+				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
+				{
+					if (IsMinimizeOnce == false)
+					{
+						IsMinimizeOnce = true;
+
+						if (Cl.Config->GetMagneticMinimize())
+						{
+							MagnetWnd.IsMinimize = true;
+							Cl.Config->SetWindowVisible(false);
+							ShowWindow(hWnds.Main, false);
+							SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+						}
+					}
+				}
+				else 
+				{
+					if (IsMinimizeOnce)
+					{
+						if (MagnetWnd.IsMinimize == true)
+						{
+							Cl.Config->SetWindowVisible(true);
+							ShowWindow(hWnds.Main, true);
+						}
+						MagnetWnd.IsMinimize = false;
+						IsMinimizeOnce = false;
+						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+					}
+				}
+
+				if (MagnetWnd.rect_x != rect.left || MagnetWnd.rect_y != rect.top)
+				{
+					if (!(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
+					{
+						DEVMODE dmCurrent, dmRegistry;
+
+						EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCurrent);
+						EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmRegistry);
+
+						if (dmCurrent.dmPelsWidth == dmRegistry.dmPelsWidth &&
+							dmCurrent.dmPelsHeight == dmRegistry.dmPelsHeight)
+						{
+							SetWindowPos(hWnds.Main, NULL, rect.left + MagnetWnd.diff_x, rect.top + MagnetWnd.diff_y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
+						}
+
+						MagnetWnd.rect_x = rect.left;
+						MagnetWnd.rect_y = rect.top;
+					}
+				}
+				
+			}
+		}
+		else if (MagnetWnd.IsMagnet)
+		{
+			if (MagnetWnd.IsMinimize)
+			{
+				Cl.Config->SetWindowVisible(true);
+				ShowWindow(hWnds.Main, true);
+				MagnetWnd.IsMinimize = false;
+			}
+
+			MagnetWnd.hWnd = NULL;
+			SetParent(hWnds.Parent, NULL);
+			Cl.Config->SetMagneticMode(false);
+
+			MagnetWnd.IsMagnet = false;
+
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		}
+		Sleep(10);
+	}
+	MessageBox(0, L"스레드 종료", 0, 0);
+	return 0;
 }
 
 //
@@ -164,7 +278,7 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	// button. 
 
 	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hmenuTrackPopup, IDM_TEMP_SIZABLE_MODE, (Cl.Config->GetSizableMode() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, IDM_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 
 	TrackPopupMenu(hmenuTrackPopup,
@@ -213,17 +327,38 @@ ATOM MainWndClassRegister(HINSTANCE hInstance)
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= 0;
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = 0;
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassEx(&wcex);
+}
+
+ATOM ParentClassRegister(HINSTANCE hInstance)
+{
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = 0;
+	wcex.lpszClassName = szParentClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
 }
@@ -269,11 +404,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    int x = 500;
    int y = 200;
 
-   hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
-      (cx-x)/2, (cy-y)/2, x, y, NULL, NULL, hInstance, NULL);
+   hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
+	   0, 0, 0, 0, NULL, NULL, hInstance, NULL);
 
-   if (!hWnds.Main)
+   hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
+      (cx-x)/2, (cy-y)/2, x, y, hWnds.Parent, NULL, hInstance, NULL);
+
+   HANDLE hThread = NULL;
+   DWORD dwThreadID = NULL;
+   MagnetWnd.hThread = (HANDLE)_beginthreadex(NULL, 0, MagneticThread, NULL, 0, (unsigned*)&dwThreadID);
+   if (MagnetWnd.hThread == 0)
    {
+	   MessageBox(0, L"아네모네 쓰레드 생성 실패", 0, 0);
+	   return FALSE;
+   }
+
+   if (!hWnds.Parent || !hWnds.Main)
+   {
+	  MessageBox(0, L"아네모네 초기화 실패", 0, 0);
       return FALSE;
    }
 
@@ -360,8 +508,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_TEMP_SIZABLE_MODE:
-			(Cl.Config->GetSizableMode() ? Cl.Config->SetSizableMode(false) : Cl.Config->SetSizableMode(true));
+		case IDM_HIDEWIN_UNLOCK_HOTKEY:
+		{
+			(Cl.Config->GetHideWinUnlockHotkey() ? Cl.Config->SetHideWinUnlockHotkey(false) : Cl.Config->SetHideWinUnlockHotkey(true));
+		}
+			break;
+		case IDM_HIDEWIN_UNWATCH_CLIPBOARD:
+		{
+			(Cl.Config->GetHideWinUnWatchClip() ? Cl.Config->SetHideWinUnWatchClip(false) : Cl.Config->SetHideWinUnWatchClip(true));
+		}
+			break;
+		case IDM_MAGNETIC_MODE:
+		{
+			// 아네모네 윈도우는 자석 모드가 걸리지 않음, 창 숨김 모드일때는 푸는것만 가능함
+			if (GetForegroundWindow() == GetActiveWindow() || !Cl.Config->GetWindowVisible())
+			{
+				Cl.Config->SetMagneticMode(false);
+				MagnetWnd.hWnd = NULL;
+				break;
+			}
+
+			RECT rect_main, rect_target;
+			(Cl.Config->GetMagneticMode() ? Cl.Config->SetMagneticMode(false) : Cl.Config->SetMagneticMode(true));
+
+			if (Cl.Config->GetMagneticMode())
+			{
+				DEVMODE dmCurrent;
+				EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCurrent);
+
+				MagnetWnd.hWnd = GetForegroundWindow();
+
+				MagnetWnd.res_x = dmCurrent.dmPelsWidth;
+				MagnetWnd.res_y = dmCurrent.dmPelsHeight;
+				MagnetWnd.res_c = dmCurrent.dmBitsPerPel;
+
+				GetWindowRect(hWnds.Main, &rect_main);
+				GetWindowRect(MagnetWnd.hWnd, &rect_target);
+
+				MagnetWnd.diff_x = rect_main.left - rect_target.left;
+				MagnetWnd.diff_y = rect_main.top - rect_target.top;
+
+				MagnetWnd.rect_x = rect_target.left;
+				MagnetWnd.rect_y = rect_target.top;
+
+				SetParent(hWnds.Parent, MagnetWnd.hWnd);
+				MagnetWnd.IsMagnet = true;
+			}
+			else
+			{
+				MagnetWnd.hWnd = NULL;
+			}
+		}
+			break;
+		case IDM_WND_BORDER_MODE:
+			(Cl.Config->GetWndBorderMode() ? Cl.Config->SetWndBorderMode(false) : Cl.Config->SetWndBorderMode(true));
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
@@ -431,14 +631,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				// 체크박스
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_TOPMOST, Cl.Config->GetWindowTopMost());
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_MAGNETIC_TOPMOST, Cl.Config->GetMagneticTopMost());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_MAGNETIC_MINIMIZE, Cl.Config->GetMagneticMinimize());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN, !Cl.Config->GetWindowVisible());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD, Cl.Config->GetHideWinUnWatchClip());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, Cl.Config->GetHideWinUnlockHotkey());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipSwitch());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WNDCLICK_THOUGH, Cl.Config->GetClickThough());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_USE_MAGNETIC, Cl.Config->GetMagneticMode());
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_SIZABLE_MODE, Cl.Config->GetSizableMode());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_WND_BORDER_MODE, Cl.Config->GetWndBorderMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
@@ -780,6 +980,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		RECT *prc = (RECT *)lParam;
 		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+
+		if (Cl.Config->GetMagneticMode())
+		{
+			MagnetWnd.diff_x = prc->left - MagnetWnd.rect_x;
+			MagnetWnd.diff_y = prc->top - MagnetWnd.rect_y;
+		}
 		if (message == WM_SIZING) Cl.TextRenderer->Paint();
 	}
 		break;
@@ -891,14 +1097,17 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_TOPMOST:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TOPMOST, 0);
 			break;
-		case IDC_SETTING_MAGNETIC_TOPMOST:
+		case IDC_SETTING_MAGNETIC_MINIMIZE:
+			(Cl.Config->GetMagneticMinimize() ? Cl.Config->SetMagneticMinimize(false) : Cl.Config->SetMagneticMinimize(true));
 			break;
 		case IDC_SETTING_HIDEWIN:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_WINDOW_VISIBLE, 0);
 			break;
 		case IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_HIDEWIN_UNWATCH_CLIPBOARD, 0);
 			break;
 		case IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_HIDEWIN_UNLOCK_HOTKEY, 0);
 			break;
 		case IDC_SETTING_CLIPBOARD_WATCH:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_CLIPBOARD_SWITCH, 0);
@@ -907,9 +1116,10 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_CLICK_THOUGH, 0);
 			break;
 		case IDC_SETTING_USE_MAGNETIC:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_MAGNETIC_MODE, 0);
 			break;
-		case IDC_SETTING_SIZABLE_MODE:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_SIZABLE_MODE, 0);
+		case IDC_SETTING_WND_BORDER_MODE:
+			SendMessage(hWnds.Main, WM_COMMAND, IDM_WND_BORDER_MODE, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGTEXT:
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_PRINT_ORGTEXT, 0);
