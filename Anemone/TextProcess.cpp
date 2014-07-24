@@ -86,7 +86,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 	std::wstring::size_type npos = -1;
 	std::list<std::wstring> list;
 	std::wstring output;
-	int i = 0, length = input.size();
+	int i = 0, length = input.length();
 	std::wstring empty = L"Abort";
 
 	if (nStatus != 0) return empty;
@@ -359,6 +359,32 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 		}
 		else
 		{
+			// 「テティィナナ 같은 경우 처리 (앞 1글자가 짤렸을 경우) / 강에서만 작동
+			if (i == 0 && Cl.Config->GetRepeatTextProc() > 3)
+			{
+				bool IsNext = false;
+				for (i = 1; ; i++)
+				{
+					if (i == text.size() || i == (text.size() / 2) - (text.size() % 2))
+					{
+						IsNext = true;
+						break;
+					}
+					else if (text[i] == text[i + 1]) i++;
+					else
+					{
+						i = 0;
+						break;
+					}
+				}
+
+				if (IsNext == true)
+				{
+					output = text[0];
+					i = 0;
+					continue;
+				}
+			}
 			// 4자 (중복 8자)도 안되면 문제가 있을 수 있음. 무조건 리턴
 			//if (i < 4 * 2) return false;
 
@@ -373,14 +399,14 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 
 bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 {
-
 	int nResult = 1;
 	std::wstring str = input;
 	int index = str.size() / 2;
+	bool Is0D = false, Is0A = false;
 
-	for (unsigned int i = 0; i < str.size(); i++, index++)
+	for (unsigned int i = 0; i < str.length(); i++, index++)
 	{
-		if (i == str.size() / 2)
+		if (i == str.length() / 2)
 		{
 			nResult = 1;
 			break;
@@ -395,11 +421,11 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 
 	if (nResult == 0)
 	{
-		index = str.size() / 2 + 1;
+		index = str.length() / 2 + 1;
 
-		for (unsigned int i = 0; i < str.size(); i++, index++)
+		for (unsigned int i = 0; i < str.length(); i++, index++)
 		{
-			if (index == str.size() && str.size() / 2 - i < 1)
+			if (index == str.length() && str.length() / 2 - i < 1)
 			{
 				nResult = 2;
 				break;
@@ -416,21 +442,21 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	if (nResult == 1)
 	{
 		// 1234 12345
-		if (str.size() % 2 == 1)
+		if (str.length() % 2 == 1)
 		{
-			str = str.substr(str.size() / 2, str.size() / 2 + 1);
+			str = str.substr(str.length() / 2, str.length() / 2 + 1);
 		}
 		// 1234 1234
 		else
 		{
-			str = str.substr(0, str.size() / 2);
+			str = str.substr(0, str.length() / 2);
 		}
 	}
 
 	// 12345 1234
 	else if (nResult == 2)
 	{
-		str = str.substr(0, str.size() / 2 + 1);
+		str = str.substr(0, str.length() / 2 + 1);
 	}
 
 	input = str;
@@ -592,9 +618,9 @@ bool CTextProcess::OnDrawClipboard()
 
 	// 반복 처리
 	if (Cl.Config->GetRepeatTextProc() > 2)
-	{
 		DoubleSentenceFix(wContext);
-	}
+	if (Cl.Config->GetRepeatTextProc() > 1)
+		DoubleTextFix(wContext);
 
 	// 이름 분리
 	wName = NameSplit(0, wContext);
@@ -606,7 +632,7 @@ bool CTextProcess::OnDrawClipboard()
 	if (Cl.Config->GetRepeatTextProc() > 1)
 		DoubleTextFix(wText);
 
-	// 이름이나 대사에 반복되는 경우가 있을 수 있음. 처리
+	// 이름이나 대사에 반복되는 부분 처리
 	if (Cl.Config->GetRepeatTextProc() > 3)
 	{
 		DoubleSentenceFix(wName);
