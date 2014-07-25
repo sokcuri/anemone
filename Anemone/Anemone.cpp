@@ -176,50 +176,45 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", 0);
-		
-		DWORD dwProcessId;
-		GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
 
 		if (IsWindow(hMenuWnd))
 		{
+			DWORD dwProcessId;
+			GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
+			HWND CurFore = GetForegroundWindow();
+
 			if (GetCurrentProcessId() == dwProcessId)
 			{
-				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-
-
 				if (FindWindowEx(0, 0, L"#32768", L""))
 				{
-					hForeWnd = GetForegroundWindow();
+					int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+
+					hForeWnd = CurFore;
 					SetWindowText(hMenuWnd, L"AnemoneMenu");
-				}
 
-				if ((nExStyle_Menu & WS_EX_NOACTIVATE) == false)
-				{
-					nExStyle_Menu |= WS_EX_NOACTIVATE;
-					SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
+					if ((nExStyle_Menu & WS_EX_NOACTIVATE) == false)
+					{
+						nExStyle_Menu |= WS_EX_NOACTIVATE;
+						SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
 
-					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
-					Sleep(10);
+						SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
+					}
 				}
 
 			}
 
-		}
-		
-		hMenuWnd = FindWindowEx(0, 0, 0, L"AnemoneMenu");
-		if (IsWindow(hMenuWnd))
-		{
 			// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
 			HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
 
-			HWND CurFore = GetForegroundWindow();
 			if (IsWindow(hOtherWnd) ||
 				(CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore))
 			{
+				SetWindowText(hMenuWnd, L" ");
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
 			}
-		}
 
+		}
+		
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
