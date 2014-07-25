@@ -210,7 +210,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (IsWindow(hMenuWnd))
 		{
 			HWND CurFore = GetForegroundWindow();
-			if (CurFore != 0 && hForeWnd != CurFore)
+			if (CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore)
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
 		}
 
@@ -465,7 +465,41 @@ ATOM SettingClassRegister(HINSTANCE hInstance)
 
 	return RegisterClassEx(&wcex);
 }
+void TransWndMenu(HMENU hMenu)
+{
+	MENUITEMINFO mii;
+	std::wstringstream ws;
+	int max = GetMenuItemCount(hMenu);
+	wchar_t *buf;
 
+	for (int i = 0; i < GetMenuItemCount(hMenu); i++)
+	{
+		HMENU hSubMenu = GetSubMenu(hMenu, i);
+		if (hSubMenu != NULL) TransWndMenu(hSubMenu);
+
+		ZeroMemory(&mii, sizeof(MENUITEMINFO));
+		mii.dwTypeData = 0;
+		mii.fMask = MIIM_TYPE;
+		mii.cbSize = sizeof(MENUITEMINFO);
+		GetMenuItemInfo(hMenu, i, true, &mii);
+
+		mii.cch = mii.cch + 1;
+		buf = (wchar_t *)malloc((mii.cch + 1) * 2);
+		buf[0] = 0x00;
+
+		mii.dwTypeData = buf;
+		mii.fMask = MIIM_STRING;
+		GetMenuItemInfo(hMenu, i, true, &mii);
+
+		std::wstring str = Cl.TextProcess->eztrans_proc(buf);
+
+		mii.dwTypeData = (wchar_t *)str.c_str();
+		SetMenuItemInfo(hMenu, i, true, &mii);
+
+		free(buf);
+	}
+
+}
 void TransWndText(HWND hTarget)
 {
 	HWND m_hWnd;
@@ -485,7 +519,6 @@ void TransWndText(HWND hTarget)
 		
 		InvalidateRect(m_hWnd, NULL, TRUE);
 		UpdateWindow(m_hWnd);
-
 	}
 }
 
@@ -1104,10 +1137,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// 아네모네 창은 번역하지 않는다
 			if (hTargetWnd == GetActiveWindow()) break;
 
-			HWND hMenu = (HWND)GetMenu(hTargetWnd);
-
-			TransWndText(hMenu);
+			HMENU hMenu = GetMenu(hTargetWnd);
 			
+			TransWndMenu(hMenu);
+
+			PostMessage(hTargetWnd, WM_NCACTIVATE, true, 0);
+			UpdateWindow(hTargetWnd);
 		}
 			break;
 		case IDM_TRANSTEXT_WNDTEXT:
