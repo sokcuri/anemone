@@ -199,21 +199,25 @@ unsigned int WINAPI MagneticThread(void *arg)
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
 
 					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
+					Sleep(10);
 				}
 
 			}
+
 		}
 		
 		hMenuWnd = FindWindowEx(0, 0, 0, L"AnemoneMenu");
-
-		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가면 메뉴를 닫는다
 		if (IsWindow(hMenuWnd))
 		{
+			// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
+			HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
+
 			HWND CurFore = GetForegroundWindow();
-			if ((CurFore != GetActiveWindow() 
-				//&& CurFore != 0
-				&& hForeWnd != CurFore))
+			if (IsWindow(hOtherWnd) ||
+				(CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore))
+			{
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
+			}
 		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
@@ -264,6 +268,13 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 				if (MagnetWnd.rect_x != rect.left || MagnetWnd.rect_y != rect.top)
 				{
+					// 자석모드 창 이동시 팝업 메뉴를 끈다
+					if (IsWindow(hMenuWnd))
+					{
+						SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
+					}
+
+
 					if (!(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
 					{
 						DEVMODE dmCurrent, dmRegistry;
@@ -1210,17 +1221,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
+			SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 			Sleep(10);
 		}
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_RBUTTONDOWN:
-		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
-		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
-		{
-			SetForegroundWindow(MagnetWnd.hWnd);
-			Sleep(10);
-		}
+		SendMessage(hWnd, WM_LBUTTONDOWN, 0, 0);
 		break;
 	case WM_ERASEBKGND:
 		return false;
