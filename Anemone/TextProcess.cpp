@@ -435,6 +435,22 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 			if (str[i] != str[index])
 			{
 				nResult = 0;
+
+				// 「BBB」AAAAAA「BBB」같은 경우 처리
+
+				std::wstring str_end = str.substr(str.length() / 2, str.length() / 2);
+				std::wstring str_first = str.substr(0, str.length() / 2);
+				
+				for (unsigned int i = 0; i < str.length() / 2; i++, index--)
+				{
+					str_first = str_first[str_first.length() - 1] + str_first.substr(0, str_first.length() - 1);
+
+					if (str_end == str_first)
+					{
+						input = str_first;
+						return true;
+					}
+				}
 				break;
 			}
 		}
@@ -458,6 +474,10 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	else if (nResult == 2)
 	{
 		str = str.substr(0, str.length() / 2 + 1);
+	}
+	else if (nResult == 3)
+	{
+		str = str.substr(str.length() / 2, str.length() / 2);
 	}
 
 	input = str;

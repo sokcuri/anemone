@@ -209,7 +209,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 			if (IsWindow(hOtherWnd) ||
 				(CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore))
 			{
-				SetWindowText(hMenuWnd, L" ");
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
 			}
 
@@ -1172,7 +1171,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-
+			Sleep(10);
 		}
 			break;
 		default:
@@ -1216,7 +1215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
-			SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 			Sleep(10);
 		}
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
