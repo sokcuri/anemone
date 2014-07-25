@@ -160,6 +160,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 {
 	bool IsForegroundCheck = false;
 	bool IsMinimizeOnce = false;
+	HWND hForeWnd = NULL;
 	RECT rect;
 	//int nExStyle_Main, nExStyle_Target;
 
@@ -173,7 +174,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		}
 
 		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
-		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", NULL);
+		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		
 		DWORD dwProcessId;
 		GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
@@ -181,9 +182,15 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (GetCurrentProcessId() == dwProcessId)
 		{
 			int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-			nExStyle_Menu |= WS_EX_NOACTIVATE;
-			SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
-			SetWindowText(hMenuWnd, L"AnemoneMenu");
+			if (!(nExStyle_Menu & WS_EX_NOACTIVATE))
+			{
+				nExStyle_Menu |= WS_EX_NOACTIVATE;
+				SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
+				SetWindowText(hMenuWnd, L"AnemoneMenu");
+
+				SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Main);
+			}
+
 		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
@@ -1069,7 +1076,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 
-		case IDM_TRANSTEXT_WNDNAME:
+		case IDM_TRANSTEXT_WNDMENU:
 		{
 			HWND hTargetWnd = GetForegroundWindow();
 

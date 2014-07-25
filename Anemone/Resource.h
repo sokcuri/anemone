@@ -201,7 +201,7 @@
 #define ID_32788                        32788
 #define IDM_RESTORE_PARENT              32789
 #define ID_Menu32789                    32789
-#define IDM_TRANSTEXT_WNDNAME           32790
+#define IDM_TRANSTEXT_WNDMENU           32790
 #define IDM_TRANSTEXT_WNDTEXT           32791
 #define IDC_STATIC                      -1
 

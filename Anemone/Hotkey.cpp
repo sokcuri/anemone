@@ -33,7 +33,7 @@ bool CHotkey::LoadKeyMap()
 
 	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
 
-	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDNAME, true);
+	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU, true);
 	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT, true);
 	return true;
 }
