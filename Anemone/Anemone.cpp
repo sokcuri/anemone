@@ -156,13 +156,14 @@ void CleanUp()
 // 자석모드 쓰레드
 //
 
+HWND hForeWnd;
 unsigned int WINAPI MagneticThread(void *arg)
 {
 	bool IsForegroundCheck = false;
 	bool IsMinimizeOnce = false;
-	HWND hForeWnd = NULL;
 	RECT rect;
 	//int nExStyle_Main, nExStyle_Target;
+	hForeWnd = NULL;
 
 	while (1)
 	{
@@ -174,23 +175,43 @@ unsigned int WINAPI MagneticThread(void *arg)
 		}
 
 		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
-		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
+		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", 0);
 		
 		DWORD dwProcessId;
 		GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
 
-		if (GetCurrentProcessId() == dwProcessId)
+		if (IsWindow(hMenuWnd))
 		{
-			int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-			if (!(nExStyle_Menu & WS_EX_NOACTIVATE))
+			if (GetCurrentProcessId() == dwProcessId)
 			{
-				nExStyle_Menu |= WS_EX_NOACTIVATE;
-				SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
-				SetWindowText(hMenuWnd, L"AnemoneMenu");
+				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
 
-				SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Main);
+
+				if (FindWindowEx(0, 0, L"#32768", L""))
+				{
+					hForeWnd = GetForegroundWindow();
+					SetWindowText(hMenuWnd, L"AnemoneMenu");
+				}
+
+				if ((nExStyle_Menu & WS_EX_NOACTIVATE) == false)
+				{
+					nExStyle_Menu |= WS_EX_NOACTIVATE;
+					SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
+
+					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
+				}
+
 			}
+		}
+		
+		hMenuWnd = FindWindowEx(0, 0, 0, L"AnemoneMenu");
 
+		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가면 메뉴를 닫는다
+		if (IsWindow(hMenuWnd))
+		{
+			HWND CurFore = GetForegroundWindow();
+			if (CurFore != 0 && hForeWnd != CurFore)
+				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
 		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
@@ -1103,6 +1124,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SetWindowText(hTargetWnd, str.c_str());
 
 			TransWndText(hTargetWnd);			
+		}
+			break;
+		case IDM_DESTROY_MENU:
+		{
+			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
 		}
 			break;
 		default:

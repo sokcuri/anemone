@@ -203,6 +203,7 @@
 #define ID_Menu32789                    32789
 #define IDM_TRANSTEXT_WNDMENU           32790
 #define IDM_TRANSTEXT_WNDTEXT           32791
+#define IDM_DESTROY_MENU                32792
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
