@@ -210,7 +210,9 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (IsWindow(hMenuWnd))
 		{
 			HWND CurFore = GetForegroundWindow();
-			if (CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore)
+			if ((CurFore != GetActiveWindow() 
+				//&& CurFore != 0
+				&& hForeWnd != CurFore))
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
 		}
 
@@ -472,31 +474,32 @@ void TransWndMenu(HMENU hMenu)
 	int max = GetMenuItemCount(hMenu);
 	wchar_t *buf;
 
+	ZeroMemory(&mii, sizeof(MENUITEMINFO));
+
 	for (int i = 0; i < GetMenuItemCount(hMenu); i++)
 	{
 		HMENU hSubMenu = GetSubMenu(hMenu, i);
 		if (hSubMenu != NULL) TransWndMenu(hSubMenu);
 
-		ZeroMemory(&mii, sizeof(MENUITEMINFO));
 		mii.dwTypeData = 0;
 		mii.fMask = MIIM_TYPE;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		GetMenuItemInfo(hMenu, i, true, &mii);
 
 		mii.cch = mii.cch + 1;
-		buf = (wchar_t *)malloc((mii.cch + 1) * 2);
+		buf = (wchar_t *)HeapAlloc(AneHeap, 0, (mii.cch + 1) * 2);
+		
 		buf[0] = 0x00;
 
 		mii.dwTypeData = buf;
 		mii.fMask = MIIM_STRING;
 		GetMenuItemInfo(hMenu, i, true, &mii);
 
+		//std::wstring str = buf;
 		std::wstring str = Cl.TextProcess->eztrans_proc(buf);
-
 		mii.dwTypeData = (wchar_t *)str.c_str();
 		SetMenuItemInfo(hMenu, i, true, &mii);
-
-		free(buf);
+		HeapFree(AneHeap, 0, buf);
 	}
 
 }
@@ -1138,11 +1141,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (hTargetWnd == GetActiveWindow()) break;
 
 			HMENU hMenu = GetMenu(hTargetWnd);
-			
 			TransWndMenu(hMenu);
 
-			PostMessage(hTargetWnd, WM_NCACTIVATE, true, 0);
-			UpdateWindow(hTargetWnd);
+			SetMenu(hTargetWnd, hMenu);
 		}
 			break;
 		case IDM_TRANSTEXT_WNDTEXT:
@@ -1171,7 +1172,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	case WM_NCRBUTTONUP:
 	case WM_CONTEXTMENU:
 	{
 		POINT pt;
@@ -1206,7 +1206,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 		break;
 	case WM_LBUTTONDOWN:
+		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
+		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
+		{
+			SetForegroundWindow(MagnetWnd.hWnd);
+			Sleep(10);
+		}
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_RBUTTONDOWN:
+		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
+		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
+		{
+			SetForegroundWindow(MagnetWnd.hWnd);
+			Sleep(10);
+		}
 		break;
 	case WM_ERASEBKGND:
 		return false;
