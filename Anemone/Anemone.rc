@@ -55,6 +55,13 @@ BEGIN
         MENUITEM "환경설정",                        IDM_WINDOW_SETTING
         MENUITEM SEPARATOR
         MENUITEM "아네모네 정보",                     IDM_ABOUT
+        POPUP "단축키 일람"
+        BEGIN
+            MENUITEM "자석 모드\t`",                    ID_32787
+            MENUITEM "프로그램 메뉴 번역\tShift+F9",        ID_32788
+            MENUITEM "윈도우 텍스트 번역\tShift+F10",       ID_Menu32789
+        END
+        MENUITEM SEPARATOR
         MENUITEM "나가기",                         IDM_EXIT
     END
 END

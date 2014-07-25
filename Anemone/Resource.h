@@ -194,11 +194,15 @@
 #define IDM_WINDOW_TRANS                32784
 #define IDM_WINDOW_FILETRANS            32785
 #define IDM_HIDEWIN_UNLOCK_HOTKEY       32786
+#define ID_ANEMONE_32786                32786
 #define IDM_HIDEWIN_UNWATCH_CLIPBOARD   32787
+#define ID_32787                        32787
 #define IDM_MAGNETIC_MODE               32788
+#define ID_32788                        32788
 #define IDM_RESTORE_PARENT              32789
-#define IDM_TRANSTEXT_WNDNAME			32790
-#define IDM_TRANSTEXT_WNDTEXT			32791
+#define ID_Menu32789                    32789
+#define IDM_TRANSTEXT_WNDNAME           32790
+#define IDM_TRANSTEXT_WNDTEXT           32791
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -207,7 +211,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32786
+#define _APS_NEXT_COMMAND_VALUE         32790
 #define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

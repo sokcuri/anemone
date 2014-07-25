@@ -172,6 +172,19 @@ unsigned int WINAPI MagneticThread(void *arg)
 			//MessageBox(0, L"복구", 0, 0);
 		}
 
+		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
+		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", NULL);
+		
+		DWORD dwProcessId;
+		GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
+
+		if (GetCurrentProcessId() == dwProcessId)
+		{
+			int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+			nExStyle_Menu |= WS_EX_NOACTIVATE;
+			SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
+			SetWindowText(hMenuWnd, L"AnemoneMenu");
+		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
@@ -1059,7 +1072,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_TRANSTEXT_WNDNAME:
 		{
 			HWND hTargetWnd = GetForegroundWindow();
+
+			// 아네모네 창은 번역하지 않는다
+			if (hTargetWnd == GetActiveWindow()) break;
+
+			HWND hMenu = (HWND)GetMenu(hTargetWnd);
+
+			TransWndText(hMenu);
+			
+		}
+			break;
+		case IDM_TRANSTEXT_WNDTEXT:
+		{
 			wchar_t buf[255];
+			HWND hTargetWnd = GetForegroundWindow();
 
 			// 아네모네 창은 번역하지 않는다
 			if (hTargetWnd == GetActiveWindow()) break;
@@ -1068,15 +1094,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			std::wstring str = Cl.TextProcess->eztrans_proc(buf);
 			SetWindowText(hTargetWnd, str.c_str());
-
-		}
-			break;
-		case IDM_TRANSTEXT_WNDTEXT:
-		{
-			HWND hTargetWnd = GetForegroundWindow();
-
-			// 아네모네 창은 번역하지 않는다
-			if (hTargetWnd == GetActiveWindow()) break;
 
 			TransWndText(hTargetWnd);			
 		}
