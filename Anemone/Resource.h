@@ -28,6 +28,7 @@
 #define IDR_MAINFRAME                   128
 #define IDD_SETTING                     129
 #define IDD_TRANSWIN                    130
+#define IDC_ANEMONEWND                  131
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_WND_BORDER_MODE             1003

@@ -48,13 +48,23 @@ int APIENTRY _tWinMain(
 
 	// 전역 문자열을 초기화합니다.
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_ANEMONE, szWindowClass, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_ANEMONEWND, szWindowClass, MAX_LOADSTRING);
 	wcscpy(szSettingClass, L"Anemone_Setting_Class");
 	wcscpy(szParentClass, L"AneParentClass");
 
 	MainWndClassRegister(hInstance);
 	ParentClassRegister(hInstance);
 	SettingClassRegister(hInstance);
+
+	// 아네모네가 실행중인지 확인
+	if (FindWindow(szWindowClass, 0))
+	{
+		HWND hMsgWnd = FindWindow(0, L"알림");
+		if (!hMsgWnd)
+			MessageBox(0, L"아네모네가 이미 실행중입니다", L"알림", MB_ICONINFORMATION);
+		else SetForegroundWindow(hMsgWnd);
+		return false;
+	}
 
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
@@ -175,7 +185,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		}
 
 		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
-		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", 0);
+		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		HWND CurFore = GetForegroundWindow();
 
 		if (IsWindow(hMenuWnd))
@@ -185,26 +195,21 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 			if (GetCurrentProcessId() == dwProcessId)
 			{
-				if (FindWindowEx(0, 0, L"#32768", L""))
+				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+
+				hForeWnd = CurFore;
+				SetWindowText(hMenuWnd, L"AnemoneMenu");
+
+				if ((nExStyle_Menu & WS_EX_NOACTIVATE) == false)
 				{
-					int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+					nExStyle_Menu |= WS_EX_NOACTIVATE;
+					SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
 
-					hForeWnd = CurFore;
-					SetWindowText(hMenuWnd, L"AnemoneMenu");
-
-					if ((nExStyle_Menu & WS_EX_NOACTIVATE) == false)
-					{
-						nExStyle_Menu |= WS_EX_NOACTIVATE;
-						SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
-
-						SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
-					}
+					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
 				}
 
 			}
 		}
-
-
 
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
 		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
@@ -1176,7 +1181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_DESTROY_MENU:
 		{
 			//ShowWindow((HWND)lParam, false);
-			SetWindowPos((HWND)lParam, 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE);
+			SetWindowPos((HWND)lParam, HWND_DESKTOP, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE);
 			Sleep(1);
 			CloseWindow((HWND)lParam);
 			//SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);

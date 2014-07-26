@@ -300,6 +300,7 @@ STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "ANEMONE"
     IDC_ANEMONE             "ANEMONE"
+	IDC_ANEMONEWND			"Anemone_WndClass"
 END
 
 #endif    // 한국어(대한민국) resources
