@@ -4,8 +4,9 @@
 #include "stdafx.h"
 #include "Anemone.h"
 
+// 아네모네 버전
+#define ANEMONE_VERSION 999
 #define MAX_LOADSTRING 100
-
 
 // 전역 변수:
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
@@ -31,7 +32,8 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
 
 unsigned int WINAPI MagneticThread(void *arg);
-
+char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
+void __stdcall UpdateCheck();
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
 		__in_opt HINSTANCE hPrevInstance,
@@ -65,6 +67,9 @@ int APIENTRY _tWinMain(
 		else SetForegroundWindow(hMsgWnd);
 		return false;
 	}
+
+	UpdateCheck();
+	//MessageBoxA(0, J2K_Translate_Web(0, "初めまして。どうぞよろしく"), 0, 0);
 
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
@@ -2377,6 +2382,251 @@ typedef struct
 	char *strHeaders;
 	char *szPostData;
 } PARM;
+void __stdcall UpdateCheck(void)
+{
+	//char *szActData = "%EC%9D%B4%EC%A7%80%ED%8A%B8%EB%9E%9C%EC%8A%A4";
+	//wchar_t *szInput = L"こんにちは";
+	wchar_t *lpwszNULL = L"";
+	char *szParameter = "";
+
+	char *strHeaders = "";
+	char *szPostData = "";
+
+	DWORD   dwTimeout;
+	DWORD   dwExitCode;
+	PARM    threadParm;
+
+	HINTERNET hInternet = InternetOpenA("HTTPEX", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	HINTERNET hURL = InternetConnectA(hInternet, "docs.google.com", 80, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
+	HINTERNET hRequest = HttpOpenRequestA(hURL, "GET", "/document/d/1AiZgmm78sj1ZqVurKBNKBM5ZUiEUU8sAp6f2O2ZQCfM/pub", "HTTP/1.1", NULL, NULL, 0, INTERNET_FLAG_RELOAD);
+
+
+
+
+	HANDLE   hThread;
+	DWORD    dwThreadID;
+	threadParm.hInternet = hInternet;
+	threadParm.hRequest = hRequest;
+	threadParm.hURL = hURL;
+	threadParm.strHeaders = strHeaders;
+	threadParm.szPostData = szPostData;
+
+
+	//	   WriteLog(L"CreateThread\n");
+	hThread = CreateThread(
+		NULL,            // Pointer to thread security attributes 
+		0,               // Initial thread stack size, in bytes 
+		HttpSendRequestThread,  // Pointer to thread function 
+		&threadParm,     // The argument for the new thread
+		0,               // Creation flags 
+		&dwThreadID      // Pointer to returned thread identifier 
+		);           // Wait for the call to InternetConnect in worker function to complete
+	dwTimeout = 5000; // in milliseconds
+	if (WaitForSingleObject(hThread, dwTimeout) == WAIT_TIMEOUT)
+	{
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+
+		MessageBox(0, L"[WebTrans] 인터넷 연결시간이 초과되었습니다: HttpSendRequestA Timeout Error\n", 0, 0);
+		return;
+	}
+
+
+	// The state of the specified object (thread) is signaled
+	dwExitCode = 0;
+	if (!GetExitCodeThread(hThread, &dwExitCode))
+	{
+		MessageBox(0, L"[WebTrans] GetExitCodeThread Error\n", 0, 0);
+
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+		return;
+	}
+	CloseHandle(hThread);
+
+	if (dwExitCode)
+	{
+		MessageBox(0, L"[WebTrans] HttpSendRequestA Error\n", 0, 0);
+
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+		return;
+	}
+	DWORD dwSize;
+	DWORD dwTemp;
+	DWORD dwBytesRead = 0;
+
+	/*
+	DWORD dwContentLen = 0;
+	DWORD dwBufLen = sizeof(dwContentLen);
+	BOOL bRet2 = HttpQueryInfo(
+		hRequest,
+		HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER,
+		(LPVOID)&dwContentLen,
+		&dwBufLen,
+		0
+		);
+	*/
+
+	std::string StrContext;
+
+	InternetQueryDataAvailable(hRequest, &dwTemp, 0, 0);
+
+	while (dwTemp != 0)
+	{
+		if (dwTemp == 0)
+		{
+			//MessageBox(0, L"dwSize is Zero", 0, 0);
+			break;
+		}
+
+		dwSize = dwTemp;
+
+		char *strBuf = (char *)malloc(dwTemp);
+
+		InternetReadFile(hRequest, strBuf, dwSize, &dwBytesRead);
+
+		if (dwBytesRead != 0)
+		{
+			StrContext.append((char *)strBuf);
+			InternetQueryDataAvailable(hRequest, &dwTemp, 0, 0);
+			free(strBuf);
+		}
+		else
+		{
+			free(strBuf);
+			break;
+		}
+		
+	}
+	
+	
+	
+	char *pStr = strstr((char *)StrContext.c_str(), "ANEMONE_VERSION");
+
+	char *lpszVER;
+	char *lpszDOWN;
+	char *lpszMEMO;
+
+	wchar_t *lpwszDOWN;
+	wchar_t *lpwszMEMO;
+
+	int nLen;
+
+	if (pStr != NULL)
+	{
+		nLen = (int)strstr(pStr, "]") - (int)strstr(pStr, "[") - 1;
+		if (nLen > 0)
+		{
+			lpszVER = (char *)malloc(nLen+1);
+			memcpy(lpszVER, strstr(pStr, "[") + 1, nLen);
+			lpszVER[nLen] = 0x00;
+		}
+		else
+		{
+			lpszVER = (char *)malloc(1);
+			lpszVER[0] = 0x00;
+		}
+
+		pStr = strstr(pStr, "{DOWN:");
+
+		nLen = (int)strstr(pStr, "}") - (int)strstr(pStr, "{DOWN:") - 6;
+		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 1)
+		{
+			lpszDOWN = (char *)malloc(nLen + 1);
+			memcpy(lpszDOWN, strstr(pStr, "{DOWN:") + 6, nLen);
+			lpszDOWN[nLen] = 0x00;
+		}
+		else
+		{
+			lpszDOWN = (char *)malloc(1);
+			lpszDOWN[0] = 0x00;
+		}
+
+		pStr = strstr(pStr, "{MEMO:");
+
+		nLen = (int)strstr(pStr, "}") - (int)strstr(pStr, "{MEMO:") - 6;
+		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 1)
+		{
+			lpszMEMO = (char *)malloc(nLen + 3);
+			memcpy(lpszMEMO, strstr(pStr, "{MEMO:") + 6, nLen);
+			lpszMEMO[nLen] = 0x00;
+			for (unsigned int i = 0, j = 0; i <= nLen + 2; i++, j++)
+			{
+				if (i == nLen + 2) lpszMEMO[j] = 0x00;
+				else if (lpszMEMO[i] == '\\' && lpszMEMO[i + 1] == 'r')
+				{
+					i++;
+					lpszMEMO[j] = '\r';
+					continue;
+				}
+				else if (lpszMEMO[i] == '\\' && lpszMEMO[i + 1] == 'n')
+				{
+					i++;
+					lpszMEMO[j] = '\n';
+					continue;
+				}
+				lpszMEMO[j] = lpszMEMO[i];
+			}
+		}
+		else
+		{
+			lpszMEMO = (char *)malloc(1);
+			lpszMEMO[0] = 0x00;
+		}
+	}
+
+	//MessageBoxA(0, lpszSTR, lpszVER, 0);
+
+	if (hInternet) InternetCloseHandle(hInternet);
+	if (hURL) InternetCloseHandle(hURL);
+	if (hRequest) InternetCloseHandle(hRequest);
+
+	int ver = atoi(lpszVER);
+
+	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, NULL, NULL);
+	lpwszDOWN = (wchar_t *)malloc((nLen + 1) * 2);
+	MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, lpwszDOWN, nLen);
+
+	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, NULL, NULL);
+	lpwszMEMO = (wchar_t *)malloc((nLen + 1) * 2);
+	MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, lpwszMEMO, nLen);
+
+	std::wstringstream wss;
+
+	wss << L"아네모네 새로운 버전을 확인했습니다.\r\n홈페이지로 이동할까요?";
+	//wss << L"\r\n";
+	///wss << lpwszDOWN;
+	wss << L"\r\n\r\n";
+	//wss << L"MEMO: ";
+	wss << lpwszMEMO;
+
+	if (ver > ANEMONE_VERSION)
+	{
+		if (MessageBox(0, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
+		{
+			ShellExecute(NULL, L"open", lpwszDOWN, L"", L"", SW_SHOW);
+		}
+	}
+	else if (ver == 0)
+	{
+		MessageBox(0, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+	}
+	else
+	{
+		MessageBox(0, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
+	}
+
+	free(lpszVER);
+	free(lpszDOWN);
+	free(lpszMEMO);
+	free(lpwszDOWN);
+	free(lpwszMEMO);
+	return;
+}
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
 {
 	//char *szActData = "%EC%9D%B4%EC%A7%80%ED%8A%B8%EB%9E%9C%EC%8A%A4";
@@ -2484,10 +2734,6 @@ char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
 
 	if (dwExitCode)
 	{
-		std::wstring strResult = L"[WebTrans] HttpSendRequestA Error";
-
-		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
-		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
 		MessageBox(0, L"[WebTrans] HttpSendRequestA Error\n", 0, 0);
 
 		if (hInternet) InternetCloseHandle(hInternet);
@@ -2515,14 +2761,6 @@ char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
 	BOOL bRet3 = InternetReadFile(hRequest, readBuffer, sizeof(readBuffer), &dwBytesRead);
 	if (!bRet3 || dwBytesRead == 0)
 	{
-		DWORD dwErr = GetLastError();
-		dwErr = 0;
-
-		std::wstring strResult = L"[WebTrans] InternetReadFile Error!";
-
-		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
-		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
-
 		MessageBox(0, L"[WebTrans] InternetReadFile Err\n", 0, 0);
 	}
 
