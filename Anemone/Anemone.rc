@@ -43,26 +43,27 @@ IDC_ANEMONE MENU
 BEGIN
     POPUP "ANEMONE_MENU"
     BEGIN
-        MENUITEM "클립보드 감시",                     IDM_CLIPBOARD_SWITCH
-        MENUITEM "창 너머 클릭",                     IDM_TEMP_CLICK_THOUGH
-        MENUITEM "크기 조절 모드",                    IDM_WND_BORDER_MODE
+        MENUITEM "클립보드 감시\tScroll Lock",        IDM_CLIPBOARD_SWITCH
+        MENUITEM "창 너머 클릭\tF6",                 IDM_TEMP_CLICK_THOUGH
+        MENUITEM "자석 모드 사용\t'",                 IDM_MAGNETIC_MODE
+        MENUITEM "크기 조절 모드\tF7",                IDM_WND_BORDER_MODE
         MENUITEM SEPARATOR
         POPUP "번역 윈도우"
         BEGIN
             MENUITEM "단문 번역기",                      IDM_WINDOW_TRANS
             MENUITEM "텍스트 번역기",                     IDM_WINDOW_FILETRANS
         END
-        MENUITEM "환경설정",                        IDM_WINDOW_SETTING
+        MENUITEM "환경설정\tF10",                   IDM_WINDOW_SETTING
         MENUITEM SEPARATOR
         MENUITEM "아네모네 정보",                     IDM_ABOUT
         POPUP "단축키 일람"
         BEGIN
             MENUITEM "자석 모드\t`",                    ID_32787
-            MENUITEM "프로그램 메뉴 번역\tShift+F9",        ID_32788
+            MENUITEM "프로그램 메뉴 번역\tShift+F9",        IDM_MAGNETIC_MODE
             MENUITEM "윈도우 텍스트 번역\tShift+F10",       ID_Menu32789
         END
         MENUITEM SEPARATOR
-        MENUITEM "나가기",                         IDM_EXIT
+        MENUITEM "나가기\tF12",                    IDM_EXIT
     END
 END
 
@@ -208,20 +209,20 @@ BEGIN
     CTEXT           "그림자 Y축 (20)",IDC_SETTING_SHADOW_Y_TEXT,212,352,58,8
 END
 
-IDD_TRANSWIN DIALOGEX 0, 0, 315, 338
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_TRANSWIN DIALOGEX 0, 0, 268, 338
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
+FONT 9, "굴림", 400, 0, 0x81
 BEGIN
-    DEFPUSHBUTTON   "번역하기",IDC_TRANSWIN_TRANSLATE,132,157,50,19
-    EDITTEXT        IDC_TRANSWIN_SRC,7,23,300,129,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+    DEFPUSHBUTTON   "번역하기",IDC_TRANSWIN_TRANSLATE,106,156,50,19
+    EDITTEXT        IDC_TRANSWIN_SRC,7,23,253,129,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
     LTEXT           "원문",IDC_STATIC,7,8,17,8
-    EDITTEXT        IDC_TRANSWIN_DEST,8,180,300,129,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+    EDITTEXT        IDC_TRANSWIN_DEST,7,180,253,129,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
     LTEXT           "번역문",IDC_STATIC,8,166,25,8
-    DEFPUSHBUTTON   "복사하기",IDC_TRANSWIN_COPY,74,315,50,19
-    DEFPUSHBUTTON   "지우기",IDC_TRANSWIN_CLEAR,132,315,50,19
-    DEFPUSHBUTTON   "닫기",IDC_TRANSWIN_CLOSE,190,315,50,19
-    CONTROL         "한꺼번에 묶어서 번역",IDC_TRANSWIN_TRANS_ONEGO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,218,7,90,10
+    DEFPUSHBUTTON   "복사하기",IDC_TRANSWIN_COPY,48,315,50,19
+    DEFPUSHBUTTON   "지우기",IDC_TRANSWIN_CLEAR,106,315,50,19
+    DEFPUSHBUTTON   "닫기",IDC_TRANSWIN_CLOSE,164,315,50,19
+    CONTROL         "한꺼번에 묶어서 번역",IDC_TRANSWIN_TRANS_ONEGO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,181,7,79,10
 END
 
 
@@ -252,7 +253,7 @@ BEGIN
     IDD_TRANSWIN, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 308
+        RIGHTMARGIN, 260
         TOPMARGIN, 7
         BOTTOMMARGIN, 331
     END
@@ -300,7 +301,11 @@ STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "ANEMONE"
     IDC_ANEMONE             "ANEMONE"
-	IDC_ANEMONEWND			"Anemone_WndClass"
+END
+
+STRINGTABLE
+BEGIN
+    IDC_ANEMONEWND          "Anemone_WndClass"
 END
 
 #endif    // 한국어(대한민국) resources

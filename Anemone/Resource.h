@@ -203,6 +203,7 @@
 #define IDM_RESTORE_PARENT              32789
 #define ID_Menu32789                    32789
 #define IDM_TRANSTEXT_WNDMENU           32790
+#define ID_Menu32790                    32790
 #define IDM_TRANSTEXT_WNDTEXT           32791
 #define IDM_DESTROY_MENU                32792
 #define IDC_STATIC                      -1
@@ -213,7 +214,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_COMMAND_VALUE         32791
 #define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
