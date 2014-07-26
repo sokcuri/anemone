@@ -1175,7 +1175,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_DESTROY_MENU:
 		{
-			ShowWindow((HWND)lParam, false);
+			//ShowWindow((HWND)lParam, false);
+			SetWindowPos((HWND)lParam, 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE);
+			Sleep(1);
 			CloseWindow((HWND)lParam);
 			//SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			//SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
