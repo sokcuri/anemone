@@ -2310,11 +2310,16 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			break;
 		case IDOK:
 		case IDCANCEL:
-		case IDM_EXIT:
 		case IDC_TRANSWIN_CLOSE:
+		{
+			SetWindowLong(GetDlgItem(hWnds.Trans, IDC_TRANSWIN_SRC), GWL_WNDPROC, (LONG)pEditProc[0]);
+			SetWindowLong(GetDlgItem(hWnds.Trans, IDC_TRANSWIN_DEST), GWL_WNDPROC, (LONG)pEditProc[1]);
+			hWnds.Trans = NULL;
+
 			Cl.TextProcess->TranslateAbort();
 			//EndDialog(hWnd, LOWORD(wParam));
 			DestroyWindow(hWnd);
+		}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
