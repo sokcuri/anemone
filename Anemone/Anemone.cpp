@@ -176,12 +176,12 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", 0);
+		HWND CurFore = GetForegroundWindow();
 
 		if (IsWindow(hMenuWnd))
 		{
 			DWORD dwProcessId;
 			GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
-			HWND CurFore = GetForegroundWindow();
 
 			if (GetCurrentProcessId() == dwProcessId)
 			{
@@ -202,14 +202,20 @@ unsigned int WINAPI MagneticThread(void *arg)
 				}
 
 			}
+		}
 
-			// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
-			HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
 
+
+		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
+		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
+		HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
+
+		if (IsWindow(hMenuWnd))
+		{
 			if (IsWindow(hOtherWnd) ||
 				(CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore))
 			{
-				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
+				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
 			}
 
 		}
@@ -265,7 +271,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 					// 자석모드 창 이동시 팝업 메뉴를 끈다
 					if (IsWindow(hMenuWnd))
 					{
-						SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, 0);
+						SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
 					}
 
 
@@ -1169,23 +1175,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_DESTROY_MENU:
 		{
-			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			Sleep(10);
+			ShowWindow((HWND)lParam, false);
+			CloseWindow((HWND)lParam);
+			//SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			//SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			//Sleep(10);
 		}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	case WM_CONTEXTMENU:
-	{
-		POINT pt;
-		pt.x = LOWORD(lParam);
-		pt.y = HIWORD(lParam);
-		if (!OnContextMenu(hWnd, pt.x,pt.y))
-			return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-		break;
 	case WM_PAINT:
 	{
 		Cl.TextRenderer->Paint();
@@ -1210,6 +1209,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Cl.TextProcess->OnDrawClipboard();
 	}
 		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO *mm = (MINMAXINFO *)lParam;
+
+		mm->ptMinTrackSize.x = 90;
+		mm->ptMinTrackSize.y = 90;
+	}
+		break;
 	case WM_LBUTTONDOWN:
 		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
 		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
@@ -1221,16 +1230,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_RBUTTONDOWN:
-		SendMessage(hWnd, WM_LBUTTONDOWN, 0, 0);
 		break;
-	case WM_ERASEBKGND:
-		return false;
-	case WM_GETMINMAXINFO:
+	case WM_NCRBUTTONUP:
+		SendMessage(hWnd, WM_CONTEXTMENU, wParam, lParam);
+		break;
+	case WM_CONTEXTMENU:
 	{
-		MINMAXINFO *mm = (MINMAXINFO *)lParam;
+		POINT pt;
+		
+		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
+		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
+		{
+			SetForegroundWindow(MagnetWnd.hWnd);
+			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+			Sleep(10);
+		}
 
-		mm->ptMinTrackSize.x = 90;
-		mm->ptMinTrackSize.y = 90;
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		if (!OnContextMenu(hWnd, pt.x, pt.y))
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 		break;
 	case WM_NCHITTEST:
@@ -1649,9 +1668,6 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
-		break;
-	case WM_LBUTTONDOWN:
-		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_ERASEBKGND:
 		return false;
