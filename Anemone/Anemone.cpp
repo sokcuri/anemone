@@ -211,6 +211,30 @@ unsigned int WINAPI MagneticThread(void *arg)
 			}
 		}
 
+		// 자석모드 윈도우가 활성화시 아네모네도 위로 띄우기
+		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
+		{
+			if (Cl.Config->GetMagneticMode())
+			{
+				if (GetForegroundWindow() == MagnetWnd.hWnd)
+				{
+					if (!IsForegroundCheck)
+					{
+						IsForegroundCheck = true;
+						Sleep(20);
+						SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+
+						RECT rectx;
+
+						GetWindowRect(MagnetWnd.hWnd, &rectx);
+
+						SetWindowPos(MagnetWnd.hWnd, HWND_TOP, rectx.left, rectx.top, rectx.right - rectx.left, rectx.bottom - rectx.top, SWP_SHOWWINDOW);
+					}
+				}
+				else IsForegroundCheck = false;
+			}
+		}
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
 		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
 		HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
@@ -225,6 +249,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 		}
 		
+
+
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
@@ -297,25 +323,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 						MagnetWnd.rect_y = rect.top;
 					}
 				}
-
-				// 자석모드 윈도우 활성화시 아네모네도 최상위로 띄운다
-				if (GetForegroundWindow() == MagnetWnd.hWnd)
-				{
-					if (!IsForegroundCheck)
-					{
-						IsForegroundCheck = true;
-						Sleep(20);
-						SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-
-						RECT rectx;
-
-						GetWindowRect(MagnetWnd.hWnd, &rectx);
-
-						SetWindowPos(MagnetWnd.hWnd, HWND_TOP, rectx.left, rectx.top, rectx.right-rectx.left, rectx.bottom-rectx.top, SWP_SHOWWINDOW);
-					}
-				}
-				else IsForegroundCheck = false;
 			}
 		}
 		else if (MagnetWnd.IsMagnet)
