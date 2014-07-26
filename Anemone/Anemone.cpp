@@ -244,6 +244,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				else IsForegroundCheck = false;
 			}
 		}
+
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
 		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
 		HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
@@ -258,8 +259,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 		}
 		
-
-
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
@@ -678,10 +677,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				ShowWindow(hWnd, true);
 
 				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
-				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				if (Cl.Config->GetWindowTopMost())
+					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				else SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
-				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
-				SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				//int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+				//SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 			}
 		}
@@ -698,10 +699,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				ShowWindow(hWnd, true);
 
 				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
-				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				if (Cl.Config->GetWindowTopMost())
+					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				else SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
-				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
-				SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				//int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
+				//SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 		}
 			break;
