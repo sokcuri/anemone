@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1000
+#define ANEMONE_VERSION 999
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -30,10 +30,11 @@ LRESULT CALLBACK	ParentWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
+DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
+bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
-void __stdcall UpdateCheck();
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
 		__in_opt HINSTANCE hPrevInstance,
@@ -68,7 +69,6 @@ int APIENTRY _tWinMain(
 		return false;
 	}
 
-	UpdateCheck();
 	//MessageBoxA(0, J2K_Translate_Web(0, "初めまして。どうぞよろしく"), 0, 0);
 
 	// Heap 생성 (1MB)
@@ -77,6 +77,10 @@ int APIENTRY _tWinMain(
 	// 환경설정 클래스
 	Cl.Config = new CConfig();
 	Cl.Config->LoadConfig();
+
+	// 업데이트 체크
+	if (Cl.Config->GetUpdateNotify())
+		if (UpdateNotify(0, false)) return FALSE;
 
 	// 응용 프로그램 초기화를 수행합니다.
 	if (!InitInstance(hInstance, false))
@@ -847,6 +851,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_UPDATE_NOTIFY, Cl.Config->GetUpdateNotify());
 
 				{
 					(Cl.Config->GetRepeatTextProc() == 0) ? CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, false) :
@@ -1689,6 +1694,12 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 			break;
+		case IDC_SETTING_UPDATE_NOTIFY:
+			(Cl.Config->GetUpdateNotify() ? Cl.Config->SetUpdateNotify(false) : Cl.Config->SetUpdateNotify(true));
+			break;
+		case IDC_SETTING_UPDATE_CHECK:
+			UpdateNotify(hWnd, true);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -2373,19 +2384,8 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 }
 
-DWORD WINAPI HttpSendRequestThread(LPVOID lpParam);
-typedef struct
+bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 {
-	HINTERNET hInternet;
-	HINTERNET hURL;
-	HINTERNET hRequest;
-	char *strHeaders;
-	char *szPostData;
-} PARM;
-void __stdcall UpdateCheck(void)
-{
-	//char *szActData = "%EC%9D%B4%EC%A7%80%ED%8A%B8%EB%9E%9C%EC%8A%A4";
-	//wchar_t *szInput = L"こんにちは";
 	wchar_t *lpwszNULL = L"";
 	char *szParameter = "";
 
@@ -2400,9 +2400,6 @@ void __stdcall UpdateCheck(void)
 	HINTERNET hURL = InternetConnectA(hInternet, "docs.google.com", 80, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
 	HINTERNET hRequest = HttpOpenRequestA(hURL, "GET", "/document/d/1AiZgmm78sj1ZqVurKBNKBM5ZUiEUU8sAp6f2O2ZQCfM/pub", "HTTP/1.1", NULL, NULL, 0, INTERNET_FLAG_RELOAD);
 
-
-
-
 	HANDLE   hThread;
 	DWORD    dwThreadID;
 	threadParm.hInternet = hInternet;
@@ -2410,7 +2407,6 @@ void __stdcall UpdateCheck(void)
 	threadParm.hURL = hURL;
 	threadParm.strHeaders = strHeaders;
 	threadParm.szPostData = szPostData;
-
 
 	//	   WriteLog(L"CreateThread\n");
 	hThread = CreateThread(
@@ -2428,32 +2424,31 @@ void __stdcall UpdateCheck(void)
 		if (hURL) InternetCloseHandle(hURL);
 		if (hRequest) InternetCloseHandle(hRequest);
 
-		MessageBox(0, L"[WebTrans] 인터넷 연결시간이 초과되었습니다: HttpSendRequestA Timeout Error\n", 0, 0);
-		return;
+		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Timeout Error", 0, 0);
+		return false;
 	}
-
 
 	// The state of the specified object (thread) is signaled
 	dwExitCode = 0;
 	if (!GetExitCodeThread(hThread, &dwExitCode))
 	{
-		MessageBox(0, L"[WebTrans] GetExitCodeThread Error\n", 0, 0);
+		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nGetExitCodeThread Error", 0, 0);
 
 		if (hInternet) InternetCloseHandle(hInternet);
 		if (hURL) InternetCloseHandle(hURL);
 		if (hRequest) InternetCloseHandle(hRequest);
-		return;
+		return false;
 	}
 	CloseHandle(hThread);
 
 	if (dwExitCode)
 	{
-		MessageBox(0, L"[WebTrans] HttpSendRequestA Error\n", 0, 0);
+		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Error", 0, 0);
 
 		if (hInternet) InternetCloseHandle(hInternet);
 		if (hURL) InternetCloseHandle(hURL);
 		if (hRequest) InternetCloseHandle(hRequest);
-		return;
+		return false;
 	}
 	DWORD dwSize;
 	DWORD dwTemp;
@@ -2491,7 +2486,7 @@ void __stdcall UpdateCheck(void)
 
 		if (dwBytesRead != 0)
 		{
-			StrContext.append((char *)strBuf);
+			StrContext.append((char *)strBuf, dwBytesRead);
 			InternetQueryDataAvailable(hRequest, &dwTemp, 0, 0);
 			free(strBuf);
 		}
@@ -2502,7 +2497,6 @@ void __stdcall UpdateCheck(void)
 		}
 		
 	}
-	
 	
 	
 	char *pStr = strstr((char *)StrContext.c_str(), "ANEMONE_VERSION");
@@ -2606,18 +2600,19 @@ void __stdcall UpdateCheck(void)
 
 	if (ver > ANEMONE_VERSION)
 	{
-		if (MessageBox(0, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
+		if (MessageBox(hWnd, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
 		{
 			ShellExecute(NULL, L"open", lpwszDOWN, L"", L"", SW_SHOW);
+			return true;
 		}
 	}
 	else if (ver == 0)
 	{
-		MessageBox(0, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 	}
-	else
+	else if (IsCurMsg == true)
 	{
-		MessageBox(0, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
+		MessageBox(hWnd, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
 	}
 
 	free(lpszVER);
@@ -2625,7 +2620,7 @@ void __stdcall UpdateCheck(void)
 	free(lpszMEMO);
 	free(lpwszDOWN);
 	free(lpwszMEMO);
-	return;
+	return false;
 }
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
 {

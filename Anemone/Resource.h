@@ -158,6 +158,8 @@
 #define IDC_SETTING_CLIP_TEXT           1066
 #define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDC_SETTING_REPEAT_TEXT2        1067
+#define IDC_BUTTON17                    1068
+#define IDC_SETTING_UPDATE_CHECK        1068
 #define IDC_SETTING_TRANS_SHADOW_COLOR  1069
 #define IDC_SETTING_ORG_SHADOW_COLOR    1070
 #define IDC_SETTING_SHADOW_SIZE_TRACKBAR 1071
@@ -220,7 +222,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1067
+#define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -141,3 +141,13 @@ UINT CALLBACK SettingColorWndHookProc(HWND, UINT, WPARAM, LPARAM);
 
 extern int Elapsed_Prepare;
 extern int Elapsed_Translate;
+
+// WININET
+typedef struct
+{
+	HINTERNET hInternet;
+	HINTERNET hURL;
+	HINTERNET hRequest;
+	char *strHeaders;
+	char *szPostData;
+} PARM;

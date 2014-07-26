@@ -75,6 +75,7 @@ private:
 	int cfg_text_margin_y = 0;
 	int cfg_text_margin_name = 0;
 	bool cfg_trans_onego = true;
+	bool cfg_update_notify = true;
 
 public:
 	CConfig();
@@ -82,6 +83,9 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetUpdateNotify() { return cfg_update_notify; }
+	void SetUpdateNotify(bool b) { cfg_update_notify = b; }
 
 	int GetReviseName() { return cfg_name_revise; }
 	void SetReviseName(bool b) { cfg_name_revise = b; }
