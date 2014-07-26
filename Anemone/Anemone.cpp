@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 999
+#define ANEMONE_VERSION 1000
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -2554,7 +2554,7 @@ void __stdcall UpdateCheck(void)
 			lpszMEMO = (char *)malloc(nLen + 3);
 			memcpy(lpszMEMO, strstr(pStr, "{MEMO:") + 6, nLen);
 			lpszMEMO[nLen] = 0x00;
-			for (unsigned int i = 0, j = 0; i <= nLen + 2; i++, j++)
+			for (int i = 0, j = 0; i <= nLen + 2; i++, j++)
 			{
 				if (i == nLen + 2) lpszMEMO[j] = 0x00;
 				else if (lpszMEMO[i] == '\\' && lpszMEMO[i + 1] == 'r')
