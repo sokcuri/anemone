@@ -359,11 +359,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 				SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 
-			Sleep(5);
-
-			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		}
 		Sleep(10);
