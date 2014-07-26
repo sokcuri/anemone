@@ -20,7 +20,7 @@ bool CHotkey::LoadKeyMap()
 
 	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
 	RegKey(VK_F7, false, false, false, IDM_WND_BORDER_MODE);
-	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING);
+	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING, true);
 	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
 
 	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
