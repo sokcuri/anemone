@@ -811,8 +811,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
-				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnd, SettingProc);
-			
+				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnds.Main, SettingProc);
+
 				GetWindowRect(hWnds.Setting, &rect);
 
 				SetWindowPos(hWnds.Setting, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
@@ -1334,6 +1334,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_SHOWWINDOW:
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
@@ -2234,6 +2236,8 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			//assert(false);
 			return false;
 		}
+		SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_SRC));
+		SetForegroundWindow(hWnds.Trans);
 	}
 		break;
 	case WM_COMMAND:
