@@ -2367,3 +2367,217 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	return DefWindowProc(hWnd, message, wParam, lParam);
 
 }
+
+DWORD WINAPI HttpSendRequestThread(LPVOID lpParam);
+typedef struct
+{
+	HINTERNET hInternet;
+	HINTERNET hURL;
+	HINTERNET hRequest;
+	char *strHeaders;
+	char *szPostData;
+} PARM;
+char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
+{
+	//char *szActData = "%EC%9D%B4%EC%A7%80%ED%8A%B8%EB%9E%9C%EC%8A%A4";
+	//wchar_t *szInput = L"こんにちは";
+
+	char *szParameter = "mode=j2k&body=%s";
+
+	char *strHeaders = "Content-Type: application/x-www-form-urlencoded";
+	char szPostData[65500] = "";
+	char szEncodeData[200] = "";
+
+	wchar_t wstr1[65500];
+	char str1[65500] = "";
+	char str2[65500] = "";
+
+	char *buf;
+
+	DWORD   dwTimeout;
+	DWORD   dwExitCode;
+	PARM    threadParm;
+
+	// 버퍼 할당
+	buf = (char *)malloc(65500 + (strlen(jpStr) + 1)*sizeof(char));
+	if (buf == NULL)
+	{
+		MessageBox(0, L"[Memory] 메모리를 할당하지 못했습니다.\n", 0, 0);
+	}
+
+	//	sprintf(tempstr, "1\0", urltemp2);
+
+	//WriteLog(L"[WebTrans]: %s\n", jpStr);
+
+	// 932로 들어온걸 유니코드로 바꿈
+	int nLen = MultiByteToWideChar(932, MB_PRECOMPOSED, jpStr, -1, NULL, NULL);
+	MultiByteToWideChar(932, 0, jpStr, -1, wstr1, nLen);
+
+	// 유니코드를 UTF-8로 바꿈
+	nLen = WideCharToMultiByte(CP_UTF8, 0, wstr1, lstrlenW(wstr1), NULL, 0, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, wstr1, lstrlenW(wstr1), str1, nLen, NULL, NULL);
+
+	for (int i = 0; i<nLen; i++)
+	{
+		sprintf_s(str2, "%s%%%02X\0", str2, str1[i] & 0xFF);
+	}
+
+	sprintf_s(szPostData, szParameter, str2);
+
+	HINTERNET hInternet = InternetOpenA("HTTPFILE", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+	HINTERNET hURL = InternetConnectA(hInternet, "jptrans.naver.net", 80, "HTTP/1.1", NULL, INTERNET_SERVICE_HTTP, 0, 0);
+	HINTERNET hRequest = HttpOpenRequestA(hURL, "POST", "/short_trans/translate_300_japan_service_trans.php", NULL, NULL, NULL, 0, 0);
+
+
+	HANDLE   hThread;
+	DWORD    dwThreadID;
+	threadParm.hInternet = hInternet;
+	threadParm.hRequest = hRequest;
+	threadParm.hURL = hURL;
+	threadParm.strHeaders = strHeaders;
+	threadParm.szPostData = szPostData;
+
+
+	//	   WriteLog(L"CreateThread\n");
+	hThread = CreateThread(
+		NULL,            // Pointer to thread security attributes 
+		0,               // Initial thread stack size, in bytes 
+		HttpSendRequestThread,  // Pointer to thread function 
+		&threadParm,     // The argument for the new thread
+		0,               // Creation flags 
+		&dwThreadID      // Pointer to returned thread identifier 
+		);           // Wait for the call to InternetConnect in worker function to complete
+	dwTimeout = 5000; // in milliseconds
+	if (WaitForSingleObject(hThread, dwTimeout) == WAIT_TIMEOUT)
+	{
+		std::wstring strResult = L"[WebTrans] 인터넷 연결시간이 초과되었습니다: HttpSendRequestA Timeout Error";
+
+		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
+		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
+
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+
+		MessageBox(0, L"[WebTrans] 인터넷 연결시간이 초과되었습니다: HttpSendRequestA Timeout Error\n", 0, 0);
+		return buf;
+	}
+
+
+	// The state of the specified object (thread) is signaled
+	dwExitCode = 0;
+	if (!GetExitCodeThread(hThread, &dwExitCode))
+	{
+		std::wstring strResult = L"[WebTrans] GetExitCodeThread Error";
+
+		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
+		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
+
+		MessageBox(0, L"[WebTrans] GetExitCodeThread Error\n", 0, 0);
+
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+		return buf;
+	}
+	CloseHandle(hThread);
+
+	if (dwExitCode)
+	{
+		std::wstring strResult = L"[WebTrans] HttpSendRequestA Error";
+
+		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
+		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
+		MessageBox(0, L"[WebTrans] HttpSendRequestA Error\n", 0, 0);
+
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+		return buf;
+	}
+
+	DWORD dwContentLen = 0;
+	DWORD dwBufLen = sizeof(dwContentLen);
+	BOOL bRet2 = HttpQueryInfo(
+		hRequest,
+		HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER,
+		(LPVOID)&dwContentLen,
+		&dwBufLen,
+		0
+		);
+
+	char readBuffer[6000];
+
+	memset(readBuffer, 0, 6000);
+	DWORD dwRecvLen = 0;
+	DWORD dwBytesRead = 0;
+
+	BOOL bRet3 = InternetReadFile(hRequest, readBuffer, sizeof(readBuffer), &dwBytesRead);
+	if (!bRet3 || dwBytesRead == 0)
+	{
+		DWORD dwErr = GetLastError();
+		dwErr = 0;
+
+		std::wstring strResult = L"[WebTrans] InternetReadFile Error!";
+
+		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
+		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
+
+		MessageBox(0, L"[WebTrans] InternetReadFile Err\n", 0, 0);
+	}
+
+	nLen = MultiByteToWideChar(CP_UTF8, 0, readBuffer, strlen(readBuffer) + 1, NULL, NULL);
+	MultiByteToWideChar(CP_UTF8, 0, readBuffer, strlen(readBuffer) + 1, wstr1, nLen);
+
+	nLen = WideCharToMultiByte(949, 0, wstr1, -1, NULL, 0, NULL, NULL);
+	WideCharToMultiByte(949, 0, wstr1, -1, str1, nLen, NULL, NULL);
+
+	if (hInternet) InternetCloseHandle(hInternet);
+	if (hURL) InternetCloseHandle(hURL);
+	if (hRequest) InternetCloseHandle(hRequest);
+
+	if (strstr(str1, "result") != NULL)
+	{
+		char *first;
+		char *end;
+
+		first = strchr(str1, '"');
+		end = strrchr(str1, '"');
+
+		memcpy(buf, first + 1, end - first);
+		buf[end - first - 1] = 0x00;
+	}
+	else
+	{
+		//std::wstring strResult = L"[WebTrans] 번역이 실패했습니다.";
+		std::wstring strResult = L"";
+
+		int len = WideCharToMultiByte(949, 0, strResult.c_str(), -1, NULL, NULL, NULL, NULL);
+		WideCharToMultiByte(949, 0, strResult.c_str(), -1, buf, len, NULL, NULL);
+
+		MessageBox(0, L"[WebTrans] 번역이 실패했거나 반환된 문자열이 없습니다.\n", 0, 0);
+	}
+
+	if (hInternet) InternetCloseHandle(hInternet);
+	if (hURL) InternetCloseHandle(hURL);
+	if (hRequest) InternetCloseHandle(hRequest);
+
+	return buf;
+}
+
+DWORD WINAPI HttpSendRequestThread(LPVOID lpParam)
+{
+	PARM* pThreadParm;
+	pThreadParm = (PARM*)lpParam;
+	BOOL bRet = HttpSendRequestA(pThreadParm->hRequest, pThreadParm->strHeaders, strlen(pThreadParm->strHeaders), pThreadParm->szPostData, strlen(pThreadParm->szPostData));
+
+	if (bRet == false)
+	{
+		MessageBox(0, L"[WebTrans] HttpSendRequestThread Failed\n", 0, 0);
+		if (pThreadParm->hInternet) InternetCloseHandle(pThreadParm->hInternet);
+		if (pThreadParm->hURL) InternetCloseHandle(pThreadParm->hURL);
+		if (pThreadParm->hRequest) InternetCloseHandle(pThreadParm->hRequest);
+		return 1; // 실패
+	}
+	return 0; // 성공
+}

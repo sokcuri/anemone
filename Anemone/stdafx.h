@@ -37,6 +37,10 @@
 #pragma comment(lib,"GdiPlus.lib")
 using namespace Gdiplus;
 
+// WinInet
+#include <WinInet.h>
+#pragma comment(lib, "WinInet.lib")
+
 // STL
 #include <string>
 #include <sstream>
