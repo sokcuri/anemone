@@ -61,7 +61,7 @@ int APIENTRY _tWinMain(
 	//WindowClassRegister(hInstance, szSettingClass,SettingProc);
 
 	// 아네모네가 실행중인지 확인
-	if (FindWindow(szWindowClass, 0))
+	if (FindWindow(szWindowClass, 0) || FindWindow(szParentClass, 0))
 	{
 		HWND hMsgWnd = FindWindow(0, L"알림");
 		if (!hMsgWnd)
@@ -69,6 +69,9 @@ int APIENTRY _tWinMain(
 		else SetForegroundWindow(hMsgWnd);
 		return false;
 	}
+
+	hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
+		0, 0, 0, 0, NULL, NULL, hInstance, NULL);
 
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
@@ -567,11 +570,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    int x = 500;
    int y = 200;
-
-   //hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
-	//   0, 0, 0, 0, NULL, NULL, hInstance, NULL);
-
-   hWnds.Parent = (HWND)2;
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
       (cx-x)/2, (cy-y)/2, x, y, NULL, NULL, hInstance, NULL);
