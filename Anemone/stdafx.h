@@ -82,6 +82,7 @@ struct _MagnetWnd
 	int diff_y;
 	int rect_x;
 	int rect_y;
+	bool IsTopMost;
 };
 extern _MagnetWnd MagnetWnd;
 

@@ -227,10 +227,10 @@ unsigned int WINAPI MagneticThread(void *arg)
 			{
 				if (GetForegroundWindow() == MagnetWnd.hWnd && !(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
 				{
-					if (!IsForegroundCheck)
+					if (hForeWnd != MagnetWnd.hWnd)
 					{
 						IsForegroundCheck = true;
-						Sleep(10);
+						//Sleep(10);
 						SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 
@@ -241,7 +241,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 						SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 					}
 				}
-				else IsForegroundCheck = false;
+				else hForeWnd = GetForegroundWindow();
 			}
 		}
 
@@ -264,17 +264,17 @@ unsigned int WINAPI MagneticThread(void *arg)
 			if (Cl.Config->GetMagneticMode())
 			{
 				GetWindowRect(MagnetWnd.hWnd, &rect);
-
-				// 자석 타겟창에 맞춰서 항상위 변경
-				int nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
-				int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
-
-				if ((nExStyle_Target & WS_EX_TOPMOST) != (nExStyle_Main & WS_EX_TOPMOST))
+				
+				// 자석 부모창의 항상 위가 바뀌면 아네모네도 따라서 바꿈
+				bool CurrentTopMost = (GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST ? TRUE : FALSE);
+				if (MagnetWnd.IsTopMost != CurrentTopMost)
 				{
-					SetWindowPos(hWnds.Parent, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-					SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Main, (CurrentTopMost ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOOWNERZORDER);
+					MagnetWnd.IsTopMost = CurrentTopMost;
+					//MessageBox(0, (CurrentTopMost ? L"TOPMOST" : L"NOTOPMOST"), 0, 0);
 				}
 
+				// 자석 부모창이 최소화되면 같이 최소화
 				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
 				{
 					if (IsMinimizeOnce == false)
@@ -305,7 +305,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 					}
 				}
 
-				if (MagnetWnd.rect_x != rect.left || MagnetWnd.rect_y != rect.top)
+				if ((MagnetWnd.rect_x != rect.left || MagnetWnd.rect_y != rect.top) &&
+					!(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
 				{
 					// 자석모드 창 이동시 팝업 메뉴를 끈다
 					if (IsWindow(hMenuWnd))
@@ -360,7 +361,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		}
-		Sleep(10);
+		Sleep(1);
 	}
 	return 0;
 }
@@ -756,6 +757,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 				SetParent(hWnds.Parent, MagnetWnd.hWnd);
+				MagnetWnd.IsMinimize = false;
+				MagnetWnd.IsTopMost = (GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST ? TRUE : FALSE);
 				MagnetWnd.IsMagnet = true;
 			}
 			else
@@ -1248,7 +1251,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
 			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-			Sleep(5);
 		}
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
@@ -1266,7 +1268,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
 			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-			Sleep(5);
 		}
 
 		pt.x = LOWORD(lParam);
@@ -2422,6 +2423,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		if (hURL) InternetCloseHandle(hURL);
 		if (hRequest) InternetCloseHandle(hRequest);
 
+		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Timeout Error", 0, 0);
 		return false;
 	}
@@ -2430,6 +2432,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 	dwExitCode = 0;
 	if (!GetExitCodeThread(hThread, &dwExitCode))
 	{
+		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nGetExitCodeThread Error", 0, 0);
 
 		if (hInternet) InternetCloseHandle(hInternet);
@@ -2441,6 +2444,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 
 	if (dwExitCode)
 	{
+		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Error", 0, 0);
 
 		if (hInternet) InternetCloseHandle(hInternet);
@@ -2804,7 +2808,7 @@ DWORD WINAPI HttpSendRequestThread(LPVOID lpParam)
 
 	if (bRet == false)
 	{
-		MessageBox(0, L"[WebTrans] HttpSendRequestThread Failed\n", 0, 0);
+		//MessageBox(0, L"HttpSendRequestThread Failed\n", 0, 0);
 		if (pThreadParm->hInternet) InternetCloseHandle(pThreadParm->hInternet);
 		if (pThreadParm->hURL) InternetCloseHandle(pThreadParm->hURL);
 		if (pThreadParm->hRequest) InternetCloseHandle(pThreadParm->hRequest);
