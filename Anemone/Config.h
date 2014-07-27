@@ -76,6 +76,7 @@ private:
 	int cfg_text_margin_name = 0;
 	bool cfg_trans_onego = true;
 	bool cfg_update_notify = true;
+	int cfg_filetrans_output_type = 1;
 
 public:
 	CConfig();
@@ -83,6 +84,9 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetFileTransOutput() { return cfg_filetrans_output_type; }
+	void SetFileTransOutput(int i) { cfg_filetrans_output_type = i; }
 
 	int GetUpdateNotify() { return cfg_update_notify; }
 	void SetUpdateNotify(bool b) { cfg_update_notify = b; }

@@ -67,6 +67,7 @@ struct _hWnds
 	HWND View;
 	HWND Clip;
 	HWND Trans;
+	HWND FileTrans;
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;

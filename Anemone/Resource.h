@@ -29,6 +29,7 @@
 #define IDD_SETTING                     129
 #define IDD_TRANSWIN                    130
 #define IDC_ANEMONEWND                  131
+#define IDD_FILE_TRANSWIN               131
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_WND_BORDER_MODE             1003
@@ -37,11 +38,13 @@
 #define IDC_TRANSWIN_TRANS_ONEGO        1004
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
+#define IDC_FILE_TRANSWIN_OUTPUT1       1005
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006
 #define IDC_SETTING_MAGNETIC_MINIMIZE   1006
 #define IDC_CHECK3                      1007
 #define IDC_SETTING_HIDEWIN             1007
+#define IDC_FILE_TRANSWIN_OUTPUT2       1007
 #define IDC_CHECK4                      1008
 #define IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD 1008
 #define IDC_CHECK5                      1009
@@ -80,10 +83,13 @@
 #define IDC_SETTING_BACKGROUND_TRACKBAR 1024
 #define IDC_BUTTON1                     1025
 #define IDC_SETTING_BACKGROUND_COLOR    1025
+#define IDC_FILE_TRANSWIN_LOAD_BROWSER  1025
 #define IDC_CHECK18                     1026
 #define IDC_SETTING_BACKGROUND_SWITCH   1026
+#define IDC_FILE_TRANSWIN_SAVE_BROWSER  1026
 #define IDC_BUTTON2                     1027
 #define IDC_SETTING_TEXTSIZE_MINUS      1027
+#define IDC_FILE_TRANSWIN_TRANSLATE     1027
 #define IDC_CHECK19                     1028
 #define IDC_SETTING_NAME_SHADOW         1028
 #define IDC_BUTTON3                     1029
@@ -152,14 +158,17 @@
 #define IDC_SETTING_TEXTMARGIN_NAME_TEXT 1064
 #define IDC_EDIT2                       1064
 #define IDC_TRANSWIN_TRANSLATE          1064
+#define IDC_FILE_TRANSWIN_LOAD          1064
 #define IDC_TRANSWIN_DEST               1065
 #define IDC_SETTING_NAME_SHADOW_COLOR   1065
+#define IDC_FILE_TRANSWIN_SAVE          1065
 #define IDC_COLORDLG_ALPHA_TRACKBAR     1066
 #define IDC_SETTING_CLIP_TEXT           1066
 #define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDC_SETTING_REPEAT_TEXT2        1067
 #define IDC_SETTING_UPDATE_CHECK        1068
 #define IDC_SETTING_TRANS_SHADOW_COLOR  1069
+#define IDC_FILE_TRANSWIN_PREVIEW       1069
 #define IDC_SETTING_ORG_SHADOW_COLOR    1070
 #define IDC_SETTING_SHADOW_SIZE_TRACKBAR 1071
 #define IDC_SETTING_SHADOW_X_TRACKBAR   1071
@@ -219,9 +228,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1069
+#define _APS_NEXT_CONTROL_VALUE         1072
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

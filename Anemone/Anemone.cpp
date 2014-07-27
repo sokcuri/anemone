@@ -28,6 +28,7 @@ LRESULT CALLBACK	ParentWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
 DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 
@@ -726,10 +727,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetWindowThreadProcessId(GetForegroundWindow(), &dwProcessId);
 
 			HANDLE Handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
-			wchar_t *lpszProcName = (wchar_t *)HeapAlloc(AneHeap, 0, MAX_PATH);
+			wchar_t *lpszProcName = (wchar_t *)HeapAlloc(AneHeap, 0, 260);
 
 			// 프로세스 경로를 얻어옵니다
-			if (Handle && GetModuleFileNameEx(Handle, 0, lpszProcName, MAX_PATH))
+			if (Handle && GetModuleFileNameEx(Handle, 0, lpszProcName, 255))
 			{
 				lpszProcName = _wcslwr(lpszProcName);
 
@@ -1155,6 +1156,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				DestroyWindow(hWnds.Trans);
 				hWnds.Trans = NULL;
+				break;
+			}
+		}
+			break;
+		case IDM_WINDOW_FILETRANS:
+		{
+			if (IsWindow(hWnds.FileTrans) == false)
+			{
+				RECT rect;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
+				hWnds.FileTrans = CreateDialog(hInst, MAKEINTRESOURCE(IDD_FILE_TRANSWIN), hWnd, FileTransWinProc);
+
+				GetWindowRect(hWnds.FileTrans, &rect);
+
+				SetWindowPos(hWnds.FileTrans, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWnds.FileTrans, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.FileTrans);
+				hWnds.FileTrans = NULL;
 				break;
 			}
 		}
@@ -2286,7 +2310,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), WM_GETTEXTLENGTH, 0, 0) + 1;
 			wchar_t *pStr = (wchar_t *)HeapAlloc(AneHeap, 0, sizeof(wchar_t) * (length + 1));
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
-			
+
 			IsActive = 2;
 
 			OpenClipboard(hWnds.Clip);
@@ -2340,8 +2364,6 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			(Cl.Config->GetTransOneGo() ? Cl.Config->SetTransOneGo(false) : Cl.Config->SetTransOneGo(true));
 		}
 			break;
-		case IDC_TRANSWIN_FILETRANS:
-			break;
 		case IDOK:
 		case IDCANCEL:
 		case IDC_TRANSWIN_CLOSE:
@@ -2354,6 +2376,171 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			//EndDialog(hWnd, LOWORD(wParam));
 			DestroyWindow(hWnd);
 		}
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+	}
+	return 0;
+}
+
+
+INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_SHOWWINDOW:
+	{
+		SetForegroundWindow(hWnds.FileTrans);
+		if (Cl.Config->GetFileTransOutput() == 0)
+		{
+			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, true);
+			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT2, false);
+		}
+		else
+		{
+			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, false);
+			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT2, true);
+		}
+	}
+		break;
+	case WM_COMMAND:
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDC_FILE_TRANSWIN_LOAD_BROWSER:
+		{
+			OPENFILENAME ofn;       // common dialog box structure
+			wchar_t szFile[260];       // buffer for file name
+			HANDLE hf;              // file handle
+
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+			// use the contents of szFile to initialize itself.
+			ofn.lpstrFile[0] = L'\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = L"텍스트 파일\0*.TXT\0모든 파일\0*.*\0";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, szFile, 255);
+
+			// Display the Open dialog box. 
+
+			if (GetOpenFileName(&ofn) == TRUE)
+			{
+				std::wstring saveFile = ofn.lpstrFile;
+				saveFile = saveFile.substr(0, saveFile.rfind(L'.'));
+				saveFile += L"-번역.txt";
+
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, ofn.lpstrFile);
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, saveFile.c_str());
+
+				FILE *fp;
+				wchar_t wstr[1024];
+
+				if (_wfopen_s(&fp, ofn.lpstrFile, L"rt,ccs=UTF-8") != 0)
+				{
+					SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"! 파일을 열 수 없습니다.");
+					return false;
+				}
+
+				std::wstring content;
+				// 한줄씩 읽기
+				for (int i = 0; fgetws(wstr, 1000, fp) != NULL; i++)
+				{
+					if (i > 0) content.append(L"\r\n");
+					content.append(wstr);
+					
+					if (i == 6) break;
+				}
+
+				fclose(fp);
+
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, content.c_str());
+			}
+		}
+			break;
+		case IDC_FILE_TRANSWIN_SAVE_BROWSER:
+		{
+			OPENFILENAME ofn;       // common dialog box structure
+			wchar_t szFile[260];       // buffer for file name
+			HANDLE hf;              // file handle
+
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+			// use the contents of szFile to initialize itself.
+			ofn.lpstrFile[0] = L'\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = L"텍스트 파일\0*.TXT\0모든 파일\0*.*\0";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, szFile, 255);
+
+			// Display the Open dialog box. 
+
+			if (GetSaveFileName(&ofn) == TRUE)
+				hf = CreateFile(ofn.lpstrFile,
+				GENERIC_READ,
+				0,
+				(LPSECURITY_ATTRIBUTES)NULL,
+				OPEN_EXISTING,
+				FILE_ATTRIBUTE_NORMAL,
+				(HANDLE)NULL);
+
+			SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, ofn.lpstrFile);
+		}
+			break;
+		case IDC_FILE_TRANSWIN_TRANSLATE:
+		{
+			SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"번역 누름");
+		}
+			break;
+		case IDOK:
+		case IDCANCEL:
+		{
+			hWnds.FileTrans = NULL;
+			DestroyWindow(hWnd);
+		}
+			break;
+		case IDC_FILE_TRANSWIN_OUTPUT1:
+			Cl.Config->SetFileTransOutput(0);
+			break;
+		case IDC_FILE_TRANSWIN_OUTPUT2:
+			Cl.Config->SetFileTransOutput(1);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

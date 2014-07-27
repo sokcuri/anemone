@@ -137,6 +137,9 @@ bool CConfig::LoadConfig()
 
 	ReadINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetUpdateNotify(true) : SetUpdateNotify(false);
+
+	ReadINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetFileTransOutput(_wtoi(buf));
 	return true;
 }
 
@@ -260,5 +263,8 @@ bool CConfig::SaveConfig()
 
 	wcscpy(buf, (GetUpdateNotify() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
+	wsprintf(buf, L"%d", GetFileTransOutput());
+	WriteINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	return true;
 }
