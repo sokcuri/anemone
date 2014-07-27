@@ -3162,7 +3162,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 		}
 	}
 
-	unsigned int div = input.length() / 1024;
+	unsigned int div = input.length() / 1024 + 1;
 
 	if (list_org.size() > div)
 	{
@@ -3253,7 +3253,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 			fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 			fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
 		}
-		else fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+		else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 	}
 	/*
 	if (FT->WriteType == 1)
