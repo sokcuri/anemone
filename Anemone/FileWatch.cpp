@@ -82,7 +82,6 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
 		} while (pfni->NextEntryOffset > 0);
 	}
-
 	return 0;
 }
 

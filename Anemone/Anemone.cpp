@@ -21,9 +21,7 @@ int Elapsed_Translate = 0;
 //bool IsActive = FALSE;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
-ATOM				MainWndClassRegister(HINSTANCE hInstance);
-ATOM				SettingClassRegister(HINSTANCE hInstance);
-ATOM				ParentClassRegister(HINSTANCE hInstance);
+ATOM				WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnProc);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	ParentWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -55,9 +53,9 @@ int APIENTRY _tWinMain(
 	wcscpy(szSettingClass, L"Anemone_Setting_Class");
 	wcscpy(szParentClass, L"AneParentClass");
 
-	MainWndClassRegister(hInstance);
-	ParentClassRegister(hInstance);
-	SettingClassRegister(hInstance);
+	WindowClassRegister(hInstance, szWindowClass, WndProc);
+	WindowClassRegister(hInstance, szParentClass, ParentWndProc);
+	//WindowClassRegister(hInstance, szSettingClass,SettingProc);
 
 	// 아네모네가 실행중인지 확인
 	if (FindWindow(szWindowClass, 0))
@@ -68,8 +66,6 @@ int APIENTRY _tWinMain(
 		else SetForegroundWindow(hMsgWnd);
 		return false;
 	}
-
-	//MessageBoxA(0, J2K_Translate_Web(0, "初めまして。どうぞよろしく"), 0, 0);
 
 	// Heap 생성 (1MB)
 	AneHeap = HeapCreate(0, 1024 * 1024, 0);
@@ -264,7 +260,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				CurFore = GetForegroundWindow();
 
 				// 다른 프로세스의 팝업 메뉴를 위로 올리기
-				SetWindowPos(CurFore, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+				SetWindowPos(hOtherWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 			}
 
 		}
@@ -402,34 +398,29 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 {
-	HMENU hmenu;            // top-level menu 
-	HMENU hmenuTrackPopup;  // shortcut menu 
+	HMENU hmenu;
+	HMENU hmenuTrackPopup;
 
-	// Load the menu resource. 
-
+	// 메뉴 리소스를 읽어온다
 	if ((hmenu = LoadMenu(hInst, MAKEINTRESOURCE(IDC_ANEMONE))) == NULL)
 		return;
 
-	// TrackPopupMenu cannot display the menu bar so get 
-	// a handle to the first shortcut menu. 
-
+	// 첫번째 숏컷 메뉴 핸들을 얻어온다
 	hmenuTrackPopup = GetSubMenu(hmenu, 0);
 
-	// Display the shortcut menu. Track the right mouse 
-	// button. 
+	// 각 메뉴 아이템의 체크 여부를 선택한다
 
 	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 
+	// 우클릭 메뉴 활성화
 	TrackPopupMenu(hmenuTrackPopup,
 		TPM_LEFTALIGN | TPM_RIGHTBUTTON,
 		pt.x, pt.y, 0, hwnd, NULL);
 
-
-	// Destroy the menu. 
-
+	// 메뉴 소멸
 	DestroyMenu(hmenu);
 }
 
@@ -463,14 +454,14 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 //
 // 윈도우 클래스 등록
 //
-ATOM MainWndClassRegister(HINSTANCE hInstance)
+ATOM WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnWndProc)
 {
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
+	wcex.lpfnWndProc = (WNDPROC)lpfnWndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
@@ -478,53 +469,12 @@ ATOM MainWndClassRegister(HINSTANCE hInstance)
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = 0;
-	wcex.lpszClassName = szWindowClass;
+	wcex.lpszClassName = szClassName;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
 }
 
-ATOM ParentClassRegister(HINSTANCE hInstance)
-{
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = ParentWndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = 0;
-	wcex.lpszClassName = szParentClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
-}
-
-ATOM SettingClassRegister(HINSTANCE hInstance)
-{
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	//wcex.lpfnWndProc = SettingProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = 0;
-	wcex.lpszClassName = szSettingClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
-}
 void TransWndMenu(HMENU hMenu)
 {
 	MENUITEMINFO mii;
@@ -2301,7 +2251,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDC_TRANSWIN_COPY:
 		{
 			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), WM_GETTEXTLENGTH, 0, 0) + 1;
-			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
+			wchar_t *pStr = (wchar_t *)HeapAlloc(AneHeap, 0, sizeof(wchar_t) * (length + 1));
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
 			
 			IsActive = 2;
@@ -2312,7 +2262,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			SetClipboardData(CF_UNICODETEXT, pStr);
 			CloseClipboard();
 
-			free(pStr);
+			HeapFree(AneHeap, 0, pStr);
 		}
 			break;
 		case IDC_TRANSWIN_TRANSLATE:
@@ -2322,12 +2272,12 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
 			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), L"번역중...");
 			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_SRC), WM_GETTEXTLENGTH, 0, 0) + 1;
-			wchar_t *pStr = (wchar_t *)malloc(sizeof(wchar_t) * (length + 1));
+			wchar_t *pStr = (wchar_t *)HeapAlloc(AneHeap, 0, sizeof(wchar_t) * (length + 1));
 
 			GetDlgItemText(hWnd, IDC_TRANSWIN_SRC, pStr, length);
 
 			std::wstring original_context = pStr;
-			free(pStr);
+			HeapFree(AneHeap, 0, pStr);
 
 			Cl.TextProcess->TranslateText(hWnd, original_context);
 
@@ -2418,13 +2368,9 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 {
 	wchar_t *lpwszNULL = L"";
-	char *szParameter = "";
 
-	char *strHeaders = "";
-	char *szPostData = "";
-
-	DWORD   dwTimeout;
-	DWORD   dwExitCode;
+	DWORD   dwTimeout = 5000;
+	DWORD   dwExitCode = 0;
 	PARM    threadParm;
 
 	HINTERNET hInternet = InternetOpenA("HTTPEX", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
@@ -2433,107 +2379,15 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 
 	HANDLE   hThread;
 	DWORD    dwThreadID;
-	threadParm.hInternet = hInternet;
-	threadParm.hRequest = hRequest;
-	threadParm.hURL = hURL;
-	threadParm.strHeaders = strHeaders;
-	threadParm.szPostData = szPostData;
 
-	//	   WriteLog(L"CreateThread\n");
-	hThread = CreateThread(
-		NULL,            // Pointer to thread security attributes 
-		0,               // Initial thread stack size, in bytes 
-		HttpSendRequestThread,  // Pointer to thread function 
-		&threadParm,     // The argument for the new thread
-		0,               // Creation flags 
-		&dwThreadID      // Pointer to returned thread identifier 
-		);           // Wait for the call to InternetConnect in worker function to complete
-	dwTimeout = 5000; // in milliseconds
-	if (WaitForSingleObject(hThread, dwTimeout) == WAIT_TIMEOUT)
-	{
-		if (hInternet) InternetCloseHandle(hInternet);
-		if (hURL) InternetCloseHandle(hURL);
-		if (hRequest) InternetCloseHandle(hRequest);
-
-		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
-		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Timeout Error", 0, 0);
-		return false;
-	}
-
-	// The state of the specified object (thread) is signaled
-	dwExitCode = 0;
-	if (!GetExitCodeThread(hThread, &dwExitCode))
-	{
-		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
-		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nGetExitCodeThread Error", 0, 0);
-
-		if (hInternet) InternetCloseHandle(hInternet);
-		if (hURL) InternetCloseHandle(hURL);
-		if (hRequest) InternetCloseHandle(hRequest);
-		return false;
-	}
-	CloseHandle(hThread);
-
-	if (dwExitCode)
-	{
-		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
-		//MessageBox(hWnd, L"업데이트 확인에 실패했습니다.\r\nHttpSendRequestA Error", 0, 0);
-
-		if (hInternet) InternetCloseHandle(hInternet);
-		if (hURL) InternetCloseHandle(hURL);
-		if (hRequest) InternetCloseHandle(hRequest);
-		return false;
-	}
+	int ver;
+	char *strBuf;
 	DWORD dwSize;
-	DWORD dwTemp;
 	DWORD dwBytesRead = 0;
-
-	/*
-	DWORD dwContentLen = 0;
-	DWORD dwBufLen = sizeof(dwContentLen);
-	BOOL bRet2 = HttpQueryInfo(
-		hRequest,
-		HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER,
-		(LPVOID)&dwContentLen,
-		&dwBufLen,
-		0
-		);
-	*/
 
 	std::string StrContext;
 
-	InternetQueryDataAvailable(hRequest, &dwTemp, 0, 0);
-
-	while (dwTemp != 0)
-	{
-		if (dwTemp == 0)
-		{
-			//MessageBox(0, L"dwSize is Zero", 0, 0);
-			break;
-		}
-
-		dwSize = dwTemp;
-
-		char *strBuf = (char *)malloc(dwTemp);
-
-		InternetReadFile(hRequest, strBuf, dwSize, &dwBytesRead);
-
-		if (dwBytesRead != 0)
-		{
-			StrContext.append((char *)strBuf, dwBytesRead);
-			InternetQueryDataAvailable(hRequest, &dwTemp, 0, 0);
-			free(strBuf);
-		}
-		else
-		{
-			free(strBuf);
-			break;
-		}
-		
-	}
-	
-	
-	char *pStr = strstr((char *)StrContext.c_str(), "ANEMONE_VERSION");
+	char *pStr;
 
 	char *lpszVER;
 	char *lpszDOWN;
@@ -2544,42 +2398,92 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 
 	int nLen;
 
+	threadParm.hInternet = hInternet;
+	threadParm.hRequest = hRequest;
+	threadParm.hURL = hURL;
+	threadParm.strHeaders = "";
+	threadParm.szPostData = "";
+
+
+	hThread = CreateThread (NULL, 0, HttpSendRequestThread,	&threadParm, 0, &dwThreadID);
+	if ((WaitForSingleObject(hThread, dwTimeout) == WAIT_TIMEOUT) && !GetExitCodeThread(hThread, &dwExitCode) && dwExitCode)
+	{
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
+
+		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+		return false;
+	}
+
+	CloseHandle(hThread);
+
+	InternetQueryDataAvailable(hRequest, &dwSize, 0, 0);
+
+	while (dwSize != 0)
+	{
+		// 인터넷 정보 받아오기 실패
+		if (dwSize == 0)
+		{
+			break;
+		}
+
+		strBuf = (char *)HeapAlloc(AneHeap, 0, dwSize);
+
+		InternetReadFile(hRequest, strBuf, dwSize, &dwBytesRead);
+
+		if (dwBytesRead != 0)
+		{
+			StrContext.append((char *)strBuf, dwBytesRead);
+			InternetQueryDataAvailable(hRequest, &dwSize, 0, 0);
+			HeapFree(AneHeap, 0, strBuf);
+		}
+		else
+		{
+			HeapFree(AneHeap, 0, strBuf);
+			break;
+		}
+		
+	}
+	
+	pStr = strstr((char *)StrContext.c_str(), "ANEMONE_VERSION");
+
 	if (pStr != NULL)
 	{
 		nLen = (int)strstr(pStr, "]") - (int)strstr(pStr, "[") - 1;
 		if (nLen > 0)
 		{
-			lpszVER = (char *)malloc(nLen+1);
+			lpszVER = (char *)HeapAlloc(AneHeap, 0, nLen+1);
 			memcpy(lpszVER, strstr(pStr, "[") + 1, nLen);
 			lpszVER[nLen] = 0x00;
 		}
 		else
 		{
-			lpszVER = (char *)malloc(1);
+			lpszVER = (char *)HeapAlloc(AneHeap, 0, 1);
 			lpszVER[0] = 0x00;
 		}
 
 		pStr = strstr(pStr, "{DOWN:");
 
 		nLen = (int)strstr(pStr, "}") - (int)strstr(pStr, "{DOWN:") - 6;
-		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 1)
+		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 6)
 		{
-			lpszDOWN = (char *)malloc(nLen + 1);
+			lpszDOWN = (char *)HeapAlloc(AneHeap, 0, nLen + 1);
 			memcpy(lpszDOWN, strstr(pStr, "{DOWN:") + 6, nLen);
 			lpszDOWN[nLen] = 0x00;
 		}
 		else
 		{
-			lpszDOWN = (char *)malloc(1);
+			lpszDOWN = (char *)HeapAlloc(AneHeap, 0, 1);
 			lpszDOWN[0] = 0x00;
 		}
 
 		pStr = strstr(pStr, "{MEMO:");
 
 		nLen = (int)strstr(pStr, "}") - (int)strstr(pStr, "{MEMO:") - 6;
-		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 1)
+		if (nLen > 0 && nLen != (int)strstr(pStr, "}") - 6)
 		{
-			lpszMEMO = (char *)malloc(nLen + 3);
+			lpszMEMO = (char *)HeapAlloc(AneHeap, 0, nLen + 3);
 			memcpy(lpszMEMO, strstr(pStr, "{MEMO:") + 6, nLen);
 			lpszMEMO[nLen] = 0x00;
 			for (int i = 0, j = 0; i <= nLen + 2; i++, j++)
@@ -2602,34 +2506,29 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		}
 		else
 		{
-			lpszMEMO = (char *)malloc(1);
+			lpszMEMO = (char *)HeapAlloc(AneHeap, 0, 1);
 			lpszMEMO[0] = 0x00;
 		}
 	}
-
-	//MessageBoxA(0, lpszSTR, lpszVER, 0);
 
 	if (hInternet) InternetCloseHandle(hInternet);
 	if (hURL) InternetCloseHandle(hURL);
 	if (hRequest) InternetCloseHandle(hRequest);
 
-	int ver = atoi(lpszVER);
+	ver = atoi(lpszVER);
 
 	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, NULL, NULL);
-	lpwszDOWN = (wchar_t *)malloc((nLen + 1) * 2);
+	lpwszDOWN = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
 	MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, lpwszDOWN, nLen);
 
 	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, NULL, NULL);
-	lpwszMEMO = (wchar_t *)malloc((nLen + 1) * 2);
+	lpwszMEMO = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
 	MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, lpwszMEMO, nLen);
 
 	std::wstringstream wss;
 
 	wss << L"아네모네 새로운 버전을 확인했습니다.\r\n홈페이지로 이동할까요?";
-	//wss << L"\r\n";
-	///wss << lpwszDOWN;
 	wss << L"\r\n\r\n";
-	//wss << L"MEMO: ";
 	wss << lpwszMEMO;
 
 	if (ver > ANEMONE_VERSION)
@@ -2637,6 +2536,12 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		if (MessageBox(hWnd, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
 		{
 			ShellExecute(NULL, L"open", lpwszDOWN, L"", L"", SW_SHOW);
+
+			HeapFree(AneHeap, 0, lpszVER);
+			HeapFree(AneHeap, 0, lpszDOWN);
+			HeapFree(AneHeap, 0, lpszMEMO);
+			HeapFree(AneHeap, 0, lpwszDOWN);
+			HeapFree(AneHeap, 0, lpwszMEMO);
 			return true;
 		}
 	}
@@ -2649,11 +2554,11 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		MessageBox(hWnd, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
 	}
 
-	free(lpszVER);
-	free(lpszDOWN);
-	free(lpszMEMO);
-	free(lpwszDOWN);
-	free(lpwszMEMO);
+	HeapFree(AneHeap, 0, lpszVER);
+	HeapFree(AneHeap, 0, lpszDOWN);
+	HeapFree(AneHeap, 0, lpszMEMO);
+	HeapFree(AneHeap, 0, lpwszDOWN);
+	HeapFree(AneHeap, 0, lpwszMEMO);
 	return false;
 }
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
