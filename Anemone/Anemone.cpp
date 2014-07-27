@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 999
+#define ANEMONE_VERSION 1000
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -288,16 +288,28 @@ unsigned int WINAPI MagneticThread(void *arg)
 					int nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
 					int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
 
-					if (((nExStyle_Target & WS_EX_TOPMOST) && !(nExStyle_Main & WS_EX_TOPMOST)) ||
-						(!(nExStyle_Target & WS_EX_TOPMOST) && (nExStyle_Main & WS_EX_TOPMOST)))
-					{
-						SetWindowPos(hWnds.Parent, (CurrentTopMost ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-						SetWindowPos(hWnds.Main, (CurrentTopMost ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-						MagnetWnd.IsTopMost = CurrentTopMost;
+					MagnetWnd.IsTopMost = CurrentTopMost;
+					//MessageBox(0, (CurrentTopMost ? L"TOPMOST" : L"NOTOPMOST"), 0, 0);
 
+					if (MagnetWnd.IsTopMost)
+					{
+						SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+						SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					}
+					else
+					{
+						SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+						SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					}
+
 				}
 
+				// 자석모드 부모창이 아네모네보다 앞에 있을 경우
+				if (FindWindowEx(0, MagnetWnd.hWnd, szWindowClass, 0))
+				{
+					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				}
 
 				// 자석 부모창이 최소화되면 같이 최소화
 				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
@@ -1179,13 +1191,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_DESTROY_MENU:
 		{
-			//ShowWindow((HWND)lParam, false);
-			SetWindowPos((HWND)lParam, HWND_DESKTOP, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE);
-			Sleep(1);
 			CloseWindow((HWND)lParam);
-			//SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			//SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			//Sleep(10);
 		}
 			break;
 		default:
