@@ -713,6 +713,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_MAGNETIC_MODE:
 		{
+			
 			// 아네모네 윈도우는 자석 모드가 걸리지 않음, 창 숨김 모드일때는 푸는것만 가능함
 			if (GetForegroundWindow() == GetActiveWindow() || !Cl.Config->GetWindowVisible())
 			{
@@ -720,6 +721,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				MagnetWnd.hWnd = NULL;
 				break;
 			}
+
+			DWORD dwProcessId;
+			GetWindowThreadProcessId(GetForegroundWindow(), &dwProcessId);
+
+			HANDLE Handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
+			wchar_t *lpszProcName = (wchar_t *)HeapAlloc(AneHeap, 0, MAX_PATH);
+
+			// 프로세스 경로를 얻어옵니다
+			if (Handle && GetModuleFileNameEx(Handle, 0, lpszProcName, MAX_PATH))
+			{
+				lpszProcName = _wcslwr(lpszProcName);
+
+				// explorer.exe 자석 모드 불가
+				if (wcsstr(lpszProcName, L"explorer.exe\0") != NULL)
+				{
+					HeapFree(AneHeap, 0, lpszProcName);
+					break;
+				}
+
+			}
+			else
+			{
+				HeapFree(AneHeap, 0, lpszProcName);
+				break;
+			}
+			HeapFree(AneHeap, 0, lpszProcName);
 
 			RECT rect_main, rect_target;
 			(Cl.Config->GetMagneticMode() ? Cl.Config->SetMagneticMode(false) : Cl.Config->SetMagneticMode(true));

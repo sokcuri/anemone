@@ -41,6 +41,10 @@ using namespace Gdiplus;
 #include <WinInet.h>
 #pragma comment(lib, "WinInet.lib")
 
+// PsApi
+#include <Psapi.h>
+#pragma comment(lib, "Psapi.lib")
+
 // STL
 #include <string>
 #include <sstream>
