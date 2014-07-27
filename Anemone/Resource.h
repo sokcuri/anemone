@@ -30,6 +30,8 @@
 #define IDD_TRANSWIN                    130
 #define IDC_ANEMONEWND                  131
 #define IDD_FILE_TRANSWIN               131
+#define IDD_FILE_TRANSWIN_PROGRESS      132
+#define IDD_FILE_TRANSWIN_PROG          132
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_WND_BORDER_MODE             1003
@@ -174,8 +176,20 @@
 #define IDC_SETTING_SHADOW_X_TRACKBAR   1071
 #define IDC_SETTING_SHADOW_SIZE_TEXT    1072
 #define IDC_SETTING_SHADOW_X_TEXT       1072
+#define IDC_PROGRESS1                   1072
+#define IDC_FILE_TRANSPROGRESS_BAR      1072
+#define IDC_FILE_TRANSPROG_BAR          1072
 #define IDC_SETTING_SHADOW_Y_TRACKBAR   1073
+#define IDC_FILE_TRANSPROGRESS_TEXT     1073
 #define IDC_SETTING_SHADOW_Y_TEXT       1074
+#define IDC_FILE_TRANSPROGRESS_CANCEL   1074
+#define IDC_FILE_TRANSPROG_CANCEL       1074
+#define IDC_FILE_TRANSPROG_SAVE         1075
+#define IDC_FILE_TRANSPROG_TEXT         1075
+#define IDC_FILE_TRANSPROG_STATUSADDR   1076
+#define IDC_FILE_TRANSPROC_NAME         1077
+#define IDC_FILE_TRANSPROG_NAME         1077
+#define IDC_FILE_TRANSPROG_LISTSIZE     1078
 #define IDM_WINDOW_SETTING              1201
 #define IDM_SETTING_CHECK               1202
 #define IDM_TEXT_PREV                   1203
@@ -221,6 +235,12 @@
 #define ID_Menu32790                    32790
 #define IDM_TRANSTEXT_WNDTEXT           32791
 #define IDM_DESTROY_MENU                32792
+#define IDM_FILE_TRANSPROG_START        32793
+#define IDM_FILE_TRANSPROG_PROGRESS     32794
+#define IDM_FILE_TRANSPROG_END          32795
+#define IDM_FILE_TRANSPROG_COMPLETE     32796
+#define IDM_FILE_TRANSPROG_NAME         32797
+#define IDM_FILE_TRANSPROG_LISTSIZE     32798
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -228,9 +248,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1072
+#define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -93,7 +93,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 	if (nStatus != 0) return empty;
 	nStatus = 1;
 
-	PostMessage(hWnd, WM_COMMAND, IDM_TRANS_START, 0);
+	SendMessage(hWnd, WM_COMMAND, IDM_TRANS_START, 0);
 
 	for (; ; i++)
 	{
@@ -150,7 +150,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 			logstream << L")";
 
 			proclog = logstream.str();
-			PostMessage(hWnd, WM_COMMAND, IDM_TRANS_ABORT, (LPARAM)proclog.c_str());
+			SendMessage(hWnd, WM_COMMAND, IDM_TRANS_ABORT, (LPARAM)proclog.c_str());
 
 			std::wstring abort_msg = L"Abort";
 			return abort_msg;
@@ -173,11 +173,11 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 		logstream << L"ms";
 
 		proclog = logstream.str();
-		PostMessage(hWnd, WM_COMMAND, IDM_TRANS_PROGRESS, (LPARAM)proclog.c_str());
+		SendMessage(hWnd, WM_COMMAND, IDM_TRANS_PROGRESS, (LPARAM)proclog.c_str());
 	}
 
 	proclog = output;
-	PostMessage(hWnd, WM_COMMAND, IDM_TRANS_COMPLETE, (LPARAM)proclog.c_str());
+	SendMessage(hWnd, WM_COMMAND, IDM_TRANS_COMPLETE, (LPARAM)proclog.c_str());
 
 	nStatus = 0;
 

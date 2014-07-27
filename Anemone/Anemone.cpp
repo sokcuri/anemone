@@ -28,9 +28,11 @@ LRESULT CALLBACK	ParentWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	SettingProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	TransWinProgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
-DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
+DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
+DWORD WINAPI		FileTransThread(LPVOID lpParam);
 
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
@@ -2428,17 +2430,14 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		{
 		case IDC_FILE_TRANSWIN_LOAD_BROWSER:
 		{
-			OPENFILENAME ofn;       // common dialog box structure
-			wchar_t szFile[260];       // buffer for file name
-			HANDLE hf;              // file handle
+			OPENFILENAME ofn;
+			wchar_t szFile[260];
 
-			// Initialize OPENFILENAME
 			ZeroMemory(&ofn, sizeof(ofn));
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hWnd;
 			ofn.lpstrFile = szFile;
-			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-			// use the contents of szFile to initialize itself.
+
 			ofn.lpstrFile[0] = L'\0';
 			ofn.nMaxFile = sizeof(szFile);
 			ofn.lpstrFilter = L"텍스트 파일\0*.TXT\0모든 파일\0*.*\0";
@@ -2449,8 +2448,6 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, szFile, 255);
-
-			// Display the Open dialog box. 
 
 			if (GetOpenFileName(&ofn) == TRUE)
 			{
@@ -2471,7 +2468,8 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 				}
 
 				std::wstring content;
-				// 한줄씩 읽기
+				
+				// 미리보기
 				for (int i = 0; fgetws(wstr, 1000, fp) != NULL; i++)
 				{
 					if (i > 0) content.append(L"\r\n");
@@ -2488,17 +2486,14 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			break;
 		case IDC_FILE_TRANSWIN_SAVE_BROWSER:
 		{
-			OPENFILENAME ofn;       // common dialog box structure
-			wchar_t szFile[260];       // buffer for file name
-			HANDLE hf;              // file handle
+			OPENFILENAME ofn;
+			wchar_t szFile[260];
 
-			// Initialize OPENFILENAME
 			ZeroMemory(&ofn, sizeof(ofn));
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hWnd;
 			ofn.lpstrFile = szFile;
-			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-			// use the contents of szFile to initialize itself.
+
 			ofn.lpstrFile[0] = L'\0';
 			ofn.nMaxFile = sizeof(szFile);
 			ofn.lpstrFilter = L"텍스트 파일\0*.TXT\0모든 파일\0*.*\0";
@@ -2510,23 +2505,51 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, szFile, 255);
 
-			// Display the Open dialog box. 
-
 			if (GetSaveFileName(&ofn) == TRUE)
-				hf = CreateFile(ofn.lpstrFile,
-				GENERIC_READ,
-				0,
-				(LPSECURITY_ATTRIBUTES)NULL,
-				OPEN_EXISTING,
-				FILE_ATTRIBUTE_NORMAL,
-				(HANDLE)NULL);
-
-			SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, ofn.lpstrFile);
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, ofn.lpstrFile);
 		}
 			break;
 		case IDC_FILE_TRANSWIN_TRANSLATE:
 		{
-			SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"번역 누름");
+			HANDLE   hThread;
+			DWORD    dwThreadID;
+
+			FILETRANS *FT = new FILETRANS;
+			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, FT->lpszInputFileName, 255);
+			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, FT->lpszOutputFileName, 255);
+			FT->StartTickCount = GetTickCount();
+			FT->WriteType = Cl.Config->GetFileTransOutput();
+
+			if (FT->lpszInputFileName[0] == NULL || FT->lpszOutputFileName[0] == NULL)
+			{
+				MessageBox(hWnd, L"파일 위치를 선택해주세요", L"파일 경로 미지정", MB_ICONASTERISK);
+				delete FT;
+				return 0;
+			}
+
+			hThread = CreateThread(NULL, 0, FileTransThread, FT, 0, &dwThreadID);
+			CloseHandle(hThread);
+
+			/*
+			
+			
+			Cl.TextProcess->TranslateAbort();
+
+			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
+			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), L"번역중...");
+			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_SRC), WM_GETTEXTLENGTH, 0, 0) + 1;
+			wchar_t *pStr = (wchar_t *)HeapAlloc(AneHeap, 0, sizeof(wchar_t) * (length + 1));
+
+			GetDlgItemText(hWnd, IDC_TRANSWIN_SRC, pStr, length);
+
+			std::wstring original_context = pStr;
+			HeapFree(AneHeap, 0, pStr);
+
+			Cl.TextProcess->TranslateText(hWnd, original_context);
+
+			*/
+
+			//SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"번역 누름");
 		}
 			break;
 		case IDOK:
@@ -2563,6 +2586,91 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return 0;
 }
 
+INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_COMMAND:
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDM_FILE_TRANSPROG_START:
+		{
+			wchar_t str[10];
+			_itow(lParam, str, 16);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_STATUSADDR), str);
+		}
+			break;
+		case IDM_FILE_TRANSPROG_LISTSIZE:
+		{
+			wchar_t str[10];
+			_itow(lParam, str, 10);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_LISTSIZE), str);
+			SendMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_SETRANGE, 0, MAKELPARAM(0, lParam));
+			SendMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_SETSTEP, (WPARAM)1, 0);
+		}
+			break;
+		case IDM_FILE_TRANSPROG_PROGRESS:
+		{
+			wchar_t str[10];
+			int i = lParam;
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_LISTSIZE), str, 8);
+
+			int size = _wtoi(str);
+			std::wstringstream logstream;
+			logstream << i;
+			logstream << L"/";
+			logstream << size;
+
+			PostMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_STEPIT, 0, 0);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TEXT), (LPCWSTR)logstream.str().c_str());
+		}
+			break;
+		case IDM_FILE_TRANSPROG_COMPLETE:
+		{
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TEXT), (LPCWSTR)lParam);
+		}
+			break;
+		case IDM_FILE_TRANSPROG_NAME:
+		{
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_NAME), (LPCWSTR)lParam);
+		}
+			break;
+		case IDC_FILE_TRANSPROG_CANCEL:
+		{
+			wchar_t addrstr[10];
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_STATUSADDR), addrstr, 9);
+			
+			int *nStatus = (int *)wcstoul(addrstr, NULL, 16);
+
+			(*nStatus) = 2;
+			//DestroyWindow(hWnd);
+		}
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+	}
+	return 0;
+}
 
 LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -2587,8 +2695,6 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 {
-	wchar_t *lpwszNULL = L"";
-
 	DWORD   dwTimeout = 5000;
 	DWORD   dwExitCode = 0;
 	PARM    threadParm;
@@ -2971,5 +3077,219 @@ DWORD WINAPI HttpSendRequestThread(LPVOID lpParam)
 		if (pThreadParm->hRequest) InternetCloseHandle(pThreadParm->hRequest);
 		return 1; // 실패
 	}
+	return 0; // 성공
+}
+
+DWORD WINAPI FileTransThread(LPVOID lpParam)
+{
+	FILE *fpr, *fpw;
+	FILETRANS* FT;
+	FT = (FILETRANS*)lpParam;
+	wchar_t wstr[1024];
+
+	HWND hDlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_FILE_TRANSWIN_PROG), hWnds.FileTrans, FileTransWinProgProc);
+	SetWindowLongPtr(hDlg, -8, (LONG)0);
+	ShowWindow(hDlg, true);
+	int nLines;
+
+	if (_wfopen_s(&fpr, FT->lpszInputFileName, L"rt,ccs=UTF-8") != 0)
+	{
+		std::wstringstream wss;
+		wss << L"원문 파일이 존재하지 않거나 읽기 권한이 없습니다 :\r\n\r\n";
+		wss << FT->lpszOutputFileName;
+		MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
+		DestroyWindow(hDlg);
+		delete FT;
+		return false;
+	}
+
+	if (_wfopen_s(&fpw, FT->lpszOutputFileName, L"wt,ccs=UTF-8") != 0)
+	{
+		std::wstringstream wss;
+		wss << L"저장될 파일이 사용중이거나 쓰기 권한이 없습니다 :\r\n\r\n";
+		wss << FT->lpszOutputFileName;
+		MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
+		DestroyWindow(hDlg);
+		fclose(fpr);
+		delete FT;
+		return false;
+	}
+
+	std::wstring input;
+	for (nLines = 0; fgetws(wstr, 1000, fpr) != NULL; nLines++) {
+		input.append(wstr);
+		//input.append(L"\r\n");
+	}
+
+	fclose(fpr);
+	
+	std::wstringstream content;
+	std::wstring proclog;
+
+	Elapsed_Prepare = 0;
+	Elapsed_Translate = 0;
+
+	std::wstring::size_type nprev = 0;
+	std::wstring::size_type npos = -1;
+	std::list<std::wstring> list_org, list_trans, list;
+	std::wstring output;
+	int i = 0, length = input.length();
+	std::wstring empty = L"Abort";
+
+	int nStatus = 1;
+	
+	std::list<std::wstring>::iterator iter, iter_trans;
+
+	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_START, (LPARAM)&nStatus);
+
+	std::wstring filename = FT->lpszInputFileName;
+	filename = filename.substr(filename.rfind(L"\\")+1);
+
+	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
+
+	for (;; i++)
+	{
+		nprev = npos + 1;
+		npos = input.find(L"\n", nprev);
+		if (npos != std::string::npos)
+		{
+			list_org.push_back(input.substr(nprev, npos - nprev + 1));
+		}
+		else
+		{
+			list_org.push_back(input.substr(nprev));
+			break;
+		}
+	}
+
+	unsigned int div = input.length() / 1024;
+
+	if (list_org.size() > div)
+	{
+		std::wstring line;
+		std::list<std::wstring> list2 = list_org;
+		int j = 1;
+		for (i = 1, iter = list2.begin(); iter != list2.end(); iter++, i++)
+		{
+			if ((float)i > (float)(list2.size() * j / div))
+			{
+				list.push_back(line);
+				line = L"";
+				j++;
+			}
+
+			line += (*iter);
+
+			if (i == list2.size())
+			{
+				list.push_back(line);
+				line = L"";
+			}
+
+		}
+	}
+	else
+	{
+		list = list_org;
+	}
+
+	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
+
+	for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
+	{
+		if (nStatus == 2)
+		{
+			nStatus = 0;
+			MessageBox(hDlg, L"텍스트 번역을 중단했습니다.", L"아네모네", MB_ICONINFORMATION);
+			DestroyWindow(hDlg);
+			fclose(fpw);
+			delete FT;
+			return -1;
+		}
+			output += Cl.TextProcess->eztrans_proc(*iter);
+
+		SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_PROGRESS, (LPARAM)i+1);
+	}
+	/*
+	std::wstringstream logstream;
+	logstream << list.size();
+	logstream << L"/";
+	logstream << list.size();
+
+	proclog = logstream.str();
+	PostMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_COMPLETE, (LPARAM)proclog.c_str());
+	*/
+	nStatus = 0;
+
+	for (;; i++)
+	{
+		nprev = npos + 1;
+		npos = output.find(L"\n", nprev);
+		if (npos != std::string::npos)
+		{
+			list_trans.push_back(output.substr(nprev, npos - nprev + 1));
+		}
+		else
+		{
+			list_trans.push_back(output.substr(nprev));
+			break;
+		}
+	}
+
+	for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)
+	{
+		if (FT->WriteType == 1)
+		{
+			// 마지막 라인이면 원문 뒤에 \r\n 추가
+			if (std::next(iter, 1) == list_org.end())
+			{
+				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+				fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+				fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
+				break;
+			}
+
+			fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+			fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
+			fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+		}
+		else fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+	}
+	/*
+	if (FT->WriteType == 1)
+	{
+		output += (*iter);
+		output += L"\r\n\r\n";
+	}
+	*/
+	//fwrite(output.c_str(), sizeof(wchar_t), wcslen(output.c_str()), fp);
+	fclose(fpw);
+	MessageBox(hDlg, L"번역을 완료했습니다", L"아네모네", MB_ICONINFORMATION);
+
+	/*
+	return output;
+
+
+
+
+
+
+
+	for (int i = 0; fgetws(wstr, 1000, fp) != NULL; i++)
+	{
+		std::wstringstream textStr;
+		textStr << i;
+		textStr << L"/";
+		textStr << nLines;
+		SetDlgItemText(hDlg, IDC_FILE_TRANSPROG_TEXT, textStr.str().c_str());
+
+
+		if (i > 0) content.append(L"\r\n");
+		content.append(wstr);
+
+		if (i == 6) break;
+	}
+	*/
+	delete FT;
 	return 0; // 성공
 }

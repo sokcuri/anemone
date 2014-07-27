@@ -157,3 +157,11 @@ typedef struct
 	char *strHeaders;
 	char *szPostData;
 } PARM;
+
+typedef struct
+{
+	wchar_t lpszInputFileName[260];
+	wchar_t lpszOutputFileName[260];
+	int WriteType;
+	int StartTickCount;
+} FILETRANS;
