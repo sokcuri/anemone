@@ -686,6 +686,9 @@ bool CTextProcess::OnDrawClipboard()
 	wNameT = eztrans_proc(wName);
 	wTextT = eztrans_proc(wText);
 
+	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wNameT);
+	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wTextT);
+
 	wContextT = wNameT;
 	wContextT += wTextT;
 
@@ -711,6 +714,16 @@ bool CTextProcess::OnDrawClipboard()
 	return true;
 }
 
+void CTextProcess::ApplyAneForceDic(std::wstring &input)
+{
+	// 개별사전 우선적용
+	for (unsigned int i = 0; i<AneDic.size(); i++)
+	{
+		input = replaceAll(input, AneDic[i].wjpn, AneDic[i].wkor);
+	}
+
+}
+
 void *CTextProcess::_PatchUDic(const wchar_t *dicFile)
 {
 	FILE *fp;
@@ -726,7 +739,6 @@ void *CTextProcess::_PatchUDic(const wchar_t *dicFile)
 		MessageBox(0, L"UserDict.jk 파일이 없습니다", 0, 0);
 		return false;
 	}
-
 	//	jkdicStruct jS;
 	/*
 	fseek(fp, 0, SEEK_END);
@@ -828,13 +840,13 @@ bool CTextProcess::_UnPatchUDic(const wchar_t *dicFile, void *param)
 	fclose(fp);
 
 	free(offile->m_loc);
-	free(offile);
 	delete offile;
 	return true;
 }
 
 bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 {
+	std::vector<aneDicStruct> NewAneDic;
 	FILE *fp;
 	int nLine;
 	wchar_t wstr[1024];
@@ -855,7 +867,6 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 		return false;
 	}
 	nLine = 0;
-	AneDic.clear();
 
 	// 한줄씩 읽기
 	while (fgetws(wstr, 1000, fp) != NULL)
@@ -981,8 +992,10 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		wcscpy_s(DIC.wjpn, wjpn);
 		wcscpy_s(DIC.wkor, wkor);
-		AneDic.push_back(DIC);
+		NewAneDic.push_back(DIC);
 	}
+	AneDic.clear();
+	AneDic = NewAneDic;
 	fclose(fp);
 	return true;
 }

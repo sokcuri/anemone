@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 999
+#define ANEMONE_VERSION 1000
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -1488,6 +1488,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			(Cl.Config->GetReviseName() ? Cl.Config->SetReviseName(false) : Cl.Config->SetReviseName(true));
 			break;
 		case IDC_SETTING_FORCE_ANEDIC:
+			(Cl.Config->GetForceAneDic() ? Cl.Config->SetForceAneDic(false) : Cl.Config->SetForceAneDic(true));
 			break;
 		case IDC_SETTING_ANE_REMOCON:
 			break;
