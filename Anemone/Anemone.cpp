@@ -619,10 +619,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    int y = 200;
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
-      (cx-x)/2, (cy-y)/2, x, y, NULL, NULL, hInstance, NULL);
-
-   SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
-   SetWindowLongPtr(hWnds.Main, -8, (LONG)NULL);
+      (cx-x)/2, (cy-y)/2, x, y, hWnds.Parent, NULL, hInstance, NULL);
 
 //   SetParent(hWnds.Main, hWnds.Parent);
 
@@ -1396,6 +1393,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left + nMovePoint, rect.bottom - rect.top, SWP_NOMOVE);
 		}
 			break;
+		case IDM_MOUSE_LCLICK:
+		{
+			POINT point;
+			GetCursorPos(&point);
+			mouse_event(MOUSEEVENTF_LEFTDOWN, point.x, point.y, 0, 0);
+			mouse_event(MOUSEEVENTF_LEFTUP, point.x, point.y, 0, 0);
+		}
+			break;
+		case IDM_MOUSE_RCLICK:
+		{
+			POINT point;
+			GetCursorPos(&point);
+			mouse_event(MOUSEEVENTF_RIGHTDOWN, point.x, point.y, 0, 0);
+			mouse_event(MOUSEEVENTF_RIGHTUP, point.x, point.y, 0, 0);
+		}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

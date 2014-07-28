@@ -275,6 +275,7 @@
 #define IDM_WNDSIZE_BOTTOM				32821
 #define IDM_WNDSIZE_LEFT				32822
 #define IDM_WNDSIZE_RIGHT				32823
+#define IDM_MOUSE_RCLICK                32824
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

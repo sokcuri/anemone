@@ -58,6 +58,10 @@ bool CHotkey::LoadKeyMap()
 	// 자석모드
 	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
 
+	// 마우스 클릭
+	RegKey(VK_NUMPAD0, false, false, false, IDM_MOUSE_LCLICK);
+	RegKey(VK_DECIMAL, false, false, false, IDM_MOUSE_RCLICK);
+
 	// 창 번역
 	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU, true);
 	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT, true);
