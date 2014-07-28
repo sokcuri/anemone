@@ -2505,7 +2505,18 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, szFile, 255);
 
 			if (GetSaveFileName(&ofn) == TRUE)
-				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, ofn.lpstrFile);
+			{
+				std::wstring saveFile = ofn.lpstrFile;
+				if (saveFile.find(L"\\") != std::wstring::npos)
+				{
+					if (saveFile.find(L".", saveFile.find(L"\\") + 1) == std::wstring::npos)
+					{
+						saveFile += L".txt";
+					}
+				}
+				
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, saveFile.c_str());
+			}
 		}
 			break;
 		case IDC_FILE_TRANSWIN_TRANSLATE:
