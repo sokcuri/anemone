@@ -234,13 +234,30 @@
 #define IDM_TRANSTEXT_WNDMENU           32790
 #define ID_Menu32790                    32790
 #define IDM_TRANSTEXT_WNDTEXT           32791
+#define ID_32791                        32791
 #define IDM_DESTROY_MENU                32792
+#define ID_32792                        32792
 #define IDM_FILE_TRANSPROG_START        32793
+#define ID_32793                        32793
 #define IDM_FILE_TRANSPROG_PROGRESS     32794
+#define ID_32794                        32794
 #define IDM_FILE_TRANSPROG_END          32795
+#define ID_Menu32795                    32795
 #define IDM_FILE_TRANSPROG_COMPLETE     32796
+#define ID_32796                        32796
 #define IDM_FILE_TRANSPROG_NAME         32797
+#define ID_32797                        32797
 #define IDM_FILE_TRANSPROG_LISTSIZE     32798
+#define ID_32798                        32798
+#define ID_32799                        32799
+#define ID_32800                        32800
+#define ID_32801                        32801
+#define ID_32802                        32802
+#define ID_32803                        32803
+#define ID_32804                        32804
+#define ID_ANEMONE_32805                32805
+#define ID_Menu32806                    32806
+#define ID_32807                        32807
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -249,7 +266,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32791
+#define _APS_NEXT_COMMAND_VALUE         32808
 #define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

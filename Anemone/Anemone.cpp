@@ -157,9 +157,6 @@ void CleanUp()
 
 	DestroyWindow(hWnds.Parent);
 
-	// 설정 저장
-	Cl.Config->SaveConfig();
-
 	delete Cl.Config;
 	delete Cl.TransEngine;
 	delete Cl.TextRenderer;
@@ -219,6 +216,10 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
 					SetWindowPos(hMenuWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+
+					InvalidateRect(hMenuWnd, NULL, TRUE);
+					UpdateWindow(hMenuWnd);
+
 				}
 
 			}
@@ -268,6 +269,9 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 				// 다른 프로세스의 팝업 메뉴를 위로 올리기
 				SetWindowPos(hOtherWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+
+				InvalidateRect(hOtherWnd, NULL, TRUE);
+				UpdateWindow(hOtherWnd);
 			}
 
 		}
