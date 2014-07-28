@@ -493,7 +493,7 @@ ATOM WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnWn
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = 0;
 	wcex.lpszClassName = szClassName;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
 
 	return RegisterClassEx(&wcex);
 }
@@ -823,7 +823,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetLoadPath(path, L"\\AneDic.txt");
 			
 			FILE *fp;
-			if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UTF-8") != 0)
+			if (_wfopen_s(&fp, path.c_str(), L"at,ccs=UTF-8") != 0)
 			{
 				MessageBox(hWnd, L"사용자 사전을 열 수 없습니다", 0, 0);
 				return false;

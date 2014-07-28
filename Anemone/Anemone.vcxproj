@@ -130,6 +130,7 @@
   <ItemGroup>
     <Image Include="..\..\..\..\Desktop\fav.bmp" />
     <Image Include="Anemone.ico" />
+    <Image Include="icon1.ico" />
     <Image Include="small.ico" />
     <Image Include="yukki.bmp" />
   </ItemGroup>

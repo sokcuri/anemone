@@ -29,6 +29,7 @@ private:
 	bool _LoadDic(const wchar_t *dicFile);
 	void *_PatchUDic(const wchar_t *dicFile);
 	bool _UnPatchUDic(const wchar_t *dicFile, void *offile);
+	void ApplyAneForceDic(std::wstring &input);
 
 };
 

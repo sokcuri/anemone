@@ -32,7 +32,7 @@ bool CRemocon::CreateInstance()
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = 0;
 	wcex.lpszClassName = L"AnemoneRemoconClass";
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ANEMONE));
 
 	RegisterClassEx(&wcex);
 
