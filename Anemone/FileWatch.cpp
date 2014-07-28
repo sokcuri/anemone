@@ -1,12 +1,16 @@
 #include "stdafx.h"
 #include "FileWatch.h"
 
+#define cbBuffer 1024
+
 CFileWatch *CFileWatch::m_pThis = NULL;
-std::vector<std::wstring> fileList;
-bool CFileWatch::watch_config = true;
-bool CFileWatch::watch_anedic = true;
 
 CFileWatch::CFileWatch()
+{
+	TurnOn();
+}
+
+void CFileWatch::TurnOn()
 {
 	SECURITY_ATTRIBUTES ThreadAttributes;
 	ThreadAttributes.bInheritHandle = false;
@@ -20,6 +24,11 @@ CFileWatch::CFileWatch()
 	}
 }
 
+void CFileWatch::TurnOff()
+{
+	TerminateThread(hWatchThread, 0);
+}
+
 CFileWatch::~CFileWatch()
 {
 	TerminateThread(hWatchThread, 0);
@@ -28,27 +37,28 @@ CFileWatch::~CFileWatch()
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 {
 	HWND hwnd = (HWND)lpParam;
-	UINT m_nTimerID;
 
 	std::wstring Path;
 	GetLoadPath(Path);
 
 	HANDLE hDir = CreateFile(Path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		0, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0);
-	CONST DWORD cbBuffer = 1024 * 1024;
-	BYTE* pBuffer = (PBYTE)malloc(cbBuffer);
+	
+	BYTE* pBuffer[cbBuffer];
 	BOOL bWatchSubtree = FALSE;
 	DWORD dwNotifyFilter = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
 		FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE |
 		FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION;
 	DWORD bytesReturned;
-	
-	m_nTimerID = timeSetEvent(120, 0, (LPTIMECALLBACK)FileChangeNotifyProc, 0, TIME_PERIODIC);
+
+	FILE_NOTIFY_INFORMATION* pfni;
+	FILE_NOTIFY_INFORMATION* Prev_pfni;
+	DWORD Prev_TickCount = -1;
+	wchar_t Prev_FileName[260];
 
 	wchar_t temp[MAX_PATH] = { 0 };
 	for (;;)
 	{
-		FILE_NOTIFY_INFORMATION* pfni;
 		BOOL fOk = ReadDirectoryChangesW(hDir, pBuffer, cbBuffer,
 			bWatchSubtree, dwNotifyFilter, &bytesReturned, 0, 0);
 		if (!fOk)
@@ -59,94 +69,45 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 		pfni = (FILE_NOTIFY_INFORMATION*)pBuffer;
 
+
 		do {
 			memcpy(temp, pfni->FileName, pfni->FileNameLength);
 			temp[pfni->FileNameLength / 2] = 0;
-			std::wstring filename(temp);
-			transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-			if (fileList.begin() == fileList.end())
-			{
-				fileList.push_back(filename.c_str());
-			}
+			_wcslwr_s(temp, pfni->FileNameLength);
 
-			std::vector<std::wstring>::iterator it = fileList.begin();
-			for (; it != fileList.end(); it++)
+			if (GetTickCount() - Prev_TickCount >= 1000 ||
+				wcscmp(Prev_FileName, temp) != 0)
 			{
-				if (it + 1 == fileList.end())
+				if (wcscmp(temp, L"anemone.ini") == 0)
 				{
-					fileList.push_back(filename.c_str());
-					break;
+					Cl.Config->LoadConfig();
+					PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 				}
-				else if ((*it).compare(filename.c_str()) == 0) break;
+
+				if (wcscmp(temp, L"anedic.txt") == 0)
+				{
+					MessageBox(0, L"anedic", 0, 0);
+					//Cl.TextProcess->LoadDictionary();
+				}
+
+				if (wcscmp(temp, L"anedic2.txt") == 0)
+				{
+					MessageBox(0, L"anedic2", 0, 0);
+				}
+
+				if (wcscmp(temp, L"anedic3.txt") == 0)
+				{
+					MessageBox(0, L"anedic3", 0, 0);
+				}
 			}
 
+			Prev_TickCount = GetTickCount();
+			wcsncpy_s(Prev_FileName, temp, 255);
+
+			Prev_pfni = pfni;
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
-		} while (pfni->NextEntryOffset > 0);
+		} while (Prev_pfni->NextEntryOffset > 0);
 	}
 	return 0;
-}
-
-MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dwUser, DWORD dw1, DWORD d2)
-{
-	std::vector<std::wstring> CurrentfileList;
-	bool c_config;
-	bool c_anedic;
-
-	c_config = false;
-	c_anedic = false;
-
-	CurrentfileList = fileList;
-	fileList.clear();
-
-	if (CurrentfileList.begin() == CurrentfileList.end()) return 0;
-
-	std::vector<std::wstring>::iterator it = CurrentfileList.begin();
-	for (; it != CurrentfileList.end(); it++)
-	{
-		if ((*it).compare(L"anemone.ini") == 0)
-		{
-			c_config = true;
-		}
-
-		if ((*it).compare(L"anedic.txt") == 0)
-		{
-			c_anedic = true;
-		}
-	}
-	
-	// 감시 모드가 작동중일때 파일변경시
-	if (c_config == true)
-	{
-		c_config = false;
-		if (IsWatchConfig())
-		{
-			//MessageBox(0, 0, 0, 0);
-			Cl.Config->LoadConfig();
-
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
-		}
-		//PostMessage(hSettingWnd, WM_USER, UM_REFRESH_SETTING, 0);
-	}
-
-	if (c_anedic == true)
-	{
-		c_anedic = false;
-
-		// 아네모네 사전 다시읽기
-		Cl.TextProcess->LoadDictionary();
-		//PostMessage(hWnds.Main, UM_ReloadUserDict, 0, 0);
-	}
-
-	return 0;
-}
-
-bool CFileWatch::IsWatchConfig()
-{
-	return watch_config;
-}
-
-void CFileWatch::SetWatchConfig(bool b)
-{
-	watch_config = b;
 }
