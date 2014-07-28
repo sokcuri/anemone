@@ -18,7 +18,7 @@ bool CTextRenderer::Init()
 	return true;
 }
 
-int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wchar_t *fontName, int fntSize, int outlineInThick, int outlineOutThick, Color textColor, Color outlineInColor, Color outlineOutColor, Color shadowColor, bool textVisible, bool outlineInVisible, bool outlineOutVisible, bool shadowVisible, Rect *layoutRect)
+int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, wchar_t *fontName, int fontStyle, int fntSize, int outlineInThick, int outlineOutThick, Color textColor, Color outlineInColor, Color outlineOutColor, Color shadowColor, bool textVisible, bool outlineInVisible, bool outlineOutVisible, bool shadowVisible, Rect *layoutRect)
 {
 	// 텍스트를 표시하지 않으면 리턴시킨다
 	if (textVisible == false) return true;
@@ -33,6 +33,9 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 		MessageBox(0, L"폰트 사용 불가능", 0, 0);
 		return false;
 	}
+
+	// 범위에서 벗어난 fontStyle 처리
+	if (fontStyle > 3) fontStyle = 0;
 
 	StringFormat strformat = StringFormat::GenericTypographic();
 
@@ -50,8 +53,7 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	if (outlineInVisible) outlineTotalThick += outlineInThick;
 	if (outlineOutVisible) outlineTotalThick += outlineOutThick;
 
-
-	Font font(&fontFamily, (Gdiplus::REAL)fntSize, FontStyleRegular);
+	Font font(&fontFamily, (Gdiplus::REAL)fntSize, fontStyle);
 	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &boundRect);
 	//SolidBrush tempBrush(outlineOutColor);
 	//graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
@@ -64,7 +66,8 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	if (shadowVisible)
 	{
 		path_shadow.AddString(contextText, wcslen(contextText),
-			&fontFamily, FontStyleRegular, emSize, Gdiplus::Rect(layoutRect->X + shadowX, layoutRect->Y + shadowY, layoutRect->Width, layoutRect->Height), &strformat);
+			&fontFamily, fontStyle,
+			emSize, Gdiplus::Rect(layoutRect->X + shadowX, layoutRect->Y + shadowY, layoutRect->Width, layoutRect->Height), &strformat);
 
 		Pen pen_shadow(shadowColor, (Gdiplus::REAL)outlineTotalThick);
 		pen_shadow.SetLineJoin(LineJoinRound);
@@ -73,7 +76,8 @@ int CTextRenderer::DrawText(Graphics *graphics, const wchar_t *contextText, wcha
 	}
 
 	path.AddString(contextText, wcslen(contextText),
-		&fontFamily, FontStyleRegular, emSize, Gdiplus::Rect(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat);
+		&fontFamily, fontStyle,
+		emSize, Gdiplus::Rect(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat);
 
 	if (outlineOutVisible)
 	{
@@ -219,6 +223,7 @@ bool CTextRenderer::Paint()
 	bool bNameShadow = Cl.Config->GetTextShadow(CFG_NAME);
 
 	wchar_t *fnName = Cl.Config->GetTextFont(CFG_NAME);
+	int fnNameStyle = Cl.Config->GetFontStyle(CFG_NAME);
 
 	//DWORD dwShadow = Cl.Config->GetShadowColor();
 
@@ -235,6 +240,7 @@ bool CTextRenderer::Paint()
 	bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
 
 	wchar_t *fnOrg = Cl.Config->GetTextFont(CFG_ORG);
+	int fnOrgStyle = Cl.Config->GetFontStyle(CFG_ORG);
 
 	int nOrgA = Cl.Config->GetTextSize(CFG_ORG, CFG_A);
 	int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
@@ -249,6 +255,7 @@ bool CTextRenderer::Paint()
 	bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
 
 	wchar_t *fnTrans = Cl.Config->GetTextFont(CFG_TRANS);
+	int fnTransStyle = Cl.Config->GetFontStyle(CFG_TRANS);
 
 	int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
 	int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
@@ -306,15 +313,15 @@ bool CTextRenderer::Paint()
 		//for (int i = 1; i <= 10; i++)
 		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
 
-		DrawText(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
+		TextDraw(&graphics, L"~아네모네 V1.00 알파 버전~\r\nby 소쿠릿", fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
 
 		//if (!Cl.Config->GetWndBorderMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 	else
 	{
-		pad_y += DrawText(&graphics, (bNameSwitch ? (szNameConv).c_str() : L" "), fnName, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwNameS >> 24) & 0xFF, (dwNameS >> 16) & 0xFF, (dwNameS >> 8) & 0xFF, (dwNameS)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20 + mar_name, pad_y, width - 40 - mar_name, height + 300));
-		if (bOrgSwitch)   pad_y += DrawText(&graphics, (bNameSwitch ? (*szText).c_str() : (*szContext).c_str()), fnOrg, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
-		if (bTransSwitch) pad_y += DrawText(&graphics, (bNameSwitch ? (*szTextT).c_str() : (*szContextT).c_str()), fnTrans, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS) & 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
+		pad_y += TextDraw(&graphics, (bNameSwitch ? (szNameConv).c_str() : L" "), fnName, fnNameStyle, nNameA, nNameB, nNameC, Color((dwNameA >> 24) & 0xFF, (dwNameA >> 16) & 0xFF, (dwNameA >> 8) & 0xFF, (dwNameA)& 0xFF), Color((dwNameB >> 24) & 0xFF, (dwNameB >> 16) & 0xFF, (dwNameB >> 8) & 0xFF, (dwNameB)& 0xFF), Color((dwNameC >> 24) & 0xFF, (dwNameC >> 16) & 0xFF, (dwNameC >> 8) & 0xFF, (dwNameC)& 0xFF), Color((dwNameS >> 24) & 0xFF, (dwNameS >> 16) & 0xFF, (dwNameS >> 8) & 0xFF, (dwNameS)& 0xFF), true, true, true, bNameShadow, &Gdiplus::Rect(20 + mar_name, pad_y, width - 40 - mar_name, height + 300));
+		if (bOrgSwitch)   pad_y += TextDraw(&graphics, (bNameSwitch ? (*szText).c_str() : (*szContext).c_str()), fnOrg, fnOrgStyle, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
+		if (bTransSwitch) pad_y += TextDraw(&graphics, (bNameSwitch ? (*szTextT).c_str() : (*szContextT).c_str()), fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS) & 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 	}
 	int nBorderWidth = 5;
 	//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);

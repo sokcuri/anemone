@@ -34,6 +34,7 @@ private:
 	int cfg_name_size_a         = 25;
 	int cfg_name_size_b         = 3;
 	int cfg_name_size_c         = 3;
+	int cfg_name_style			= 0;
 
 	bool cfg_org_switch         = true;
 	bool cfg_org_shadow         = true;
@@ -45,6 +46,7 @@ private:
 	int cfg_org_size_a          = 25;
 	int cfg_org_size_b          = 3;
 	int cfg_org_size_c          = 3;
+	int cfg_org_style			= 0;
 
 	bool cfg_trans_switch       = true;
 	bool cfg_trans_shadow       = true;
@@ -56,6 +58,7 @@ private:
 	int cfg_trans_size_a        = 25;
 	int cfg_trans_size_b        = 3;
 	int cfg_trans_size_c        = 3;
+	int cfg_trans_style			= 0;
 
 	bool cfg_temp_click_though = false;
 	bool cfg_wnd_border_mode = false;
@@ -228,6 +231,39 @@ public:
 			break;
 		case CFG_TRANS:
 			wcscpy_s(cfg_trans_font, w);
+			break;
+		}
+	}
+
+	int GetFontStyle(int type)
+	{
+		switch (type)
+		{
+		case CFG_NAME:
+			return cfg_name_style;
+			break;
+		case CFG_ORG:
+			return cfg_org_style;
+			break;
+		case CFG_TRANS:
+			return cfg_trans_style;
+			break;
+		}
+		return 0;
+	}
+
+	void SetFontStyle(int type, int i)
+	{
+		switch (type)
+		{
+		case CFG_NAME:
+			cfg_name_style = i;
+			break;
+		case CFG_ORG:
+			cfg_org_style = i;
+			break;
+		case CFG_TRANS:
+			cfg_trans_style = i;
 			break;
 		}
 	}

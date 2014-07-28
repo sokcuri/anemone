@@ -1697,9 +1697,15 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (FontDialog(hWnd, cf, lf))
 			{
 				Cl.Config->SetTextFont(CFG_NAME, lf.lfFaceName);
+
+				int fontStyle = 0; // NM: 400 / BOLD: 700
+				if (lf.lfWeight == 700) fontStyle += 1;
+				if (lf.lfItalic) fontStyle += 2;
+
+				Cl.Config->SetFontStyle(CFG_NAME, fontStyle);
 			}
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
-		}
+		}	
 			break;
 		case IDC_SETTING_ORG_FONT:
 		{
@@ -1717,6 +1723,13 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (FontDialog(hWnd, cf, lf))
 			{
 				Cl.Config->SetTextFont(CFG_ORG, lf.lfFaceName);
+
+				int fontStyle = 0; // NM: 400 / BOLD: 700
+				if (lf.lfWeight == 700) fontStyle += 1;
+				if (lf.lfItalic) fontStyle += 2;
+
+				Cl.Config->SetFontStyle(CFG_ORG, fontStyle);
+
 			}
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
@@ -1729,6 +1742,13 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			ZeroMemory(&lf, sizeof(lf));
 			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_TRANS));
 
+			// 400 - NM / 700 - BOLD
+			int fontStyle = Cl.Config->GetFontStyle(CFG_TRANS);
+			if (fontStyle > 3) fontStyle = 0;
+
+			(fontStyle / 2 == 1 ? lf.lfItalic = true : lf.lfItalic = false);
+			(fontStyle % 2 == 1 ? lf.lfWeight = 700 : lf.lfWeight = 400);
+
 			PAINTSTRUCT ps;
 			HDC hDC = BeginPaint(hWnd, &ps);
 			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
@@ -1737,6 +1757,12 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (FontDialog(hWnd, cf, lf))
 			{
 				Cl.Config->SetTextFont(CFG_TRANS, lf.lfFaceName);
+				fontStyle = 0;
+
+				if (lf.lfWeight == 700) fontStyle += 1;
+				if (lf.lfItalic) fontStyle += 2;
+
+				Cl.Config->SetFontStyle(CFG_TRANS, fontStyle);
 			}
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
@@ -2241,8 +2267,6 @@ UINT CALLBACK CCHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 UINT CALLBACK CFHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	HFONT hFont;
-
 	switch (uMsg) {
 	case WM_INITDIALOG:
 	{

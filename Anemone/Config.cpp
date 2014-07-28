@@ -66,6 +66,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextShadow(CFG_NAME, true) : SetTextShadow(CFG_NAME, false);
 	ReadINI_Str(L"NAME_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextFont(CFG_NAME, buf);
+	ReadINI_Str(L"NAME_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetFontStyle(CFG_NAME, _wtoi(buf));
 	ReadINI_Str(L"NAME_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_NAME, CFG_A, _wtoi(buf));
 	ReadINI_Str(L"NAME_SIZE_B", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -89,6 +91,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextShadow(CFG_ORG, true) : SetTextShadow(CFG_ORG, false);
 	ReadINI_Str(L"ORG_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextFont(CFG_ORG, buf);
+	ReadINI_Str(L"ORG_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetFontStyle(CFG_ORG, _wtoi(buf));
 	ReadINI_Str(L"ORG_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_ORG, CFG_A, _wtoi(buf));
 	ReadINI_Str(L"ORG_SIZE_B", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -112,6 +116,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextShadow(CFG_TRANS, true) : SetTextShadow(CFG_TRANS, false);
 	ReadINI_Str(L"TRANS_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextFont(CFG_TRANS, buf);
+	ReadINI_Str(L"TRANS_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetFontStyle(CFG_TRANS, _wtoi(buf));
 	ReadINI_Str(L"TRANS_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTextSize(CFG_TRANS, CFG_A, _wtoi(buf));
 	ReadINI_Str(L"TRANS_SIZE_B", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -191,6 +197,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"NAME_SHADOW", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%s", GetTextFont(CFG_NAME));
 	WriteINI_Str(L"NAME_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetFontStyle(CFG_NAME));
+	WriteINI_Str(L"NAME_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_NAME, CFG_A));
 	WriteINI_Str(L"NAME_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_NAME, CFG_B));
@@ -214,6 +222,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"ORG_SHADOW", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%s", GetTextFont(CFG_ORG));
 	WriteINI_Str(L"ORG_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetFontStyle(CFG_ORG));
+	WriteINI_Str(L"ORG_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_ORG, CFG_A));
 	WriteINI_Str(L"ORG_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_ORG, CFG_B));
@@ -237,6 +247,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"TRANS_SHADOW", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%s", GetTextFont(CFG_TRANS));
 	WriteINI_Str(L"TRANS_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetFontStyle(CFG_TRANS));
+	WriteINI_Str(L"TRANS_FONT_STYLE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_TRANS, CFG_A));
 	WriteINI_Str(L"TRANS_SIZE_A", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTextSize(CFG_TRANS, CFG_B));
