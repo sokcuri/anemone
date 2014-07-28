@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1000
+#define ANEMONE_VERSION 999
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -2135,7 +2135,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	return 0;
 }
 CHOOSECOLOR *pCC;
-UINT CALLBACK SettingColorWndHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+UINT CALLBACK CCHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	HFONT hFont;
 
@@ -2235,6 +2235,29 @@ UINT CALLBACK SettingColorWndHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDOWN:
 		MessageBox(hDlg,0,0,0);
 		break;*/
+	}
+	return FALSE;
+}
+
+UINT CALLBACK CFHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	HFONT hFont;
+
+	switch (uMsg) {
+	case WM_INITDIALOG:
+	{
+		int nExStyleValue = GetWindowLong(hDlg, GWL_EXSTYLE);
+		nExStyleValue |= WS_EX_NOACTIVATE;
+		SetWindowLong(hDlg, GWL_EXSTYLE, nExStyleValue);
+	}
+		return TRUE;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hDlg, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
 	}
 	return FALSE;
 }

@@ -137,7 +137,8 @@ typedef struct {
 	HWND hwnd;
 } WINDOWPROCESSINFO;
 
-UINT CALLBACK SettingColorWndHookProc(HWND, UINT, WPARAM, LPARAM);
+UINT CALLBACK CCHookProc(HWND, UINT, WPARAM, LPARAM);
+UINT CALLBACK CFHookProc(HWND, UINT, WPARAM, LPARAM);
 
 extern int Elapsed_Prepare;
 extern int Elapsed_Translate;

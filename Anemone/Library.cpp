@@ -234,7 +234,7 @@ bool ColorDialog(HWND hWnd, CHOOSECOLOR &cc, DWORD ColorVar)
 	cc.rgbResult = rgbCurrent;
 	cc.lCustData = alpha;
 	cc.Flags = CC_FULLOPEN | CC_RGBINIT | CC_ENABLEHOOK;
-	cc.lpfnHook = SettingColorWndHookProc;
+	cc.lpfnHook = CCHookProc;
 
 	if (ChooseColor(&cc) == TRUE)
 	{
@@ -251,10 +251,10 @@ bool FontDialog(HWND hWnd, CHOOSEFONT &cf, LOGFONT &lf)
 	cf.hDC = (HDC)NULL;
 	cf.lpLogFont = &lf;
 	cf.iPointSize = 10;
-	cf.Flags = CF_SCREENFONTS | CF_NOVERTFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
+	cf.Flags = CF_SCREENFONTS | CF_NOVERTFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL | CF_ENABLEHOOK;
 	cf.rgbColors = RGB(0, 0, 0);
 	cf.lCustData = 0L;
-	cf.lpfnHook = (LPCFHOOKPROC)NULL;
+	cf.lpfnHook = CFHookProc;
 	cf.hInstance = (HINSTANCE)NULL;
 	cf.nFontType = SCREEN_FONTTYPE;
 	cf.nSizeMin = 0;
@@ -262,6 +262,12 @@ bool FontDialog(HWND hWnd, CHOOSEFONT &cf, LOGFONT &lf)
 
 	if (ChooseFont(&cf) == TRUE)
 	{
+		FontFamily fontFamily(lf.lfFaceName);
+		if (!fontFamily.IsAvailable())
+		{
+			MessageBox(hWnd, L"사용할 수 없는 글꼴입니다.", 0, MB_ICONERROR);
+			return false;
+		}
 		return true;
 	}
 	return false;
