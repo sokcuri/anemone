@@ -150,10 +150,10 @@ int APIENTRY _tWinMain(
 
 void CleanUp()
 {
-	TerminateThread(MagnetWnd.hWnd, 0);
-
-	Cl.Config->SaveConfig();
 	ShowWindow(hWnds.Main, false);
+
+	TerminateThread(MagnetWnd.hThread, 0);
+	Cl.Config->SaveConfig();
 
 	DestroyWindow(hWnds.Parent);
 

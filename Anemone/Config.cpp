@@ -16,7 +16,6 @@ CConfig::~CConfig()
 
 bool CConfig::LoadConfig()
 {
-	MessageBox(0, L"설정 파일을 읽습니다", 0, 0);
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
 
@@ -278,7 +277,7 @@ bool CConfig::SaveConfig()
 	wsprintf(buf, L"%d", GetFileTransOutput());
 	WriteINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
-	Sleep(400);
+	Sleep(350);
 	Cl.FileWatch->SetWatchConfig(true);
 	return true;
 }
