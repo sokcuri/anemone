@@ -5,7 +5,6 @@ CFileWatch *CFileWatch::m_pThis = NULL;
 std::vector<std::wstring> fileList;
 bool CFileWatch::watch_config = true;
 bool CFileWatch::watch_anedic = true;
-bool CFileWatch::init_wait = false;
 
 CFileWatch::CFileWatch()
 {
@@ -28,7 +27,6 @@ CFileWatch::~CFileWatch()
 
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 {
-	std::vector<std::wstring> fileListCur;
 	HWND hwnd = (HWND)lpParam;
 	UINT m_nTimerID;
 
@@ -67,17 +65,17 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 			std::wstring filename(temp);
 			transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-			if (fileListCur.begin() == fileListCur.end())
+			if (fileList.begin() == fileList.end())
 			{
-				fileListCur.push_back(filename.c_str());
+				fileList.push_back(filename.c_str());
 			}
 
-			std::vector<std::wstring>::iterator it = fileListCur.begin();
-			for (; it != fileListCur.end(); it++)
+			std::vector<std::wstring>::iterator it = fileList.begin();
+			for (; it != fileList.end(); it++)
 			{
-				if (it + 1 == fileListCur.end())
+				if (it + 1 == fileList.end())
 				{
-					fileListCur.push_back(filename.c_str());
+					fileList.push_back(filename.c_str());
 					break;
 				}
 				else if ((*it).compare(filename.c_str()) == 0) break;
@@ -85,29 +83,26 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
 		} while (pfni->NextEntryOffset > 0);
-
-		while (init_wait == true) { Sleep(100); }
-
-		fileList = fileListCur;
-		fileListCur.clear();
 	}
 	return 0;
 }
 
 MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dwUser, DWORD dw1, DWORD d2)
 {
+	std::vector<std::wstring> CurrentfileList;
 	bool c_config;
 	bool c_anedic;
 
 	c_config = false;
 	c_anedic = false;
 
-	if (fileList.begin() == fileList.end()) return 0;
+	CurrentfileList = fileList;
+	fileList.clear();
 
-	init_wait = true;
+	if (CurrentfileList.begin() == CurrentfileList.end()) return 0;
 
-	std::vector<std::wstring>::iterator it = fileList.begin();
-	for (; it != fileList.end(); it++)
+	std::vector<std::wstring>::iterator it = CurrentfileList.begin();
+	for (; it != CurrentfileList.end(); it++)
 	{
 		if ((*it).compare(L"anemone.ini") == 0)
 		{
@@ -119,10 +114,7 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 			c_anedic = true;
 		}
 	}
-	fileList.clear();
 	
-	init_wait = false;
-
 	// 감시 모드가 작동중일때 파일변경시
 	if (c_config == true)
 	{

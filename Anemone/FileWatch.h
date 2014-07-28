@@ -25,6 +25,5 @@ private:
 	}
 	static bool watch_config;
 	static bool watch_anedic;
-	static bool init_wait;
 };
 
