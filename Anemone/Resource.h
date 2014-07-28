@@ -258,6 +258,14 @@
 #define ID_ANEMONE_32805                32805
 #define ID_Menu32806                    32806
 #define ID_32807                        32807
+#define IDM_TEXTSIZE_MINUS              32808
+#define IDM_TEXTSIZE_PLUS               32809
+#define IDM_TEXTPOS_PREV                32810
+#define IDM_TEXTPOS_NEXT                32811
+#define IDM_MOUSE_LCLICK                32812
+#define ID_32813                        32813
+#define ID_32814                        32814
+#define ID_ANEMONE_32815                32815
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -266,7 +274,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32808
+#define _APS_NEXT_COMMAND_VALUE         32816
 #define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

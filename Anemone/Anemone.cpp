@@ -821,6 +821,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			std::wstring path;
 			GetLoadPath(path, L"\\AneDic.txt");
+			
+			FILE *fp;
+			if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UTF-8") != 0)
+			{
+				MessageBox(hWnd, L"사용자 사전을 열 수 없습니다", 0, 0);
+				return false;
+			}
+			fclose(fp);
 			ExecuteFile(path);
 		}
 			break;
