@@ -16,6 +16,9 @@ TCHAR szParentClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _MagnetWnd MagnetWnd; _Class Cl; HANDLE AneHeap;
 std::vector<aneDicStruct> AneDic;
+NOTIFYICONDATA niData;
+UINT WM_TASKBARCHANGED;
+
 int IsActive = 0;
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
@@ -34,7 +37,7 @@ INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
 DWORD WINAPI		FileTransThread(LPVOID lpParam);
-
+void				CreateTrayIcon(HWND hWnd);
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
 int APIENTRY _tWinMain(
@@ -129,7 +132,10 @@ int APIENTRY _tWinMain(
 	{
 		MessageBox(0, L"아네모네 리모콘 초기화가 실패했습니다.", 0, MB_ICONERROR);
 	}
-		
+	
+	// 트레이 아이콘 생성
+	CreateTrayIcon(hWnds.Main);
+
 	//ShowWindow(hWnds.Remocon, true);
 
 	// 윈도우 표시
@@ -151,8 +157,9 @@ int APIENTRY _tWinMain(
 void CleanUp()
 {
 	ShowWindow(hWnds.Main, false);
-
 	TerminateThread(MagnetWnd.hThread, 0);
+	Shell_NotifyIcon(NIM_DELETE, &niData);
+	
 	Cl.Config->SaveConfig();
 
 	DestroyWindow(hWnds.Parent);
@@ -169,6 +176,35 @@ void CleanUp()
 	HeapDestroy(AneHeap);
 
 	ExitProcess(0);
+}
+
+void CreateTrayIcon(HWND hWnd)
+{
+	// 트레이 아이콘 생성
+	ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
+
+	niData.cbSize = sizeof(NOTIFYICONDATA);
+
+	niData.uID = ID_TRAY_EVENT;
+	niData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+
+	niData.hIcon =
+		(HICON)LoadImage(hInst,
+		MAKEINTRESOURCE(IDI_ANEMONE),
+		IMAGE_ICON,
+		GetSystemMetrics(SM_CXSMICON),
+		GetSystemMetrics(SM_CYSMICON),
+		LR_DEFAULTCOLOR);
+	niData.hWnd = hWnd;
+	niData.uCallbackMessage = ID_TRAY_EVENT;
+	wcscpy_s(niData.szTip, L"아네모네");
+	//Shell_NotifyIcon(NIM_ADD,&niData);
+
+	// NIM_ADD adds a new tray icon
+	Shell_NotifyIcon(NIM_ADD, &niData);
+
+	WM_TASKBARCHANGED = RegisterWindowMessage(L"TaskBarCreated");
+
 }
 
 //
@@ -437,7 +473,9 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
-
+	
+	CheckMenuRadioItem(hmenuTrackPopup, IDM_TEMP_WINDOW_HIDE, IDM_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? IDM_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : IDM_WINDOW_VISIBLE)), MF_BYCOMMAND);
+//	CheckMenuRadioItem(hmenuTrackPopup, IDM_TEMP_WINDOW_HIDE, IDM_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? MF_CHECKED : MF_UNCHECKED));
 	// 우클릭 메뉴 활성화
 	TrackPopupMenu(hmenuTrackPopup,
 		TPM_LEFTALIGN | TPM_RIGHTBUTTON,
@@ -463,13 +501,11 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 	// If the position is in the client area, display a  
 	// shortcut menu. 
 
-	if (PtInRect(&rc, pt))
-	{
-		ClientToScreen(hwnd, &pt);
-		DisplayContextMenu(hwnd, pt);
-		return TRUE;
-	}
+	//if (PtInRect(&rc, pt))
 
+	ClientToScreen(hwnd, &pt);
+	DisplayContextMenu(hwnd, pt);
+	return TRUE;
 	// Return FALSE if no menu is displayed. 
 
 	return FALSE;
@@ -657,6 +693,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
+
+	// explorer.exe가 강제 종료되어 트레이가 사라졌을 경우
+	if (message == WM_TASKBARCHANGED)
+	{
+		Shell_NotifyIcon(NIM_ADD, &niData);
+		return 0;
+	}
 
 	switch (message)
 	{
@@ -1417,6 +1460,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Cl.TextRenderer->Paint();
 	}
 		break;
+	case ID_TRAY_EVENT:
+	{
+		switch (lParam)
+		{
+		case WM_LBUTTONUP:
+			Cl.Config->SetWindowVisible(true);
+			ShowWindow(hWnds.Main, true);
+			break;
+		case WM_RBUTTONUP:
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			if (!OnContextMenu(hWnds.Main, pt.x, pt.y))
+				return DefWindowProc(hWnds.Main, message, wParam, lParam);
+		}
+			break;
+		}
+	}
 	case WM_MOVING:
 	case WM_SIZING:
 	{

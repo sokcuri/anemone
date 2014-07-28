@@ -49,6 +49,10 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_NUMPAD4, false, true, false, IDM_WNDSIZE_LEFT);
 	RegKey(VK_NUMPAD6, false, true, false, IDM_WNDSIZE_RIGHT);
 
+	// 단문 번역/파일 번역창
+	RegKey(VK_F11, false, false, true, IDM_WINDOW_TRANS);
+	RegKey(VK_F11, false, true, true, IDM_WINDOW_FILETRANS);
+
 	// 전역 단축키
 	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
 
@@ -59,12 +63,19 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
 
 	// 마우스 클릭
-	RegKey(VK_NUMPAD0, false, false, false, IDM_MOUSE_LCLICK);
-	RegKey(VK_DECIMAL, false, false, false, IDM_MOUSE_RCLICK);
+	RegKey(VK_NUMPAD0, false, false, false, IDM_MOUSE_LCLICK, true);
+	RegKey(VK_DECIMAL, false, false, false, IDM_MOUSE_RCLICK, true);
 
 	// 창 번역
-	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU, true);
-	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT, true);
+	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU);
+	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT);
+
+	// 클립보드 감시
+	RegKey(VK_SCROLL, false, false, false, IDM_CLIPBOARD_SWITCH, true);
+
+	// 원문 문장/이름 출력
+	RegKey(VK_F8, false, false, false, IDM_PRINT_ORGTEXT);
+	RegKey(VK_F8, false, true, false, IDM_PRINT_ORGNAME);
 	return true;
 }
 

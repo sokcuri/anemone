@@ -64,6 +64,7 @@
 #define IDC_SETTING_PRINT_ORGTEXT       1014
 #define IDC_CHECK11                     1015
 #define IDC_SETTING_PRINT_ORGNAME       1015
+#define IDC_SETTING_PRINT_ORGNAME2      1015
 #define IDC_CHECK12                     1016
 #define IDC_SETTING_SEPERATE_NAME       1016
 #define IDC_CHECK13                     1017
@@ -267,15 +268,17 @@
 #define ID_32813                        32813
 #define ID_32814                        32814
 #define ID_ANEMONE_32815                32815
-#define IDM_WNDMOVE_TOP					32816
-#define IDM_WNDMOVE_BOTTOM				32817
-#define IDM_WNDMOVE_LEFT				32818
-#define IDM_WNDMOVE_RIGHT				32819
-#define IDM_WNDSIZE_TOP					32820
-#define IDM_WNDSIZE_BOTTOM				32821
-#define IDM_WNDSIZE_LEFT				32822
-#define IDM_WNDSIZE_RIGHT				32823
+#define IDM_WNDMOVE_TOP                 32816
+#define ID_ANEMONE_32816                32816
+#define IDM_WNDMOVE_BOTTOM              32817
+#define IDM_WNDMOVE_LEFT                32818
+#define IDM_WNDMOVE_RIGHT               32819
+#define IDM_WNDSIZE_TOP                 32820
+#define IDM_WNDSIZE_BOTTOM              32821
+#define IDM_WNDSIZE_LEFT                32822
+#define IDM_WNDSIZE_RIGHT               32823
 #define IDM_MOUSE_RCLICK                32824
+#define ID_TRAY_EVENT					32825
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -284,7 +287,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        137
-#define _APS_NEXT_COMMAND_VALUE         32816
+#define _APS_NEXT_COMMAND_VALUE         32817
 #define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

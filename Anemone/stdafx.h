@@ -194,3 +194,6 @@ typedef struct
 	int filesize;
 	void *m_loc;
 } OLDFILEINFO;
+
+extern NOTIFYICONDATA niData;
+extern UINT WM_TASKBARCHANGED;
