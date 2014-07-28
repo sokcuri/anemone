@@ -555,6 +555,47 @@ void TransWndText(HWND hTarget)
 		UpdateWindow(m_hWnd);
 	}
 }
+bool OpenDicText(HWND hWnd)
+{
+	std::wstring path;
+	GetLoadPath(path, L"\\AneDic.txt");
+	wchar_t *AneDicHeader =
+	{ L"// 아네모네 사전파일 V1\r\n" \
+		L"//\r\n" \
+		L"// 찾는 단어 (tab) 바꾸는 단어 (tab) 명사/상용어구 (tab) 속성\r\n" \
+		L"// 예시) 雪々	유키	1	VHn\r\n" \
+		L"//\r\n" \
+		L"// * 명사/상용어구 필드에는 단어가 상용어구일 경우 0, 명사일 경우 1을,"\
+		L"// * 사전 우선 적용을 원하는 단어라면 2를 넣어주세요." \
+		L"//\r\n" \
+		L"// * 명사/상용어구와 속성은 생략할 수 있으며 쓰지 않으면 명사로 인식됩니다.\r\n" \
+		L"// * 아네모네 사전 우선 적용 옵션을 켜거나 단어가 사전 우선 적용인 경우 무조건 상용어구로 처리됩니다.\r\n" \
+		L"//\r\n" \
+		L"// * 줄 앞에 주석(//)이나 공백이 있으면 적용되지 않습니다.\r\n" \
+		L"// * 바꾸는 단어에 아무것도 적혀있지 않는 경우 찾은 단어를 삭제합니다.\r\n" \
+		L"// * 각 단어의 길이는 최대 15자입니다." \
+		L"//\r\n\r\n" };
+
+	FILE *fp;
+	if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UTF-8") != 0)
+	{
+		// 아네모네 사전 파일이 없는 경우 작성
+		if (_wfopen_s(&fp, path.c_str(), L"wt,ccs=UTF-8") == 0)
+		{
+			fwrite(AneDicHeader, sizeof(wchar_t), wcslen(AneDicHeader), fp);
+			fclose(fp);
+			MessageBox(hWnd, L"기본 사전 파일이 생성되었습니다.\r\n열린 텍스트 파일의 설명을 읽어보시고 사용하세요.", L"알림", 0);
+		}
+		else
+		{
+			//MessageBox(hWnd, L"AneDic.txt 파일에 쓰기 권한이 없습니다.", 0, 0);
+			return false;
+		}
+	}
+	else fclose(fp);
+	ExecuteFile(path);
+	return true;
+}
 
 //
 //   함수: InitInstance(HINSTANCE, int)
@@ -819,17 +860,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_OPENDIC:
 		{
-			std::wstring path;
-			GetLoadPath(path, L"\\AneDic.txt");
-			
-			FILE *fp;
-			if (_wfopen_s(&fp, path.c_str(), L"at,ccs=UTF-8") != 0)
-			{
-				MessageBox(hWnd, L"사용자 사전을 열 수 없습니다", 0, 0);
-				return false;
-			}
-			fclose(fp);
-			ExecuteFile(path);
+			OpenDicText(hWnd);
 		}
 			break;
 		case IDM_OPENINI:

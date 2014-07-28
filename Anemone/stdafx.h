@@ -160,7 +160,19 @@ typedef struct
 	int WriteType;
 	int StartTickCount;
 } FILETRANS;
-
+/*
+struct dicStruct
+{
+	wchar_t *lpwszJpn;
+	wchar_t *lpwszKor;
+	char *lpszJpn;
+	char *lpszKor;
+	char *lpszPart;
+	char *lpszAttr;
+	bool bHidden;
+};
+extern std::vector<dicStruct> DICT;
+*/
 struct aneDicStruct
 {
 	wchar_t wjpn[31];

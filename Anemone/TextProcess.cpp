@@ -686,8 +686,9 @@ bool CTextProcess::OnDrawClipboard()
 	wNameR = wName;
 	wTextR = wText;
 
-	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wNameR);
-	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wTextR);
+	// 아네모네 사전 우선 적용을 켰을 경우
+	if (Cl.Config->GetForceAneDic()) ApplyForceAneDicAll(wNameR);
+	if (Cl.Config->GetForceAneDic()) ApplyForceAneDicAll(wTextR);
 
 	wNameT = eztrans_proc(wNameR);
 	wTextT = eztrans_proc(wTextR);
@@ -717,9 +718,10 @@ bool CTextProcess::OnDrawClipboard()
 	return true;
 }
 
-void CTextProcess::ApplyAneForceDic(std::wstring &input)
+void CTextProcess::ApplyForceAneDicAll(std::wstring &input)
 {
 	std::wstring str = input;
+	
 	// 개별사전 우선적용
 	for (unsigned int i = 0; i<AneDic.size(); i++)
 	{
@@ -868,7 +870,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
 	{
-		MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
+		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;
 	}
 	nLine = 0;
@@ -946,7 +948,17 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		// 유효성 검사
 		if (wjpn[0] == L'') continue;
-
+		/*
+		// 우선 적용 단어인 경우
+		if (wpart[0] == L'2')
+		{
+			aneFDicStruct FDIC;
+			FDIC.jpn = wjpn;
+			FDIC.kor = wkor;
+			AneFDic.push_back(FDIC);
+			continue;
+		}
+		*/
 		aneDicStruct DIC;
 
 		memset(DIC.wjpn, 0, sizeof(wchar_t) * 31);

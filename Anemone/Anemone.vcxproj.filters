@@ -93,9 +93,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="Anemone.ico">
       <Filter>리소스 파일</Filter>
     </Image>
