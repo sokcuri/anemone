@@ -174,6 +174,40 @@ bool CTextRenderer::Paint()
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2) - 1, (nBorderWidth / 2) - 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
 	}
 
+	// 폰트가 사용가능한지 확인하고 불가할경우 대체폰트로 변경
+	int fontAvaliable;
+	FontFamily *fontFamily;
+
+	fontFamily = new FontFamily(L"맑은 고딕");
+	if (fontFamily->IsAvailable())
+	{
+		fontAvaliable = 0;
+		delete fontFamily;
+	}
+	else
+	{
+		delete fontFamily;
+		fontFamily = new FontFamily(L"바탕");
+		if (fontFamily->IsAvailable())
+			fontAvaliable = 1;
+		else fontAvaliable = 2;
+		delete fontFamily;
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (i == 0) fontFamily = new FontFamily(Cl.Config->GetTextFont(CFG_NAME));
+		else if (i == 1) fontFamily = new FontFamily(Cl.Config->GetTextFont(CFG_ORG));
+		else if (i == 2) fontFamily = new FontFamily(Cl.Config->GetTextFont(CFG_TRANS));
+
+		if (!fontFamily->IsAvailable())
+		{
+			if (fontAvaliable == 0) Cl.Config->SetTextFont(i, L"맑은 고딕");
+			if (fontAvaliable == 1) Cl.Config->SetTextFont(i, L"바탕");
+			if (fontAvaliable == 2) Cl.Config->SetTextFont(i, L"Gulim");
+		}
+		delete fontFamily;
+	}
 
 	StringFormat strformat = StringFormat::GenericTypographic();
 	strformat.SetFormatFlags(StringFormatFlagsMeasureTrailingSpaces);
