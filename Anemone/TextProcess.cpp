@@ -710,6 +710,291 @@ bool CTextProcess::OnDrawClipboard()
 	return true;
 }
 
+void *CTextProcess::_PatchUDic(wchar_t *dicFile)
+{
+	FILE *fp;
+	//char buf[1024];
+	int nLine = 0;
+	int nLen = 0;
+
+	// JKDIC 구조체 초기화
+	//JKDIC.clear();
+
+	if (_wfopen_s(&fp, dicFile, L"rb") != 0)
+	{
+		MessageBox(0, L"UserDict.jk 파일이 없습니다", 0, 0);
+		return false;
+	}
+
+	//	jkdicStruct jS;
+	/*
+	fseek(fp, 0, SEEK_END);
+	int fLength = ftell(fp);
+	fseek(fp, 0, SEEK_SET);*/
+	fseek(fp, 0L, SEEK_END);
+	int filesize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	void *m_loc = malloc(filesize);
+	fread(m_loc, sizeof(char), filesize, fp);
+
+	/*
+	while(1)
+	{
+	nLine++;
+	if (fread(buf, sizeof(char), 1, fp) == 0) break;
+	if (buf[0] == 0x00) jS.hidden = false;
+	else jS.hidden = true;
+	if (fread(buf, sizeof(char), 31, fp) == 0) break;
+	memcpy(jS.jpword_sjis, buf, 31);
+	if (fread(buf, sizeof(char), 31, fp) == 0) break;
+	memcpy(jS.krword_euckr, buf, 31);
+	if (fread(buf, sizeof(char), 5, fp) == 0) break;
+	memcpy(jS.part_of_speech, buf, 5);
+	if (fread(buf, sizeof(char), 42, fp) == 0) break;
+	memcpy(jS.attributes, buf, 42);
+
+	JKDIC.push_back(jS);
+	}
+	*/
+	fclose(fp);
+
+
+	if (_wfopen_s(&fp, dicFile, L"wb") != 0)
+	{
+		MessageBox(0, L"UserDict.jk 파일에 쓰기 권한이 없습니다", 0, 0);
+		return false;
+	}
+
+	for (unsigned int i = 0; i<AneDic.size(); i++)
+	{
+		if (strstr(AneDic[i].jpn, "?") != 0) continue;
+
+		fwrite(&AneDic[i].hidden, sizeof(char), 1, fp);
+		fwrite(&AneDic[i].jpn, sizeof(char), 31, fp);
+		fwrite(&AneDic[i].kor, sizeof(char), 31, fp);
+		fwrite(&AneDic[i].part, sizeof(char), 5, fp);
+		fwrite(&AneDic[i].attr, sizeof(char), 42, fp);
+	}
+
+	fwrite(m_loc, sizeof(char), filesize, fp);
+
+	/*
+	for (unsigned int i=0; i<JKDIC.size(); i++)
+	{
+	fwrite(&JKDIC[i].hidden, sizeof(char), 1, fp);
+	fwrite(&JKDIC[i].jpword_sjis, sizeof(char), 31, fp);
+	fwrite(&JKDIC[i].krword_euckr, sizeof(char), 31, fp);
+	fwrite(&JKDIC[i].part_of_speech, sizeof(char), 5, fp);
+	fwrite(&JKDIC[i].attributes, sizeof(char), 42, fp);
+	}*/
+	fclose(fp);
+
+	//WriteLog(L"[DatUserDictRead] %d개의 DAT 사용자 사전 \"UserDict.jk\"를 읽었습니다.\n", UserDict.size());
+
+	OLDFILEINFO *ret = new OLDFILEINFO;
+
+	ret->filesize = filesize;
+	ret->m_loc = m_loc;
+
+	return ret;
+}
+bool CTextProcess::_UnPatchUDic(wchar_t *dicFile, void *param)
+{
+	FILE *fp;
+	OLDFILEINFO *offile = (OLDFILEINFO *)param;
+	int nLine = 0;
+	int nLen = 0;
+
+	//DeleteFile(g_J2K_UserDic);
+
+	if (_wfopen_s(&fp, dicFile, L"wb") != 0)
+	{
+		MessageBox(0, L"UserDict.jk 파일에 쓰기 권한이 없습니다", 0, 0);
+		return false;
+	}
+
+	fwrite(offile->m_loc, sizeof(char), offile->filesize, fp);
+	/*
+	for (unsigned int i=0; i<JKDIC.size(); i++)
+	{
+	fwrite(&JKDIC[i].hidden, sizeof(char), 1, fp);
+	fwrite(&JKDIC[i].jpword_sjis, sizeof(char), 31, fp);
+	fwrite(&JKDIC[i].krword_euckr, sizeof(char), 31, fp);
+	fwrite(&JKDIC[i].part_of_speech, sizeof(char), 5, fp);
+	fwrite(&JKDIC[i].attributes, sizeof(char), 42, fp);
+	}*/
+	fclose(fp);
+
+	free(offile->m_loc);
+	free(offile);
+	delete offile;
+	return true;
+}
+
+bool CTextProcess::_LoadDic(wchar_t *dicFile)
+{
+	FILE *fp;
+	int nLine;
+	wchar_t wstr[1024];
+	wchar_t wjpn[1024];
+	wchar_t wkor[1024];
+	wchar_t wpart[1024];
+	wchar_t wattr[1024];
+
+	char jpn[31];
+	char kor[31];
+	char attr[42];
+
+	// 사전 파일 읽기
+
+	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
+	{
+		MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
+		return false;
+	}
+	nLine = 0;
+	AneDic.clear();
+
+	// 한줄씩 읽기
+	while (fgetws(wstr, 1000, fp) != NULL)
+	{
+		int nLength = wcslen(wstr);
+		int nBom = 0;
+		nLine++;
+
+		// 주석 처리
+		if (wstr[0] == L'/' && wstr[1] == L'/')
+		{
+			//fwprintf(out, L"[주석]\n");
+			continue;
+		}
+
+		memset(wjpn, 0, 1024);
+		memset(wkor, 0, 1024);
+		memset(wpart, 0, 1024);
+		memset(wattr, 0, 1024);
+
+
+		int tab = 0;
+
+		for (int i = 0, prev = 0; i <= nLength; i++)
+		{
+			// 탭을 여러개 넣었을 떄의 처리
+			if (i > 0 && wstr[i - 1] == L'\t' && wstr[i] == L'\t')
+			{
+				prev++;
+				continue;
+			}
+
+			// 탭을 만나거나 EOF를 만나면
+			if (wstr[i] == L'\t' || wstr[i] == L'\n' || (wstr[i - 1] == L'/' && wstr[i] == L'/') || i == nLength)
+			{
+				switch (tab)
+				{
+				case 0: // jpn
+					wcsncpy_s(wjpn, wstr, i);
+					tab++;
+					prev = i + 1;
+					break;
+
+				case 1: // kor
+					wcsncpy_s(wkor, wstr + prev, i - prev);
+					tab++;
+					prev = i + 1;
+					break;
+
+				case 2: // part
+					wcsncpy_s(wpart, wstr + prev, i - prev);
+					tab++;
+					prev = i + 1;
+					break;
+
+				case 3: // attr
+					wcsncpy_s(wattr, wstr + prev, i - prev);
+					tab++;
+					prev = i + 1;
+					break;
+				}
+
+				// 주석을 만나면 종료
+				if (wstr[i - 1] == L'/' && wstr[i] == L'/') break;
+
+			}
+		}
+
+		// 탭이 1개 이상 없으면 옳바르지 않은 형식
+		if (tab < 2) continue;
+
+		// 유효성 검사
+		if (wjpn[0] == L'') continue;
+
+		aneDicStruct DIC;
+
+		memset(DIC.wjpn, 0, sizeof(wchar_t) * 31);
+		memset(DIC.wkor, 0, sizeof(wchar_t) * 31);
+		memset(DIC.jpn, 0, sizeof(char) * 31);
+		memset(DIC.kor, 0, sizeof(char) * 31);
+		memset(DIC.part, 0, sizeof(char) * 5);
+		memset(DIC.attr, 0, sizeof(char) * 42);
+
+		int n_jpword;
+		int nLen;
+
+		if ((n_jpword = WideCharToMultiByte(932, 0, wjpn, -1, NULL, NULL, NULL, NULL)) > 31)
+		{
+			//WriteLog(L"[UserDictRead] 오류 | 일어 단어의 길이는 15자 (30Byte)를 넘을 수 없습니다. 해당 단어는 무시됩니다. 현재 길이 : %dByte\n", n_jpword);
+			//WriteLog(L"[UserDictRead] 오류 | [%s:%d] : %s | %s | %s | %s\n", FindFileData.cFileName, nLine, wjpword_sjis, wkrword_euckr, wpart_of_speech, wattributes);
+			continue;
+		}
+		WideCharToMultiByte(932, 0, wjpn, -1, jpn, n_jpword, NULL, NULL);
+
+		if ((nLen = WideCharToMultiByte(949, 0, wkor, -1, NULL, NULL, NULL, NULL)) > 31)
+		{
+			//WriteLog(L"[UserDictRead] 오류 | 한글 단어의 길이는 15자 (30Byte)를 넘을 수 없습니다. 해당 단어는 무시됩니다. 현재 길이 : %dByte\n", nLen);
+			//WriteLog(L"[UserDictRead] 오류 | [%s:%d] : %s | %s | %s | %s\n", FindFileData.cFileName, nLine, wjpword_sjis, wkrword_euckr, wpart_of_speech, wattributes);
+			continue;
+		}
+		WideCharToMultiByte(949, 0, wkor, -1, kor, nLen, NULL, NULL);
+
+		int part = 0;
+
+		//WideCharToMultiByte_REAL(932,0,wpart_of_speech,-1,part_of_speech,5,NULL,NULL);
+
+		if ((nLen = WideCharToMultiByte(CP_ACP, 0, wattr, -1, NULL, NULL, NULL, NULL)) > 42)
+		{
+			//WriteLog(L"[UserDictRead] 오류 | 단어 속성은 42Byte를 넘을 수 없습니다. 해당 단어는 무시됩니다. 현재 길이 : %dByte\n", nLen);
+			//WriteLog(L"[UserDictRead] 오류 | [%s:%d] : %s | %s | %s | %s\n", FindFileData.cFileName, nLine, wjpword_sjis, wkrword_euckr, wpart_of_speech, wattributes);
+			continue;
+		}
+		WideCharToMultiByte(CP_ACP, 0, wattr, -1, attr, nLen, NULL, NULL);
+
+		DIC.hidden = 0x00;
+		strncpy_s(DIC.jpn, jpn, 31);
+		strncpy_s(DIC.kor, kor, 31);
+		//strncpy(jS.part_of_speech, part_of_speech, 5);
+		if (wpart[0] == L'0')
+			strncpy_s(DIC.part, "A9D0", 5); // 상용어구 (0)
+		else strncpy_s(DIC.part, "I110", 5); // 명사 (1 또는 입력없음)
+		strncpy_s(DIC.attr, attr, 42);
+
+		wcscpy_s(DIC.wjpn, wjpn);
+		wcscpy_s(DIC.wkor, wkor);
+		AneDic.push_back(DIC);
+	}
+	fclose(fp);
+	return true;
+}
+
+bool CTextProcess::LoadDictionary(wchar_t *AneDicFile, wchar_t *DicJKFile)
+{
+	_LoadDic(AneDicFile);
+	OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJKFile);
+	Cl.TransEngine->J2K_ReloadUserDict();
+	_UnPatchUDic(DicJKFile, offile);
+	return true;
+}
+
 CTextProcess::~CTextProcess()
 {
 	// 클립보드 감시 종료

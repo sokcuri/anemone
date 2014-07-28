@@ -15,6 +15,7 @@ TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 TCHAR szParentClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 std::vector<_key_map> key_map;
 HINSTANCE hInst; _hWnds hWnds; _MagnetWnd MagnetWnd; _Class Cl; HANDLE AneHeap;
+std::vector<aneDicStruct> AneDic;
 int IsActive = 0;
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;

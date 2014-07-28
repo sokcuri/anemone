@@ -132,12 +132,6 @@ static render_attr *rdTrans;
 INT IsWritableMemory(LPVOID pMemoryAddr);
 INT IsReadableMemory(LPVOID pMemoryAddr);
 
-typedef struct oldfileinfostruct
-{
-	int filesize;
-	void *m_loc;
-} OLDFILEINFO;
-
 typedef struct {
 	DWORD pid;
 	HWND hwnd;
@@ -165,3 +159,22 @@ typedef struct
 	int WriteType;
 	int StartTickCount;
 } FILETRANS;
+
+struct aneDicStruct
+{
+	wchar_t wjpn[31];
+	wchar_t wkor[31];
+	bool uc_vaild;
+	char hidden;
+	char jpn[31];
+	char kor[31];
+	char part[5];
+	char attr[42];
+};
+extern std::vector<aneDicStruct> AneDic;
+
+typedef struct
+{
+	int filesize;
+	void *m_loc;
+} OLDFILEINFO;
