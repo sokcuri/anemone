@@ -610,7 +610,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 
 bool CTextProcess::OnDrawClipboard()
 {
-	std::wstring wName, wNameT, wText, wTextT, wContext, wContextT;
+	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContext, wContextT;
 
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
 	if (IsActive == 2)
@@ -683,11 +683,14 @@ bool CTextProcess::OnDrawClipboard()
 	wContext = wName;
 	wContext += wText;
 
-	wNameT = eztrans_proc(wName);
-	wTextT = eztrans_proc(wText);
+	wNameR = wName;
+	wTextR = wText;
 
-	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wNameT);
-	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wTextT);
+	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wNameR);
+	if (Cl.Config->GetForceAneDic()) ApplyAneForceDic(wTextR);
+
+	wNameT = eztrans_proc(wNameR);
+	wTextT = eztrans_proc(wTextR);
 
 	wContextT = wNameT;
 	wContextT += wTextT;
@@ -716,12 +719,14 @@ bool CTextProcess::OnDrawClipboard()
 
 void CTextProcess::ApplyAneForceDic(std::wstring &input)
 {
+	std::wstring str = input;
 	// 개별사전 우선적용
 	for (unsigned int i = 0; i<AneDic.size(); i++)
 	{
-		input = replaceAll(input, AneDic[i].wjpn, AneDic[i].wkor);
+		str = replaceAll(str, AneDic[i].wjpn, AneDic[i].wkor);
 	}
 
+	input = str;
 }
 
 void *CTextProcess::_PatchUDic(const wchar_t *dicFile)
@@ -892,12 +897,13 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		for (int i = 0, prev = 0; i <= nLength; i++)
 		{
+			/*
 			// 탭을 여러개 넣었을 떄의 처리
 			if (i > 0 && wstr[i - 1] == L'\t' && wstr[i] == L'\t')
 			{
 				prev++;
 				continue;
-			}
+			}*/
 
 			// 탭을 만나거나 EOF를 만나면
 			if (wstr[i] == L'\t' || wstr[i] == L'\n' || (wstr[i - 1] == L'/' && wstr[i] == L'/') || i == nLength)
