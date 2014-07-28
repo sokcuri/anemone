@@ -7,8 +7,6 @@ CConfig::CConfig()
 	wcscpy_s(cfg_name_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_org_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_trans_font, L"¸¼Àº °íµñ");
-
-	LoadConfig();
 }
 
 
@@ -18,6 +16,7 @@ CConfig::~CConfig()
 
 bool CConfig::LoadConfig()
 {
+	MessageBox(0, L"¼³Á¤ ÆÄÀÏÀ» ÀÐ½À´Ï´Ù", 0, 0);
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
 
@@ -150,6 +149,8 @@ bool CConfig::LoadConfig()
 
 bool CConfig::SaveConfig()
 {
+	Cl.FileWatch->SetWatchConfig(false);
+
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
 
@@ -276,5 +277,8 @@ bool CConfig::SaveConfig()
 
 	wsprintf(buf, L"%d", GetFileTransOutput());
 	WriteINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
+	Sleep(400);
+	Cl.FileWatch->SetWatchConfig(true);
 	return true;
 }

@@ -54,6 +54,7 @@ int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, wcha
 	if (outlineOutVisible) outlineTotalThick += outlineOutThick;
 
 	Font font(&fontFamily, (Gdiplus::REAL)fntSize, fontStyle);
+
 	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &boundRect);
 	//SolidBrush tempBrush(outlineOutColor);
 	//graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
@@ -74,7 +75,7 @@ int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, wcha
 
 		graphics->DrawPath(&pen_shadow, &path_shadow);
 	}
-
+	
 	path.AddString(contextText, wcslen(contextText),
 		&fontFamily, fontStyle,
 		emSize, Gdiplus::Rect(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat);

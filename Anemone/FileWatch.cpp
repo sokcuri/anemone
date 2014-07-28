@@ -3,6 +3,8 @@
 
 CFileWatch *CFileWatch::m_pThis = NULL;
 std::vector<std::wstring> fileList;
+bool CFileWatch::watch_config = true;
+bool CFileWatch::watch_anedic = true;
 
 CFileWatch::CFileWatch()
 {
@@ -40,7 +42,7 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 		FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE |
 		FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION;
 	DWORD bytesReturned;
-
+	
 	m_nTimerID = timeSetEvent(300, 0, (LPTIMECALLBACK)FileChangeNotifyProc, 0, TIME_PERIODIC);
 
 	wchar_t temp[MAX_PATH] = { 0 };
@@ -114,11 +116,13 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 	if (c_config == true)
 	{
 		c_config = false;
+		if (IsWatchConfig())
+		{
+			//MessageBox(0, 0, 0, 0);
+			Cl.Config->LoadConfig();
 
-		//MessageBox(0, 0, 0, 0);
-		Cl.Config->LoadConfig();
-
-		PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		}
 		//PostMessage(hSettingWnd, WM_USER, UM_REFRESH_SETTING, 0);
 	}
 
@@ -132,4 +136,14 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 	}
 
 	return 0;
+}
+
+bool CFileWatch::IsWatchConfig()
+{
+	return watch_config;
+}
+
+void CFileWatch::SetWatchConfig(bool b)
+{
+	watch_config = b;
 }

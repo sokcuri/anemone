@@ -736,7 +736,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				lpszProcName = _wcslwr(lpszProcName);
 
 				// explorer.exe 자석 모드 불가
-				if (wcsstr(lpszProcName, L"explorer.exe\0") != NULL)
+				if (wcsstr(lpszProcName, L"explorer.exe") != NULL)
 				{
 					HeapFree(AneHeap, 0, lpszProcName);
 					break;
@@ -1691,7 +1691,6 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (wmId == IDC_SETTING_NAME_FONT) cfg_type = CFG_NAME;
 			else if (wmId == IDC_SETTING_ORG_FONT) cfg_type = CFG_ORG;
 			else if (wmId == IDC_SETTING_TRANS_FONT) cfg_type = CFG_TRANS;
-
 
 			ZeroMemory(&lf, sizeof(lf));
 			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(cfg_type));

@@ -26,7 +26,7 @@ private:
 	bool cfg_name_revise        = true;
 	bool cfg_name_org_switch    = true;
 	bool cfg_name_shadow        = true;
-	wchar_t cfg_name_font[255];
+	wchar_t cfg_name_font[260];
 	DWORD cfg_name_color_a      = 0xFFFFFFFF;
 	DWORD cfg_name_color_b      = 0xFFFF5E00;
 	DWORD cfg_name_color_c      = 0xFFFFA850;
@@ -38,7 +38,7 @@ private:
 
 	bool cfg_org_switch         = true;
 	bool cfg_org_shadow         = true;
-	wchar_t cfg_org_font[255];
+	wchar_t cfg_org_font[260];
 	DWORD cfg_org_color_a       = 0xFFFFFFFF;
 	DWORD cfg_org_color_b       = 0xFFFF0000;
 	DWORD cfg_org_color_c       = 0xFFFBAAAA;
@@ -50,7 +50,7 @@ private:
 
 	bool cfg_trans_switch       = true;
 	bool cfg_trans_shadow       = true;
-	wchar_t cfg_trans_font[255];
+	wchar_t cfg_trans_font[260];
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
 	DWORD cfg_trans_color_b     = 0xFF4374D9;
 	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
