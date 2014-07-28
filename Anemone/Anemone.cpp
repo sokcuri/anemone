@@ -1680,70 +1680,24 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			(Cl.Config->GetTextShadow(CFG_TRANS) ? Cl.Config->SetTextShadow(CFG_TRANS, false) : Cl.Config->SetTextShadow(CFG_TRANS, true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-
 		case IDC_SETTING_NAME_FONT:
-		{
-			CHOOSEFONT cf;
-			LOGFONT lf;
-
-			ZeroMemory(&lf, sizeof(lf));
-			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_NAME));
-
-			PAINTSTRUCT ps;
-			HDC hDC = BeginPaint(hWnd, &ps);
-			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
-			EndPaint(hWnd, &ps);
-
-			if (FontDialog(hWnd, cf, lf))
-			{
-				Cl.Config->SetTextFont(CFG_NAME, lf.lfFaceName);
-
-				int fontStyle = 0; // NM: 400 / BOLD: 700
-				if (lf.lfWeight == 700) fontStyle += 1;
-				if (lf.lfItalic) fontStyle += 2;
-
-				Cl.Config->SetFontStyle(CFG_NAME, fontStyle);
-			}
-			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
-		}	
-			break;
 		case IDC_SETTING_ORG_FONT:
-		{
-			CHOOSEFONT cf;
-			LOGFONT lf;
-
-			ZeroMemory(&lf, sizeof(lf));
-			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_ORG));
-
-			PAINTSTRUCT ps;
-			HDC hDC = BeginPaint(hWnd, &ps);
-			lf.lfHeight = -MulDiv(22, GetDeviceCaps(hDC, LOGPIXELSY), 72);
-			EndPaint(hWnd, &ps);
-
-			if (FontDialog(hWnd, cf, lf))
-			{
-				Cl.Config->SetTextFont(CFG_ORG, lf.lfFaceName);
-
-				int fontStyle = 0; // NM: 400 / BOLD: 700
-				if (lf.lfWeight == 700) fontStyle += 1;
-				if (lf.lfItalic) fontStyle += 2;
-
-				Cl.Config->SetFontStyle(CFG_ORG, fontStyle);
-
-			}
-			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
-		}
-			break;
 		case IDC_SETTING_TRANS_FONT:
 		{
 			CHOOSEFONT cf;
 			LOGFONT lf;
 
+			int cfg_type;
+			if (wmId == IDC_SETTING_NAME_FONT) cfg_type = CFG_NAME;
+			else if (wmId == IDC_SETTING_ORG_FONT) cfg_type = CFG_ORG;
+			else if (wmId == IDC_SETTING_TRANS_FONT) cfg_type = CFG_TRANS;
+
+
 			ZeroMemory(&lf, sizeof(lf));
-			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(CFG_TRANS));
+			wcscpy_s(lf.lfFaceName, Cl.Config->GetTextFont(cfg_type));
 
 			// 400 - NM / 700 - BOLD
-			int fontStyle = Cl.Config->GetFontStyle(CFG_TRANS);
+			int fontStyle = Cl.Config->GetFontStyle(cfg_type);
 			if (fontStyle > 3) fontStyle = 0;
 
 			(fontStyle / 2 == 1 ? lf.lfItalic = true : lf.lfItalic = false);
@@ -1756,13 +1710,13 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			if (FontDialog(hWnd, cf, lf))
 			{
-				Cl.Config->SetTextFont(CFG_TRANS, lf.lfFaceName);
+				Cl.Config->SetTextFont(cfg_type, lf.lfFaceName);
 				fontStyle = 0;
 
 				if (lf.lfWeight == 700) fontStyle += 1;
 				if (lf.lfItalic) fontStyle += 2;
 
-				Cl.Config->SetFontStyle(CFG_TRANS, fontStyle);
+				Cl.Config->SetFontStyle(cfg_type, fontStyle);
 			}
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
