@@ -151,7 +151,7 @@ bool CConfig::LoadConfig()
 
 bool CConfig::SaveConfig()
 {
-	Cl.FileWatch->SetWatchConfig(false);
+	delete Cl.FileWatch;
 
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
@@ -282,8 +282,7 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"ANEDIC_FORCEAPPLY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetWindowMovePoint());
 	WriteINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-
-	Sleep(110);
-	Cl.FileWatch->SetWatchConfig(true);
+	
+	Cl.FileWatch = new CFileWatch();
 	return true;
 }

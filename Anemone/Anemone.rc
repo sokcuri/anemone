@@ -220,7 +220,7 @@ BEGIN
     CONTROL         "반복 문자 처리",IDC_SETTING_REPEAT_TEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,255,76,10
     LTEXT           "──────────────────────",IDC_STATIC,12,182,155,8,WS_DISABLED
     CONTROL         "대사 끝에 붙은 이름 인식",IDC_SETTING_TEXTEND_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,237,94,10
-    CONTROL         "이름 분리 표시",IDC_SETTING_SEPERATE_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,223,62,10
+    CONTROL         "이름 분리 표시 (F9)",IDC_SETTING_SEPERATE_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,223,77,10
     LTEXT           "──────────────────────",IDC_STATIC,12,215,155,8,WS_DISABLED
     LTEXT           "──────────────────────",IDC_STATIC,12,294,155,8,WS_DISABLED
     LTEXT           "──────────────────────",IDC_STATIC,12,247,155,8,WS_DISABLED

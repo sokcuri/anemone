@@ -20,6 +20,14 @@ bool CHotkey::LoadKeyMap()
 
 	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
 	RegKey(VK_F7, false, false, false, IDM_WND_BORDER_MODE);
+
+	// 원문 문장/이름 출력
+	RegKey(VK_F8, false, false, false, IDM_PRINT_ORGTEXT);
+	RegKey(VK_F8, false, true, false, IDM_PRINT_ORGNAME);
+
+	// 이름 분리 표시
+	RegKey(VK_F9, false, false, false, IDM_SEPERATE_NAME);
+
 	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING, true);
 
 	// 종료
@@ -73,9 +81,6 @@ bool CHotkey::LoadKeyMap()
 	// 클립보드 감시
 	RegKey(VK_SCROLL, false, false, false, IDM_CLIPBOARD_SWITCH, true);
 
-	// 원문 문장/이름 출력
-	RegKey(VK_F8, false, false, false, IDM_PRINT_ORGTEXT);
-	RegKey(VK_F8, false, true, false, IDM_PRINT_ORGNAME);
 	return true;
 }
 
