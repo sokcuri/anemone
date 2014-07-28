@@ -125,7 +125,9 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 	if (c_anedic == true)
 	{
 		c_anedic = false;
+
 		// 아네모네 사전 다시읽기
+		Cl.TextProcess->LoadDictionary();
 		//PostMessage(hWnds.Main, UM_ReloadUserDict, 0, 0);
 	}
 

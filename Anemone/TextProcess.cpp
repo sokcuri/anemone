@@ -4,6 +4,7 @@
 
 CTextProcess::CTextProcess()
 {
+	Cl.TextProcess->LoadDictionary();
 	Cl.TextProcess->StartWatchClip();
 }
 
@@ -994,10 +995,12 @@ bool CTextProcess::LoadDictionary()
 	GetLoadPath(AneDic, L"\\AneDic.txt");
 	GetEZTPath(DicJK, L"\\Dat\\UserDict.jk");
 
-	_LoadDic(AneDic.c_str());
-	OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
-	Cl.TransEngine->J2K_ReloadUserDict();
-	_UnPatchUDic(DicJK.c_str(), offile);
+	if (_LoadDic(AneDic.c_str()))
+	{
+		OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
+		Cl.TransEngine->J2K_ReloadUserDict();
+		_UnPatchUDic(DicJK.c_str(), offile);
+	}
 	return true;
 }
 
