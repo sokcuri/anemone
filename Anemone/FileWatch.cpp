@@ -118,7 +118,7 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 		//MessageBox(0, 0, 0, 0);
 		Cl.Config->LoadConfig();
 
-		PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 		//PostMessage(hSettingWnd, WM_USER, UM_REFRESH_SETTING, 0);
 	}
 
