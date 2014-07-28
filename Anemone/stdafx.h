@@ -193,3 +193,14 @@ typedef struct
 
 extern NOTIFYICONDATA niData;
 extern UINT WM_TASKBARCHANGED;
+
+struct _viewLog
+{
+	std::wstring wName;
+	std::wstring wNameT;
+	std::wstring wText;
+	std::wstring wTextT;
+};
+
+extern std::vector<_viewLog> viewLog;
+extern int viewLogNum;

@@ -705,6 +705,16 @@ bool CTextProcess::OnDrawClipboard()
 	*(Cl.TextRenderer->szContext) = wContext;
 	*(Cl.TextRenderer->szContextT) = wContextT;
 	
+	_viewLog VL;
+
+	VL.wName = wName;
+	VL.wNameT = wNameT;
+	VL.wText = wText;
+	VL.wTextT = wTextT;
+
+	viewLog.push_back(VL);
+	viewLogNum = 0;
+
 	CloseClipboard();
 	
 	IsActive = true;

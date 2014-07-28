@@ -18,6 +18,8 @@ HINSTANCE hInst; _hWnds hWnds; _MagnetWnd MagnetWnd; _Class Cl; HANDLE AneHeap;
 std::vector<aneDicStruct> AneDic;
 NOTIFYICONDATA niData;
 UINT WM_TASKBARCHANGED;
+std::vector<_viewLog> viewLog;
+int viewLogNum = 0;
 
 int IsActive = 0;
 int Elapsed_Prepare = 0;
@@ -873,8 +875,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 			break;
 		case IDM_TEXT_PREV:
+		{
+			int size = viewLog.size()-1;
+
+			if (size - viewLogNum - 1 < 0) break;
+			viewLogNum++;
+
+			*(Cl.TextRenderer->szName) = viewLog[size - viewLogNum].wName;
+			*(Cl.TextRenderer->szNameT) = viewLog[size - viewLogNum].wNameT;
+			*(Cl.TextRenderer->szText) = viewLog[size - viewLogNum].wText;
+			*(Cl.TextRenderer->szTextT) = viewLog[size - viewLogNum].wTextT;
+			*(Cl.TextRenderer->szContext) = viewLog[size - viewLogNum].wName;
+			*(Cl.TextRenderer->szContext) += viewLog[size - viewLogNum].wText;
+			*(Cl.TextRenderer->szContextT) = viewLog[size - viewLogNum].wNameT;
+			*(Cl.TextRenderer->szContextT) += viewLog[size - viewLogNum].wTextT;
+			Cl.TextRenderer->Paint();
+		}
 			break;
 		case IDM_TEXT_NEXT:
+		{
+			int size = viewLog.size() - 1;
+
+			if (viewLogNum - 1 < 0) break;
+			viewLogNum--;
+
+			*(Cl.TextRenderer->szName) = viewLog[size - viewLogNum].wName;
+			*(Cl.TextRenderer->szNameT) = viewLog[size - viewLogNum].wNameT;
+			*(Cl.TextRenderer->szText) = viewLog[size - viewLogNum].wText;
+			*(Cl.TextRenderer->szTextT) = viewLog[size - viewLogNum].wTextT;
+			*(Cl.TextRenderer->szContext) = viewLog[size - viewLogNum].wName;
+			*(Cl.TextRenderer->szContext) += viewLog[size - viewLogNum].wText;
+			*(Cl.TextRenderer->szContextT) = viewLog[size - viewLogNum].wNameT;
+			*(Cl.TextRenderer->szContextT) += viewLog[size - viewLogNum].wTextT;
+			Cl.TextRenderer->Paint();
+		}
 			break;
 		case IDM_OPENDIC:
 		{
