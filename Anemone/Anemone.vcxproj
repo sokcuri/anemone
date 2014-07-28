@@ -128,8 +128,10 @@
     <ResourceCompile Include="Anemone.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Desktop\fav.bmp" />
     <Image Include="Anemone.ico" />
     <Image Include="small.ico" />
+    <Image Include="yukki.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -32,6 +32,7 @@
 #define IDD_FILE_TRANSWIN               131
 #define IDD_FILE_TRANSWIN_PROGRESS      132
 #define IDD_FILE_TRANSWIN_PROG          132
+#define IDB_BITMAP1                     134
 #define IDM_TERMINATE_ANEMONE           1001
 #define IDM_TEMP_CLICK_THOUGH           1002
 #define IDM_WND_BORDER_MODE             1003
@@ -273,7 +274,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32816
 #define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           110

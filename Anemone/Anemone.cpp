@@ -2258,7 +2258,22 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_INITDIALOG:
+	{
+		RECT rect;
+		int cx = GetSystemMetrics(SM_CXSCREEN);
+		int cy = GetSystemMetrics(SM_CYSCREEN);
+
+		GetWindowRect(hDlg, &rect);
+
+		SetWindowPos(hDlg, 0, (cx - (rect.right - rect.left)) / 2, (cy - (rect.bottom - rect.top)) / 2, 0, 0, SWP_NOSIZE);
+	}
 		return (INT_PTR)TRUE;
+
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		EndDialog(hDlg, LOWORD(wParam));
+		return (INT_PTR)TRUE;
+		break;
 
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)

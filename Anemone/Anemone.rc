@@ -58,7 +58,7 @@ BEGIN
         MENUITEM "아네모네 정보",                     IDM_ABOUT
         POPUP "단축키 일람"
         BEGIN
-            MENUITEM "글 잠깐 숨기기\tNUM 5",             IDM_TEMP_WINDOW_HIDE
+            MENUITEM "잠깐 숨기기\tNUM 5",               IDM_TEMP_WINDOW_HIDE
             MENUITEM "(클립보드 입력이 들어오면 보임)",          ID_32799
             MENUITEM SEPARATOR
             MENUITEM "창 이동\tNUM (8 2 4 6)",         ID_32801
@@ -101,15 +101,15 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Anemone ?뺣낫"
-FONT 9, "MS Shell Dlg", 0, 0, 0x1
+IDD_ABOUTBOX DIALOGEX 0, 0, 172, 252
+STYLE DS_SETFONT | WS_POPUP | WS_BORDER
+EXSTYLE WS_EX_TOPMOST
+FONT 9, "굴림", 400, 0, 0x81
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
-    LTEXT           "Anemone, 踰꾩쟾 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2014",IDC_STATIC,42,26,114,8
-    DEFPUSHBUTTON   "?뺤씤",IDOK,113,41,50,14,WS_GROUP
+    CTEXT           "아네모네",IDC_STATIC,0,209,172,8,SS_NOPREFIX
+    CTEXT           "Made by 소쿠릿",IDC_STATIC,0,224,172,8
+    CTEXT           "http://www.eroha.net/",IDC_STATIC,0,234,172,8
+    CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,0,0,178,201
 END
 
 IDD_SETTING DIALOGEX 0, 0, 439, 434
@@ -290,10 +290,7 @@ GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 251
     END
 
     IDD_SETTING, DIALOG
@@ -361,6 +358,13 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "yukki.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
