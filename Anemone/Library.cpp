@@ -12,11 +12,24 @@ void GetLoadPath(std::wstring &dir)
 
 void GetLoadPath(std::wstring &dir, std::wstring path)
 {
-	wchar_t p[255];
-	GetModuleFileNameW(hInst, p, 255);
-	std::wstring f = p;
-	dir = f.substr(0, f.rfind(L'\\'));
+	GetLoadPath(dir);
 	dir += path;
+}
+
+bool GetEZTPath(std::wstring &dir)
+{
+	if (GetEZTPathFromREG(dir)) return true;
+	return false;
+}
+
+bool GetEZTPath(std::wstring &dir, std::wstring path)
+{
+	if (GetEZTPath(dir))
+	{
+		dir += path;
+		return true;
+	}
+	return false;
 }
 
 // 레지스트리에서 이지트랜스 경로를 얻어옵니다

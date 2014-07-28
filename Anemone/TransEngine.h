@@ -4,6 +4,7 @@ class CTransEngine
 public:
 	CTransEngine();
 	bool Init(std::wstring &szTransPath);
+	void GetEnginePath(std::wstring szEnginePath);
 	~CTransEngine();
 
 	void J2K_FreeMem(void *addr);
@@ -27,5 +28,6 @@ public:
 	int J2K_TranslateMMNT(int data0, char *krStr);
 private:
 	static int ezt_addr[20];
+	std::wstring EnginePath;
 };
 

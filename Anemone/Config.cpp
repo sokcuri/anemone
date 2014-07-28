@@ -19,8 +19,7 @@ CConfig::~CConfig()
 bool CConfig::LoadConfig()
 {
 	std::wstring INIPath;
-	GetLoadPath(INIPath);
-	INIPath += L"\\anemone.ini";
+	GetLoadPath(INIPath, L"\\anemone.ini");
 
 	wchar_t buf[255];
 
@@ -146,8 +145,7 @@ bool CConfig::LoadConfig()
 bool CConfig::SaveConfig()
 {
 	std::wstring INIPath;
-	GetLoadPath(INIPath);
-	INIPath += L"\\anemone.ini";
+	GetLoadPath(INIPath, L"\\anemone.ini");
 
 	wchar_t buf[255];
 	wcscpy(buf, (GetClipSwitch() ? L"ON" : L"OFF"));

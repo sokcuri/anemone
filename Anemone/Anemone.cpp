@@ -94,7 +94,7 @@ int APIENTRY _tWinMain(
 
 	std::wstring szEnginePath;
 
-	if (!GetEZTPathFromREG(szEnginePath))
+	if (!GetEZTPath(szEnginePath))
 	{
 		MessageBox(0, L"이지트랜스가 설치되지 않았거나 레지스트리에서 이지트랜스 경로를 찾을 수 없습니다.\r\n이지트랜스가 설치되어 있어야 아네모네 실행이 가능합니다.\r\n이지트랜스가 설치되어 있다면 INI 파일의 이지트랜스 경로를 설정해 주세요.", 0, MB_ICONERROR);
 		return false;
@@ -264,7 +264,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				Cl.Config->GetMagneticMode() && CurFore != MagnetWnd.hWnd)
 			{
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
-				CurFore = GetForegroundWindow();
+				hForeWnd = GetForegroundWindow();
 
 				// 다른 프로세스의 팝업 메뉴를 위로 올리기
 				SetWindowPos(hOtherWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);

@@ -112,8 +112,7 @@ bool CRemocon::Paint()
 	Pen pen(Color(16, 255, 255, 255), 10);
 
 	std::wstring imgPath;
-	GetLoadPath(imgPath);
-	imgPath += L"\\remocon.png";
+	GetLoadPath(imgPath, L"\\remocon.png");
 
 	Image image(imgPath.c_str());
 	graphics.DrawImage(&image, 20, 20, image.GetWidth(), image.GetHeight());

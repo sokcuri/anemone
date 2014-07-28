@@ -710,7 +710,7 @@ bool CTextProcess::OnDrawClipboard()
 	return true;
 }
 
-void *CTextProcess::_PatchUDic(wchar_t *dicFile)
+void *CTextProcess::_PatchUDic(const wchar_t *dicFile)
 {
 	FILE *fp;
 	//char buf[1024];
@@ -799,7 +799,7 @@ void *CTextProcess::_PatchUDic(wchar_t *dicFile)
 
 	return ret;
 }
-bool CTextProcess::_UnPatchUDic(wchar_t *dicFile, void *param)
+bool CTextProcess::_UnPatchUDic(const wchar_t *dicFile, void *param)
 {
 	FILE *fp;
 	OLDFILEINFO *offile = (OLDFILEINFO *)param;
@@ -832,7 +832,7 @@ bool CTextProcess::_UnPatchUDic(wchar_t *dicFile, void *param)
 	return true;
 }
 
-bool CTextProcess::_LoadDic(wchar_t *dicFile)
+bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 {
 	FILE *fp;
 	int nLine;
@@ -986,12 +986,18 @@ bool CTextProcess::_LoadDic(wchar_t *dicFile)
 	return true;
 }
 
-bool CTextProcess::LoadDictionary(wchar_t *AneDicFile, wchar_t *DicJKFile)
+bool CTextProcess::LoadDictionary()
 {
-	_LoadDic(AneDicFile);
-	OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJKFile);
+	std::wstring AneDic;
+	std::wstring DicJK;
+
+	GetLoadPath(AneDic, L"\\AneDic.txt");
+	GetEZTPath(DicJK, L"\\Dat\\UserDict.jk");
+
+	_LoadDic(AneDic.c_str());
+	OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
 	Cl.TransEngine->J2K_ReloadUserDict();
-	_UnPatchUDic(DicJKFile, offile);
+	_UnPatchUDic(DicJK.c_str(), offile);
 	return true;
 }
 

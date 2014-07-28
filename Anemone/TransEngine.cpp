@@ -8,12 +8,19 @@ CTransEngine::CTransEngine()
 	//InitializeCriticalSection(&CriticalSection);
 }
 
+void CTransEngine::GetEnginePath(std::wstring szEnginePath)
+{
+	szEnginePath = EnginePath;
+}
+
 bool CTransEngine::Init(std::wstring &szEnginePath)
 {
 	// Load ezTrans Engine
 	std::wstring szEngineDLL = szEnginePath + L"\\J2KEngine.dll";
 	HMODULE hDLL = LoadLibrary(szEngineDLL.c_str());
 	if (!hDLL) MessageBox(0, L"이지트랜스 번역 엔진 초기화 실패\r\n: LoadLibrary Failed", 0, MB_ICONERROR);
+
+	EnginePath = szEngineDLL;
 
 	// Load ezTrans Function
 	ezt_addr[0] = (int)GetProcAddress(hDLL, "J2K_FreeMem");
