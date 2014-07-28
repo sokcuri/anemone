@@ -144,6 +144,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetFileTransOutput(_wtoi(buf));
 	ReadINI_Str(L"ANEDIC_FORCEAPPLY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetForceAneDic(true) : SetForceAneDic(false);
+	ReadINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetWindowMovePoint(_wtoi(buf));
 	return true;
 }
 
@@ -278,8 +280,10 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetForceAneDic() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"ANEDIC_FORCEAPPLY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetWindowMovePoint());
+	WriteINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
-	Sleep(350);
+	Sleep(110);
 	Cl.FileWatch->SetWatchConfig(true);
 	return true;
 }

@@ -30,6 +30,7 @@ private:
 	void *_PatchUDic(const wchar_t *dicFile);
 	bool _UnPatchUDic(const wchar_t *dicFile, void *offile);
 	void ApplyForceAneDicAll(std::wstring &input);
+	void ApplyForceAneDic(std::wstring &input);
 
 };
 

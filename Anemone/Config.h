@@ -81,12 +81,17 @@ private:
 	bool cfg_update_notify = true;
 	int cfg_filetrans_output_type = 1;
 
+	int cfg_window_movepoint = 5;
+
 public:
 	CConfig();
 	~CConfig();
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	int GetWindowMovePoint()  { return cfg_window_movepoint; }
+	void SetWindowMovePoint(int i) { cfg_window_movepoint = i; }
 
 	int GetFileTransOutput() { return cfg_filetrans_output_type; }
 	void SetFileTransOutput(int i) { cfg_filetrans_output_type = i; }

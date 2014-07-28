@@ -21,20 +21,44 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
 	RegKey(VK_F7, false, false, false, IDM_WND_BORDER_MODE);
 	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING, true);
+
+	// 종료
 	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
 
+	// 이전글 / 최근글 보기
 	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
 	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
 
+	// 글자 크기 UP/DOWN
+	RegKey(VK_SUBTRACT, false, false, false, IDM_TEXTSIZE_MINUS);
+	RegKey(VK_ADD, false, false, false, IDM_TEXTSIZE_PLUS);
+
+	// 창 잠깐 숨기기 / 창 완전 숨기기
 	RegKey(VK_NUMPAD5, false, false, false, IDM_TEMP_WINDOW_HIDE, true);
 	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE, true);
 
+	// 창 이동
+	RegKey(VK_NUMPAD8, false, false, false, IDM_WNDMOVE_TOP);
+	RegKey(VK_NUMPAD2, false, false, false, IDM_WNDMOVE_BOTTOM);
+	RegKey(VK_NUMPAD4, false, false, false, IDM_WNDMOVE_LEFT);
+	RegKey(VK_NUMPAD6, false, false, false, IDM_WNDMOVE_RIGHT);
+
+	// 창 크기 조절
+	RegKey(VK_NUMPAD8, false, true, false, IDM_WNDSIZE_TOP);
+	RegKey(VK_NUMPAD2, false, true, false, IDM_WNDSIZE_BOTTOM);
+	RegKey(VK_NUMPAD4, false, true, false, IDM_WNDSIZE_LEFT);
+	RegKey(VK_NUMPAD6, false, true, false, IDM_WNDSIZE_RIGHT);
+
+	// 전역 단축키
 	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
 
+	// 사전 오픈
 	RegKey(VK_INSERT, false, false, true, IDM_OPENDIC, true);
 
+	// 자석모드
 	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
 
+	// 창 번역
 	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU, true);
 	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT, true);
 	return true;

@@ -175,6 +175,8 @@ extern std::vector<dicStruct> DICT;
 */
 struct aneDicStruct
 {
+	int line;
+	int type;
 	wchar_t wjpn[31];
 	wchar_t wkor[31];
 	bool uc_vaild;
@@ -183,6 +185,7 @@ struct aneDicStruct
 	char kor[31];
 	char part[5];
 	char attr[42];
+	int operator<(aneDicStruct rhs) { return ((wcscmp(wjpn, rhs.wjpn) > 0) || (wcscmp(wjpn, rhs.wjpn) == 0) && (line < rhs.line)); }
 };
 extern std::vector<aneDicStruct> AneDic;
 

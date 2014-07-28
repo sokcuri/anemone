@@ -156,15 +156,15 @@ void CleanUp()
 	Cl.Config->SaveConfig();
 
 	DestroyWindow(hWnds.Parent);
-
-	delete Cl.Config;
-	delete Cl.TransEngine;
+	
+	delete Cl.Remocon;
+	delete Cl.FileWatch;
 	delete Cl.TextRenderer;
 	delete Cl.TextProcess;
 	delete Cl.Hotkey;
-	delete Cl.FileWatch;
-	delete Cl.Remocon;
-
+	delete Cl.TransEngine;
+	delete Cl.Config;
+	
 	// Heap 삭제
 	HeapDestroy(AneHeap);
 
@@ -672,15 +672,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
-		// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
+			// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
 		case IDM_RESTORE_PARENT:
 		{
 			hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
-			0, 0, 0, 0, NULL, NULL, hInst, NULL);
+				0, 0, 0, 0, NULL, NULL, hInst, NULL);
 
 			SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
 		}
-		break;
+			break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
@@ -760,7 +760,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_MAGNETIC_MODE:
 		{
-			
+
 			// 아네모네 윈도우는 자석 모드가 걸리지 않음, 창 숨김 모드일때는 푸는것만 가능함
 			if (GetForegroundWindow() == GetActiveWindow() || !Cl.Config->GetWindowVisible())
 			{
@@ -893,6 +893,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
+				Cl.Config->SaveConfig();
 				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnds.Main, SettingProc);
 
 				GetWindowRect(hWnds.Setting, &rect);
@@ -976,7 +977,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_BACKGROUND_SWITCH, Cl.Config->GetBGSwitch());
-				
+
 				{
 					int nBGAlpha = (Cl.Config->GetBGColor() >> 24) & 0xFF;
 
@@ -1057,7 +1058,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					ws << L"그림자 X축";
 					ws << L" (";
-					ws << n-10;
+					ws << n - 10;
 					ws << L")";
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_X_TEXT, str.c_str());
@@ -1074,7 +1075,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					ws << L"그림자 Y축";
 					ws << L" (";
-					ws << n-10;
+					ws << n - 10;
 					ws << L")";
 					str = ws.str();
 					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_SHADOW_Y_TEXT, str.c_str());
@@ -1185,7 +1186,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
-		break;
+			break;
 		case IDM_WINDOW_TRANS:
 		{
 			if (IsWindow(hWnds.Trans) == false)
@@ -1289,13 +1290,111 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			std::wstring str = Cl.TextProcess->eztrans_proc(buf);
 			SetWindowText(hTargetWnd, str.c_str());
 
-			TransWndText(hTargetWnd);			
+			TransWndText(hTargetWnd);
 		}
 			break;
 		case IDM_DESTROY_MENU:
 		{
 			CloseWindow((HWND)lParam);
 		}
+			break;
+		case IDM_TEXTSIZE_MINUS:
+		{
+			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
+			if (nTextSize - 1 < 6) break;
+			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize - 1);
+			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize - 1);
+			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize - 1);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			PostMessage(hWnd, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		}
+			break;
+		case IDM_TEXTSIZE_PLUS:
+		{
+			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
+			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize + 1);
+			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize + 1);
+			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize + 1);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			PostMessage(hWnd, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		}
+			break;
+		case IDM_WNDMOVE_TOP:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, rect.left, rect.top-nMovePoint, 0, 0, SWP_NOSIZE);
+		}
+			break;
+		case IDM_WNDMOVE_BOTTOM:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, rect.left, rect.top + nMovePoint, 0, 0, SWP_NOSIZE);
+		}
+			break;
+		case IDM_WNDMOVE_LEFT:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, rect.left - nMovePoint, rect.top, 0, 0, SWP_NOSIZE);
+		}
+			break;
+		case IDM_WNDMOVE_RIGHT:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, rect.left + nMovePoint, rect.top, 0, 0, SWP_NOSIZE);
+		}
+			break;
+		case IDM_WNDSIZE_TOP:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			if (rect.bottom - rect.top - nMovePoint < 90) nMovePoint = rect.bottom - rect.top - 90;
+
+			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top - nMovePoint, SWP_NOMOVE);
+		}
+			break;
+		case IDM_WNDSIZE_BOTTOM:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top + nMovePoint, SWP_NOMOVE);
+		}
+			break;
+		case IDM_WNDSIZE_LEFT:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			if (rect.right - rect.left - nMovePoint < 90) nMovePoint = rect.right - rect.left - 90;
+
+			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left - nMovePoint, rect.bottom - rect.top, SWP_NOMOVE);
+		}
+			break;
+		case IDM_WNDSIZE_RIGHT:
+		{
+			RECT rect;
+			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			GetWindowRect(hWnd, &rect);
+
+			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left + nMovePoint, rect.bottom - rect.top, SWP_NOMOVE);
+		}
+			break;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -1658,23 +1757,14 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_TEXTSIZE_MINUS:
 		{
-			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
-			if (nTextSize - 1 < 6) break;
-			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize - 1);
-			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize - 1);
-			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize - 1);
-			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_TEXTSIZE_MINUS, 0);
 		}
-			break;
+			return 0;
 		case IDC_SETTING_TEXTSIZE_PLUS:
 		{
-			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
-			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize + 1);
-			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize + 1);
-			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize + 1);
-			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, IDM_TEXTSIZE_PLUS, 0);
 		}
-			break;
+			return 0;
 		case IDC_SETTING_OUTLINE1_SIZE_MINUS:
 		{
 			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);

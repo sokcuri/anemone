@@ -267,6 +267,14 @@
 #define ID_32813                        32813
 #define ID_32814                        32814
 #define ID_ANEMONE_32815                32815
+#define IDM_WNDMOVE_TOP					32816
+#define IDM_WNDMOVE_BOTTOM				32817
+#define IDM_WNDMOVE_LEFT				32818
+#define IDM_WNDMOVE_RIGHT				32819
+#define IDM_WNDSIZE_TOP					32820
+#define IDM_WNDSIZE_BOTTOM				32821
+#define IDM_WNDSIZE_LEFT				32822
+#define IDM_WNDSIZE_RIGHT				32823
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

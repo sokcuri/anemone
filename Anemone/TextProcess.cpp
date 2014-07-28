@@ -688,7 +688,9 @@ bool CTextProcess::OnDrawClipboard()
 
 	// 아네모네 사전 우선 적용을 켰을 경우
 	if (Cl.Config->GetForceAneDic()) ApplyForceAneDicAll(wNameR);
+	else ApplyForceAneDic(wNameR);
 	if (Cl.Config->GetForceAneDic()) ApplyForceAneDicAll(wTextR);
+	else ApplyForceAneDic(wTextR);
 
 	wNameT = eztrans_proc(wNameR);
 	wTextT = eztrans_proc(wTextR);
@@ -721,11 +723,24 @@ bool CTextProcess::OnDrawClipboard()
 void CTextProcess::ApplyForceAneDicAll(std::wstring &input)
 {
 	std::wstring str = input;
-	
+
 	// 개별사전 우선적용
 	for (unsigned int i = 0; i<AneDic.size(); i++)
 	{
 		str = replaceAll(str, AneDic[i].wjpn, AneDic[i].wkor);
+	}
+
+	input = str;
+}
+
+void CTextProcess::ApplyForceAneDic(std::wstring &input)
+{
+	std::wstring str = input;
+
+	// 개별사전 우선적용
+	for (unsigned int i = 0; i<AneDic.size(); i++)
+	{
+		if (AneDic[i].type == 2) str = replaceAll(str, AneDic[i].wjpn, AneDic[i].wkor);
 	}
 
 	input = str;
@@ -999,21 +1014,37 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 		}
 		WideCharToMultiByte(CP_ACP, 0, wattr, -1, attr, nLen, NULL, NULL);
 
+		DIC.line = nLine;
 		DIC.hidden = 0x00;
 		strncpy_s(DIC.jpn, jpn, 31);
 		strncpy_s(DIC.kor, kor, 31);
 		//strncpy(jS.part_of_speech, part_of_speech, 5);
 		if (wpart[0] == L'0')
+		{
+			DIC.type = 0;
 			strncpy_s(DIC.part, "A9D0", 5); // 상용어구 (0)
-		else strncpy_s(DIC.part, "I110", 5); // 명사 (1 또는 입력없음)
+		}
+		else if (wpart[0] == L'2')
+		{
+			DIC.type = 2;
+			strncpy_s(DIC.part, "A9D0", 5); // 상용어구 (0)
+		}
+		else
+		{
+			DIC.type = 1;
+			strncpy_s(DIC.part, "I110", 5); // 명사 (1 또는 입력없음)
+		}
 		strncpy_s(DIC.attr, attr, 42);
 
 		wcscpy_s(DIC.wjpn, wjpn);
 		wcscpy_s(DIC.wkor, wkor);
 		NewAneDic.push_back(DIC);
 	}
+
+	sort(NewAneDic.begin(), NewAneDic.end());
 	AneDic.clear();
 	AneDic = NewAneDic;
+
 	fclose(fp);
 	return true;
 }
