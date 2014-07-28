@@ -814,10 +814,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_TEXT_NEXT:
 			break;
 		case IDM_OPENDIC:
-			ExecuteFile(L".\\AneDic.txt");
+		{
+			std::wstring path;
+			GetLoadPath(path, L"\\AneDic.txt");
+			ExecuteFile(path);
+		}
 			break;
 		case IDM_OPENINI:
-			ExecuteFile(L".\\Anemone.ini");
+		{
+			std::wstring path;
+			GetLoadPath(path, L"\\Anemone.ini");
+			ExecuteFile(path);
+		}
 			break;
 		case IDM_TOPMOST:
 			(Cl.Config->GetWindowTopMost() ? Cl.Config->SetWindowTopMost(false) : Cl.Config->SetWindowTopMost(true));
