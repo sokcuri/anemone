@@ -31,7 +31,7 @@ void CFileWatch::TurnOff()
 
 CFileWatch::~CFileWatch()
 {
-	TerminateThread(hWatchThread, 0);
+	TurnOff();
 }
 
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
@@ -56,7 +56,7 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 	DWORD Prev_TickCount = -1;
 	wchar_t Prev_FileName[260];
 
-	wchar_t temp[MAX_PATH] = { 0 };
+	wchar_t fileName[MAX_PATH] = { 0 };
 	for (;;)
 	{
 		BOOL fOk = ReadDirectoryChangesW(hDir, pBuffer, cbBuffer,
@@ -69,41 +69,29 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 		pfni = (FILE_NOTIFY_INFORMATION*)pBuffer;
 
-
 		do {
-			memcpy(temp, pfni->FileName, pfni->FileNameLength);
-			temp[pfni->FileNameLength / 2] = 0;
+			memcpy(fileName, pfni->FileName, pfni->FileNameLength);
+			fileName[pfni->FileNameLength / 2] = 0;
 
-			_wcslwr_s(temp, pfni->FileNameLength);
+			_wcslwr_s(fileName, pfni->FileNameLength);
 
 			if (GetTickCount() - Prev_TickCount >= 1000 ||
-				wcscmp(Prev_FileName, temp) != 0)
+				wcscmp(Prev_FileName, fileName) != 0)
 			{
-				if (wcscmp(temp, L"anemone.ini") == 0)
+				if (wcscmp(fileName, L"anemone.ini") == 0)
 				{
 					Cl.Config->LoadConfig();
 					PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 				}
 
-				if (wcscmp(temp, L"anedic.txt") == 0)
+				if (wcscmp(fileName, L"anedic.txt") == 0)
 				{
-					MessageBox(0, L"anedic", 0, 0);
-					//Cl.TextProcess->LoadDictionary();
-				}
-
-				if (wcscmp(temp, L"anedic2.txt") == 0)
-				{
-					MessageBox(0, L"anedic2", 0, 0);
-				}
-
-				if (wcscmp(temp, L"anedic3.txt") == 0)
-				{
-					MessageBox(0, L"anedic3", 0, 0);
+					Cl.TextProcess->LoadDictionary();
 				}
 			}
 
 			Prev_TickCount = GetTickCount();
-			wcsncpy_s(Prev_FileName, temp, 255);
+			wcsncpy_s(Prev_FileName, fileName, 255);
 
 			Prev_pfni = pfni;
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
