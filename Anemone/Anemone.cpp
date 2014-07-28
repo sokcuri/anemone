@@ -501,7 +501,11 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 	// If the position is in the client area, display a  
 	// shortcut menu. 
 
-	//if (PtInRect(&rc, pt))
+	if (!PtInRect(&rc, pt))
+	{
+		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
+		if (hMenuWnd) CloseWindow((HWND)hMenuWnd);
+	}
 
 	ClientToScreen(hwnd, &pt);
 	DisplayContextMenu(hwnd, pt);
