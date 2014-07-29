@@ -279,6 +279,8 @@
 #define ID_WNDSIZE_RIGHT               32823
 #define ID_MOUSE_RCLICK                32824
 #define ID_TRAY_EVENT					32825
+#define ID_LOAD_CONFIG					32826
+#define ID_LOAD_DICTIONARY				32827
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

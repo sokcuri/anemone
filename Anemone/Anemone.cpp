@@ -175,10 +175,10 @@ void CleanUp()
 	Cl.Config->SaveConfig();
 
 	DestroyWindow(hWnds.Parent);
-	
+
+	delete Cl.TextRenderer;
 	delete Cl.Remocon;
 	delete Cl.FileWatch;
-	delete Cl.TextRenderer;
 	delete Cl.TextProcess;
 	delete Cl.Hotkey;
 	delete Cl.TransEngine;
@@ -186,8 +186,6 @@ void CleanUp()
 	
 	// Heap 삭제
 	HeapDestroy(AneHeap);
-
-	ExitProcess(0);
 }
 
 void CreateTrayIcon(HWND hWnd)
@@ -690,6 +688,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		switch (message)
 		{
+			case WM_COMMAND:
+				if (LOWORD(wParam) != ID_DESTROY_MENU) break;
 			case WM_MOVING:
 			case WM_SIZING:
 			case WM_LBUTTONUP:
@@ -767,14 +767,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				ShowWindow(hWnd, true);
 
-				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
+				// 창이 뒤에 있으면 가려지므로 위로 띄운다
 				if (Cl.Config->GetWindowTopMost())
 					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				else SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-
-				//int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
-				//SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-
 			}
 		}
 			break;
@@ -789,13 +785,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				ShowWindow(hWnd, true);
 
-				// 창이 뒤에 있을때 가려지므로 이 문제를 보완
+				// 창이 뒤에 있으면 가려지므로 위로 띄운다
 				if (Cl.Config->GetWindowTopMost())
 					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				else SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-
-				//int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
-				//SetWindowPos(hWnds.Main, (nExStyle_Target & WS_EX_TOPMOST ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 		}
 			break;
@@ -886,10 +879,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			viewLogNum++;
 
 			Cl.TextRenderer->SetTextSet(
-				viewLog[size - viewLogNum].wName.c_str(),
-				viewLog[size - viewLogNum].wNameT.c_str(),
-				viewLog[size - viewLogNum].wText.c_str(),
-				viewLog[size - viewLogNum].wTextT.c_str());
+				viewLog[size - viewLogNum].Name,
+				viewLog[size - viewLogNum].NameT,
+				viewLog[size - viewLogNum].Text,
+				viewLog[size - viewLogNum].TextT);
 
 			Cl.TextRenderer->Paint();
 		}
@@ -902,10 +895,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			viewLogNum--;
 
 			Cl.TextRenderer->SetTextSet(
-				viewLog[size - viewLogNum].wName.c_str(),
-				viewLog[size - viewLogNum].wNameT.c_str(),
-				viewLog[size - viewLogNum].wText.c_str(),
-				viewLog[size - viewLogNum].wTextT.c_str());
+				viewLog[size - viewLogNum].Name,
+				viewLog[size - viewLogNum].NameT,
+				viewLog[size - viewLogNum].Text,
+				viewLog[size - viewLogNum].TextT);
 
 			Cl.TextRenderer->Paint();
 		}
@@ -1469,6 +1462,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetCursorPos(&point);
 			mouse_event(MOUSEEVENTF_RIGHTDOWN, point.x, point.y, 0, 0);
 			mouse_event(MOUSEEVENTF_RIGHTUP, point.x, point.y, 0, 0);
+		}
+			break;
+		case ID_LOAD_CONFIG:
+		{
+			Cl.Config->LoadConfig();
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+		}
+			break;
+		case ID_LOAD_DICTIONARY:
+		{
+			Cl.TextProcess->LoadDictionary();
 		}
 			break;
 		default:

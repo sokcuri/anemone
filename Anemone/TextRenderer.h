@@ -18,7 +18,8 @@ public:
 	{
 		int nLen = wcslen(str);
 		if (nLen > 1000) nLen = 1000;
-		wcsncpy_s(szName, str, nLen);
+		memcpy(szName, str, nLen * 2);
+		szName[nLen] = 0x00;
 	}
 	wchar_t *GetName()
 	{
@@ -29,7 +30,8 @@ public:
 	{
 		int nLen = wcslen(str);
 		if (nLen > 1000) nLen = 1000;
-		wcsncpy_s(szNameT, str, nLen);
+		memcpy(szNameT, str, nLen * 2);
+		szNameT[nLen] = 0x00;
 	}
 	wchar_t *GetNameT()
 	{
@@ -40,7 +42,8 @@ public:
 	{
 		int nLen = wcslen(str);
 		if (nLen > 1000) nLen = 1000;
-		wcsncpy_s(szText, str, nLen);
+		memcpy(szText, str, nLen * 2);
+		szText[nLen] = 0x00;
 	}
 	wchar_t *GetText()
 	{
@@ -51,7 +54,8 @@ public:
 	{
 		int nLen = wcslen(str);
 		if (nLen > 1000) nLen = 1000;
-		wcsncpy_s(szTextT, str, nLen);
+		memcpy(szTextT, str, nLen * 2);
+		szTextT[nLen] = 0x00;
 	}
 	wchar_t *GetTextT()
 	{
@@ -63,11 +67,12 @@ public:
 		int nNameLen, nTextLen;
 		nNameLen = wcslen(szName);
 		if (nNameLen > 1000) nNameLen = 1000;
-		wcsncpy_s(szContext, szName, nNameLen);
+		memcpy(szContext, szName, nNameLen * 2);
 
 		nTextLen = wcslen(szText);
 		if (nTextLen > 1000) nTextLen = 1000;
-		wcsncpy_s(szContext + nNameLen, sizeof(szContext), szText, nTextLen);
+		memcpy(szContext + nNameLen, szText, nTextLen * 2);
+		szContext[nNameLen + nTextLen] = 0x00;
 	}
 	wchar_t *GetContext()
 	{
@@ -79,15 +84,16 @@ public:
 		int nNameLen, nTextLen;
 		nNameLen = wcslen(szNameT);
 		if (nNameLen > 1000) nNameLen = 1000;
-		wcsncpy_s(szContextT, szNameT, nNameLen);
+		memcpy(szContextT, szNameT, nNameLen * 2);
 
 		nTextLen = wcslen(szTextT);
 		if (nTextLen > 1000) nTextLen = 1000;
-		wcsncpy_s(szContextT + nNameLen, sizeof(szContextT), szTextT, nTextLen);
+		memcpy(szContextT + nNameLen, szTextT, nTextLen * 2);
+		szContextT[nNameLen + nTextLen] = 0x00;
 	}
 	wchar_t *GetContextT()
 	{
-		return szContext;
+		return szContextT;
 	}
 	
 	void SetTextSet(const wchar_t *Name, const wchar_t *NameT, const wchar_t *Text, const wchar_t *TextT)

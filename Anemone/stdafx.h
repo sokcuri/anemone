@@ -197,12 +197,81 @@ typedef struct
 extern NOTIFYICONDATA niData;
 extern UINT WM_TASKBARCHANGED;
 
-struct _viewLog
+class _viewLog
 {
-	std::wstring wName;
-	std::wstring wNameT;
-	std::wstring wText;
-	std::wstring wTextT;
+public:
+	_viewLog(const _viewLog &vL)
+	{
+		int nLen;
+
+		nLen = wcslen(vL.Name);
+		Name = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(Name, vL.Name, nLen * 2);
+		Name[nLen] = 0x00;
+
+		nLen = wcslen(vL.NameT);
+		NameT = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(NameT, vL.NameT, nLen * 2);
+		NameT[nLen] = 0x00;
+
+		nLen = wcslen(vL.Text);
+		Text = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(Text, vL.Text, nLen * 2);
+		Text[nLen] = 0x00;
+
+		nLen = wcslen(vL.TextT);
+		TextT = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(TextT, vL.TextT, nLen * 2);
+		TextT[nLen] = 0x00;
+	}
+	_viewLog(const wchar_t *name, const wchar_t *namet, const wchar_t *text, const wchar_t *textt)
+	{
+		int nLen;
+
+		nLen = wcslen(name);
+		Name = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(Name, name, nLen * 2);
+		Name[nLen] = 0x00;
+
+		nLen = wcslen(namet);
+		NameT = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(NameT, namet, nLen * 2);
+		NameT[nLen] = 0x00;
+
+		nLen = wcslen(text);
+		Text = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(Text, text, nLen * 2);
+		Text[nLen] = 0x00;
+
+		nLen = wcslen(textt);
+		TextT = (wchar_t *)malloc((nLen + 1) * 2);
+		if (nLen > 1000) nLen = 1000;
+		memcpy(TextT, textt, nLen * 2);
+		TextT[nLen] = 0x00;
+	}
+	~_viewLog()
+	{
+		free(Name);
+		free(NameT);
+		free(Text);
+		free(TextT);
+	}
+	/*
+	wchar_t Name[1024];
+	wchar_t NameT[1024];
+	wchar_t Text[1024];
+	wchar_t TextT[1024];*/
+	wchar_t *Name;
+	wchar_t *NameT;
+	wchar_t *Text;
+	wchar_t *TextT;
 };
 
 extern std::vector<_viewLog> viewLog;

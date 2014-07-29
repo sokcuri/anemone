@@ -75,18 +75,17 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 			_wcslwr_s(fileName, pfni->FileNameLength);
 
-			if (GetTickCount() - Prev_TickCount >= 1000 ||
+			if (GetTickCount() - Prev_TickCount >= 50 ||
 				wcscmp(Prev_FileName, fileName) != 0)
 			{
 				if (wcscmp(fileName, L"anemone.ini") == 0)
 				{
-					Cl.Config->LoadConfig();
-					PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+					PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_CONFIG, 0);
 				}
 
 				if (wcscmp(fileName, L"anedic.txt") == 0)
 				{
-					Cl.TextProcess->LoadDictionary();
+					PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
 				}
 			}
 

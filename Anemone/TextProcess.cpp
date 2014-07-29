@@ -699,17 +699,14 @@ bool CTextProcess::OnDrawClipboard()
 	wContextT += wTextT;
 
 	Cl.TextRenderer->SetTextSet(wName.c_str(), wNameT.c_str(), wText.c_str(), wTextT.c_str());
-	
-	_viewLog VL;
 
-	VL.wName = wName;
-	VL.wNameT = wNameT;
-	VL.wText = wText;
-	VL.wTextT = wTextT;
+	_viewLog VL = _viewLog(wName.c_str(), wNameT.c_str(), wText.c_str(), wTextT.c_str());
 
 	viewLog.push_back(VL);
+	
+	//MessageBox(0, viewLog[viewLog.size()-1].TextT, 0, 0);
 	viewLogNum = 0;
-
+	
 	CloseClipboard();
 	
 	IsActive = true;
