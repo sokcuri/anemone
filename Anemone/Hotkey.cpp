@@ -150,13 +150,14 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 	if (nCode >= 0)
 	{
 		PKBDLLHOOKSTRUCT pHookKey = (PKBDLLHOOKSTRUCT)lParam;
+		std::vector<_key_map> key = key_map;
 
 		switch(wParam)
 		{
 		case 256:	// WM_KEYDOWN
 		case 260:	// WM_SYSKEYDOWN
-			std::vector<_key_map>::iterator it = key_map.begin();
-			for (; it != key_map.end(); it++)
+			std::vector<_key_map>::iterator it = key.begin();
+			for (; it != key.end(); it++)
 			{
 				if ((*it).Code == pHookKey->vkCode)
 				{

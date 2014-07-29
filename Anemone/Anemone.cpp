@@ -13,20 +13,32 @@ TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
 TCHAR szParentClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
+
+// 전역 단축키
 std::vector<_key_map> key_map;
-HINSTANCE hInst; _hWnds hWnds; _MagnetWnd MagnetWnd; _Class Cl; HANDLE AneHeap;
+
+// 인스턴스, 핸들
+HINSTANCE hInst;
+_hWnds hWnds;
+_MagnetWnd MagnetWnd;
+_Class Cl;
+HANDLE AneHeap;
+
+// 아네모네 사전
 std::vector<aneDicStruct> AneDic;
+
+// 트레이 아이콘
 NOTIFYICONDATA niData;
 UINT WM_TASKBARCHANGED;
+
+// 이전글/최근글 보기
 std::vector<_viewLog> viewLog;
 int viewLogNum = 0;
 
 int IsActive = 0;
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
-//bool IsActive = FALSE;
 
-// 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM				WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnProc);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -52,7 +64,6 @@ int APIENTRY _tWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: 여기에 코드를 입력합니다.
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -64,7 +75,6 @@ int APIENTRY _tWinMain(
 
 	WindowClassRegister(hInstance, szWindowClass, WndProc);
 	WindowClassRegister(hInstance, szParentClass, ParentWndProc);
-	//WindowClassRegister(hInstance, szSettingClass,SettingProc);
 
 	// 아네모네가 실행중인지 확인
 	if (FindWindow(szWindowClass, 0) || FindWindow(szParentClass, 0))
@@ -184,29 +194,18 @@ void CreateTrayIcon(HWND hWnd)
 {
 	// 트레이 아이콘 생성
 	ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
-
 	niData.cbSize = sizeof(NOTIFYICONDATA);
-
 	niData.uID = ID_TRAY_EVENT;
 	niData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-
-	niData.hIcon =
-		(HICON)LoadImage(hInst,
-		MAKEINTRESOURCE(IDI_ANEMONE),
-		IMAGE_ICON,
-		GetSystemMetrics(SM_CXSMICON),
-		GetSystemMetrics(SM_CYSMICON),
-		LR_DEFAULTCOLOR);
+	niData.hIcon = (HICON)LoadImage(hInst, MAKEINTRESOURCE(IDI_ANEMONE), IMAGE_ICON,
+		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	niData.hWnd = hWnd;
 	niData.uCallbackMessage = ID_TRAY_EVENT;
-	wcscpy_s(niData.szTip, L"아네모네");
-	//Shell_NotifyIcon(NIM_ADD,&niData);
 
-	// NIM_ADD adds a new tray icon
+	wcscpy_s(niData.szTip, L"아네모네");
 	Shell_NotifyIcon(NIM_ADD, &niData);
 
 	WM_TASKBARCHANGED = RegisterWindowMessage(L"TaskBarCreated");
-
 }
 
 //
@@ -219,19 +218,16 @@ unsigned int WINAPI MagneticThread(void *arg)
 	bool IsForegroundCheck = false;
 	bool IsMinimizeOnce = false;
 	RECT rect;
-	//int nExStyle_Main, nExStyle_Target;
 	hForeWnd = NULL;
 
 	while (1)
 	{
-		// 부모 창이 날아갔을 때 긴급복구하기
+		// 자석모드 타겟창이 강제 종료되면 부모창까지 같이 날아가는데 이를 복구한다
+		// 복구하지 않으면 자석모드 걸면 아네모네가 부모창에 달라붙지 못함
 		if (!IsWindow(hWnds.Parent))
-		{
 			SendMessage(hWnds.Main, WM_COMMAND, IDM_RESTORE_PARENT, 0);
-			//MessageBox(0, L"복구", 0, 0);
-		}
 
-		// 메뉴 창에 WS_EX_NOACTIVATE 속성을 강제 부여
+		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		HWND CurFore = GetForegroundWindow();
 
@@ -240,10 +236,10 @@ unsigned int WINAPI MagneticThread(void *arg)
 			DWORD dwProcessId;
 			GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
 
+			// 아네모네 프로세스에만 적용
 			if (GetCurrentProcessId() == dwProcessId)
 			{
 				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-
 				hForeWnd = CurFore;
 				SetWindowText(hMenuWnd, L"AnemoneMenu");
 
@@ -251,19 +247,18 @@ unsigned int WINAPI MagneticThread(void *arg)
 				{
 					nExStyle_Menu |= WS_EX_NOACTIVATE;
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
-
+					
 					SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
 					SetWindowPos(hMenuWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 
 					InvalidateRect(hMenuWnd, NULL, TRUE);
 					UpdateWindow(hMenuWnd);
-
 				}
 
 			}
 		}
 
-		// 자석모드 윈도우가 활성화시 아네모네도 위로 띄우기
+		// 자석모드 윈도우가 활성화되면 아네모네를 위로 띄움
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
@@ -275,8 +270,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 						IsForegroundCheck = true;
 						SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-
-						// 팝업창을 위로 띄우기
 						SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 						
 						Sleep(10);
@@ -289,7 +282,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 				}
 			}
 		}
-		// 메뉴를 연 상태에서 포커스가 다른 창으로 옮겨가거나 다른 메뉴창이 발견되면 메뉴를 닫는다
+		// 메뉴를 연 상태에서 포커스가 다른 창으로 바뀌거나
+		// 다른 메뉴창이 발견되면 아네모네 메뉴를 닫는다
 		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
 		HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
 		
@@ -303,7 +297,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				Cl.Config->GetMagneticMode() && CurFore != MagnetWnd.hWnd)
 			{
 				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
-				hForeWnd = GetForegroundWindow();
+				//hForeWnd = GetForegroundWindow();
 
 				// 다른 프로세스의 팝업 메뉴를 위로 올리기
 				SetWindowPos(hOtherWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
@@ -320,25 +314,15 @@ unsigned int WINAPI MagneticThread(void *arg)
 			{
 				GetWindowRect(MagnetWnd.hWnd, &rect);
 				
-				// 자석 부모창의 항상 위가 바뀌면 아네모네도 따라서 바꿈
-				/*bool CurrentTopMost = (GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST ? TRUE : FALSE);
-				if (MagnetWnd.IsTopMost != CurrentTopMost)
-				{
-					SetWindowPos(hWnds.Main, (CurrentTopMost ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOOWNERZORDER);
-					MagnetWnd.IsTopMost = CurrentTopMost;
-					//MessageBox(0, (CurrentTopMost ? L"TOPMOST" : L"NOTOPMOST"), 0, 0);
-				}*/
-
+				// 자석 부모창의 항상 위 설정을 감시해서 아네모네도 자석 부모창의 항상위 설정에 따른다
 				bool CurrentTopMost = (GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST ? TRUE : FALSE);
 				if (MagnetWnd.IsTopMost != CurrentTopMost)
 				{
-					// 자석 타겟창에 맞춰서 항상위 변경
-					// 이부분에 주기적으로 refresh가 가해짐
 					int nExStyle_Main = GetWindowLong(hWnds.Parent, GWL_EXSTYLE);
 					int nExStyle_Target = GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE);
 
+					// CurrentTopMost : 자석 부모창의 항상 위 설정
 					MagnetWnd.IsTopMost = CurrentTopMost;
-					//MessageBox(0, (CurrentTopMost ? L"TOPMOST" : L"NOTOPMOST"), 0, 0);
 
 					if (MagnetWnd.IsTopMost)
 					{
@@ -353,14 +337,15 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 				}
 
-				// 자석모드 부모창이 아네모네보다 앞에 있을 경우
+				// 자석모드 부모창이 아네모네보다 앞에 있을 경우 아네모네를 땡겨준다
 				if (FindWindowEx(0, MagnetWnd.hWnd, szWindowClass, 0))
 				{
 					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				}
 
-				// 자석 부모창이 최소화되면 같이 최소화
+				// 자석 부모창이 최소화되면 같이 최소화한다
+				// 이 기능은 최소화 시점에서만 작동하므로 IsMinimizeOnce 변수로 컨트롤
 				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
 				{
 					if (IsMinimizeOnce == false)
@@ -380,61 +365,68 @@ unsigned int WINAPI MagneticThread(void *arg)
 				{
 					if (IsMinimizeOnce)
 					{
+						// 자석 부모창이 최소화되었다가 복구된 상황인 경우
 						if (MagnetWnd.IsMinimize == true)
 						{
 							Cl.Config->SetWindowVisible(true);
 							ShowWindow(hWnds.Main, true);
 						}
+
+						// 다음 최소화시 기능이 작동하도록 변수 초기화
 						MagnetWnd.IsMinimize = false;
 						IsMinimizeOnce = false;
 						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
 					}
 				}
 
-				// 자석모드 부모창이 최소화되어 있으면 이동 처리를 하지 않는다
+				// 자석 부모창이 움직이면 따라서 움직이는 부분
+				// 단 깨짐 방지를 위해 부모창이 최소화 상태일때는 창 이동을 하지 않음
 				if ((MagnetWnd.rect_x != rect.left || MagnetWnd.rect_y != rect.top) &&
 					!(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
 				{
-					// 자석모드 창 이동시 팝업 메뉴를 끈다
+					// 자석모드 창 이동시 아네모네 메뉴를 끔
 					if (IsWindow(hMenuWnd))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
 					}
 
+					DEVMODE dmCurrent, dmRegistry;
 
-					if (!(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE))
+					EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCurrent);
+					EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmRegistry);
+
+					if (dmCurrent.dmPelsWidth == dmRegistry.dmPelsWidth &&
+						dmCurrent.dmPelsHeight == dmRegistry.dmPelsHeight)
 					{
-						DEVMODE dmCurrent, dmRegistry;
-
-						EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCurrent);
-						EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmRegistry);
-
-						if (dmCurrent.dmPelsWidth == dmRegistry.dmPelsWidth &&
-							dmCurrent.dmPelsHeight == dmRegistry.dmPelsHeight)
-						{
-							SetWindowPos(hWnds.Main, NULL, rect.left + MagnetWnd.diff_x, rect.top + MagnetWnd.diff_y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
-						}
-
-						MagnetWnd.rect_x = rect.left;
-						MagnetWnd.rect_y = rect.top;
+						SetWindowPos(hWnds.Main, NULL, rect.left + MagnetWnd.diff_x, rect.top + MagnetWnd.diff_y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
 					}
+
+					MagnetWnd.rect_x = rect.left;
+					MagnetWnd.rect_y = rect.top;
 				}
 			}
 		}
+		//
+		// 자석 모드 상태가 아닐 때
 		else if (MagnetWnd.IsMagnet)
 		{
+			// 이전 자석 부모창 상태가 최소화였던 경우 창을 보이도록 한다
 			if (MagnetWnd.IsMinimize)
 			{
 				Cl.Config->SetWindowVisible(true);
 				ShowWindow(hWnds.Main, true);
 				MagnetWnd.IsMinimize = false;
 			}
+
+			// 자석 최소화 변수 초기화
 			MagnetWnd.hWnd = NULL;
 			SetParent(hWnds.Parent, NULL);
 			Cl.Config->SetMagneticMode(false);
 
+			// 자석 모드 상태를 사용중이 아님으로 돌림
 			MagnetWnd.IsMagnet = false;
 
+			// 본래 설정대로 항상 위 설정 초기화
 			if (Cl.Config->GetWindowTopMost())
 			{
 				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
@@ -470,18 +462,15 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	hmenuTrackPopup = GetSubMenu(hmenu, 0);
 
 	// 각 메뉴 아이템의 체크 여부를 선택한다
-
 	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, IDM_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	
 	CheckMenuRadioItem(hmenuTrackPopup, IDM_TEMP_WINDOW_HIDE, IDM_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? IDM_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : IDM_WINDOW_VISIBLE)), MF_BYCOMMAND);
-//	CheckMenuRadioItem(hmenuTrackPopup, IDM_TEMP_WINDOW_HIDE, IDM_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? MF_CHECKED : MF_UNCHECKED));
+
 	// 우클릭 메뉴 활성화
-	TrackPopupMenu(hmenuTrackPopup,
-		TPM_LEFTALIGN | TPM_RIGHTBUTTON,
-		pt.x, pt.y, 0, hwnd, NULL);
+	TrackPopupMenu(hmenuTrackPopup, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
 
 	// 메뉴 소멸
 	DestroyMenu(hmenu);
@@ -489,20 +478,14 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 
 BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 {
-	RECT rc;                    // client area of window 
-	POINT pt = { x, y };        // location of mouse click 
-
-	// Get the bounding rectangle of the client area. 
+	RECT rc;
+	POINT pt = { x, y };
 
 	GetClientRect(hwnd, &rc);
-
-	// Convert the mouse position to client coordinates. 
-
 	ScreenToClient(hwnd, &pt);
 
-	// If the position is in the client area, display a  
-	// shortcut menu. 
-
+	// 트레이 아이콘 메뉴를 열 때 메인 아네모네 메뉴가 떠 있다면 없앤다
+	// 이부분이 정확히는 아네모네 창에서 메뉴가 열렸는지를 확인하는 함수
 	if (!PtInRect(&rc, pt))
 	{
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
@@ -512,10 +495,8 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 	ClientToScreen(hwnd, &pt);
 	DisplayContextMenu(hwnd, pt);
 	return TRUE;
-	// Return FALSE if no menu is displayed. 
-
-	return FALSE;
 }
+
 //
 // 윈도우 클래스 등록
 //
@@ -622,7 +603,7 @@ bool OpenDicText(HWND hWnd)
 	FILE *fp;
 	if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UTF-8") != 0)
 	{
-		// 아네모네 사전 파일이 없는 경우 작성
+		// 아네모네 사전 파일이 없는 경우 초기 내용 작성
 		if (_wfopen_s(&fp, path.c_str(), L"wt,ccs=UTF-8") == 0)
 		{
 			fwrite(AneDicHeader, sizeof(wchar_t), wcslen(AneDicHeader), fp);
@@ -662,8 +643,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
       (cx-x)/2, (cy-y)/2, x, y, hWnds.Parent, NULL, hInstance, NULL);
-
-//   SetParent(hWnds.Main, hWnds.Parent);
 
    HANDLE hThread = NULL;
    DWORD dwThreadID = NULL;
@@ -1224,7 +1203,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(100, 1000));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
-
+					
 					ws << L"클립보드 최대 글자수 ";
 					ws << L"(";
 					ws << n;
@@ -1368,81 +1347,82 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 			break;
 		case IDM_WNDMOVE_TOP:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			SetWindowPos(hWnd, 0, rect.left, rect.top-nMovePoint, 0, 0, SWP_NOSIZE);
-		}
-			break;
 		case IDM_WNDMOVE_BOTTOM:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			SetWindowPos(hWnd, 0, rect.left, rect.top + nMovePoint, 0, 0, SWP_NOSIZE);
-		}
-			break;
 		case IDM_WNDMOVE_LEFT:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			SetWindowPos(hWnd, 0, rect.left - nMovePoint, rect.top, 0, 0, SWP_NOSIZE);
-		}
-			break;
 		case IDM_WNDMOVE_RIGHT:
 		{
 			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			int nMovePoint, x, y;
 			GetWindowRect(hWnd, &rect);
+			nMovePoint = Cl.Config->GetWindowMovePoint();
 
-			SetWindowPos(hWnd, 0, rect.left + nMovePoint, rect.top, 0, 0, SWP_NOSIZE);
+			x = rect.left;
+			y = rect.top;
+
+			switch (wmId)
+			{
+			case IDM_WNDMOVE_TOP:
+				y -= nMovePoint;
+				break;
+			case IDM_WNDMOVE_BOTTOM:
+				y += nMovePoint;
+				break;
+			case IDM_WNDMOVE_LEFT:
+				x -= nMovePoint;
+				break;
+			case IDM_WNDMOVE_RIGHT:
+				x += nMovePoint;
+				break;
+			}
+
+			// 자석 모드 사용 중에는 MagnetWnd의 diff_x, diff_y를 변경시켜야 부모창이 움직이면 초기화되지 않음
+			if (Cl.Config->GetMagneticMode())
+			{
+				MagnetWnd.diff_x = x - MagnetWnd.rect_x;
+				MagnetWnd.diff_y = y - MagnetWnd.rect_y;
+			}
+
+			SetWindowPos(hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE);
 		}
 			break;
 		case IDM_WNDSIZE_TOP:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			if (rect.bottom - rect.top - nMovePoint < 90) nMovePoint = rect.bottom - rect.top - 90;
-
-			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top - nMovePoint, SWP_NOMOVE);
-		}
-			break;
 		case IDM_WNDSIZE_BOTTOM:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top + nMovePoint, SWP_NOMOVE);
-		}
-			break;
 		case IDM_WNDSIZE_LEFT:
-		{
-			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
-			GetWindowRect(hWnd, &rect);
-
-			if (rect.right - rect.left - nMovePoint < 90) nMovePoint = rect.right - rect.left - 90;
-
-			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left - nMovePoint, rect.bottom - rect.top, SWP_NOMOVE);
-		}
-			break;
 		case IDM_WNDSIZE_RIGHT:
 		{
 			RECT rect;
-			int nMovePoint = Cl.Config->GetWindowMovePoint();
+			int nMovePoint, cx, cy;
 			GetWindowRect(hWnd, &rect);
+			nMovePoint = Cl.Config->GetWindowMovePoint();
 
-			SetWindowPos(hWnd, 0, 0, 0, rect.right - rect.left + nMovePoint, rect.bottom - rect.top, SWP_NOMOVE);
+			cx = rect.right-rect.left;
+			cy = rect.bottom-rect.top;
+
+			switch (wmId)
+			{
+			case IDM_WNDSIZE_TOP:
+				cy -= nMovePoint;
+				break;
+			case IDM_WNDSIZE_BOTTOM:
+				cy += nMovePoint;
+				break;
+			case IDM_WNDSIZE_LEFT:
+				cx -= nMovePoint;
+				break;
+			case IDM_WNDSIZE_RIGHT:
+				cx += nMovePoint;
+				break;
+			}
+
+			// 창의 최소 크기보다 줄어들지 못하도록 함
+			if (cx < WND_MINTRACKSIZE) cx = WND_MINTRACKSIZE;
+			if (cy < WND_MINTRACKSIZE) cy = WND_MINTRACKSIZE;
+
+			SetWindowPos(hWnd, HWND_TOP, 0, 0, cx, cy, SWP_NOMOVE);
 		}
 			break;
+
+		// 마우스 좌클릭/우클릭
 		case IDM_MOUSE_LCLICK:
 		{
 			POINT point;
@@ -1467,6 +1447,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Cl.TextRenderer->Paint();
 	}
 		break;
+
+	// 트레이 아이콘 이벤트
 	case ID_TRAY_EVENT:
 	{
 		switch (lParam)
@@ -1490,20 +1472,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
+
+	// 창을 이동하거나 크기 조정시
 	case WM_MOVING:
 	case WM_SIZING:
 	{
 		RECT *prc = (RECT *)lParam;
 		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
 
+		// 자석 모드 사용 중에는 MagnetWnd의 diff_x, diff_y를 변경시켜야 부모창이 움직이면 초기화되지 않음
 		if (Cl.Config->GetMagneticMode())
 		{
 			MagnetWnd.diff_x = prc->left - MagnetWnd.rect_x;
 			MagnetWnd.diff_y = prc->top - MagnetWnd.rect_y;
 		}
+
+		// 크기 조정중에는 화면이 갱신되도록 한다
 		if (message == WM_SIZING) Cl.TextRenderer->Paint();
 	}
 		break;
+
+	// 클립보드 데이터가 들어왔을때
 	case WM_DRAWCLIPBOARD:
 	{
 		Cl.TextProcess->OnDrawClipboard();
@@ -1511,41 +1500,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_ERASEBKGND:
 		return false;
+
+	// 창의 최소 크기를 설정
 	case WM_GETMINMAXINFO:
 	{
 		MINMAXINFO *mm = (MINMAXINFO *)lParam;
 
-		mm->ptMinTrackSize.x = 90;
-		mm->ptMinTrackSize.y = 90;
+		mm->ptMinTrackSize.x = WND_MINTRACKSIZE;
+		mm->ptMinTrackSize.y = WND_MINTRACKSIZE;
 	}
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_NCLBUTTONDOWN:
-		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
+		// 아네모네 윈도우를 클릭하면 자석 부모창에 포커스를 띄운다
 		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
-			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 		}
 		return DefWindowProc(hWnd, message, wParam, lParam);
-	case WM_RBUTTONDOWN:
-		break;
 	case WM_NCRBUTTONUP:
 		SendMessage(hWnd, WM_CONTEXTMENU, wParam, lParam);
 		break;
 	case WM_CONTEXTMENU:
 	{
-		POINT pt;
-		
-		// 자석모드일때 아네모네 윈도우를 클릭하면 포커스를 자석모드창으로 돌린다
+		// 아네모네 윈도우를 클릭하면 자석 부모창에 포커스를 띄운다
 		if (Cl.Config->GetMagneticMode() && IsWindow(MagnetWnd.hWnd) && GetForegroundWindow() != MagnetWnd.hWnd)
 		{
 			SetForegroundWindow(MagnetWnd.hWnd);
-			//SetWindowPos(MagnetWnd.hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 		}
 
+		POINT pt;
 		pt.x = LOWORD(lParam);
 		pt.y = HIWORD(lParam);
 		if (!OnContextMenu(hWnd, pt.x, pt.y))
@@ -1607,11 +1593,6 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message)
 	{
-	case WM_CREATE:
-	{
-		//CheckDlgButton(hWnd, IDC_SETTING_TOPMOST, true);
-	}
-		break;
 	case WM_DESTROY:
 	{
 		Cl.Config->SaveConfig();
@@ -1625,7 +1606,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
-		// 메뉴 선택을 구문 분석합니다.
+
 		switch (wmId)
 		{
 		case IDM_SETTING_EXIT:

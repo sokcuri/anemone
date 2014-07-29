@@ -20,7 +20,7 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 	HMODULE hDLL = LoadLibrary(szEngineDLL.c_str());
 	if (!hDLL) MessageBox(0, L"이지트랜스 번역 엔진 초기화 실패\r\n: LoadLibrary Failed", 0, MB_ICONERROR);
 
-	EnginePath = szEngineDLL;
+	wcscpy_s(EnginePath, szEngineDLL.c_str());
 
 	// Load ezTrans Function
 	ezt_addr[0] = (int)GetProcAddress(hDLL, "J2K_FreeMem");

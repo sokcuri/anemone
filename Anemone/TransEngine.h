@@ -28,6 +28,6 @@ public:
 	int J2K_TranslateMMNT(int data0, char *krStr);
 private:
 	static int ezt_addr[20];
-	std::wstring EnginePath;
+	wchar_t EnginePath[MAX_PATH];
 };
 
