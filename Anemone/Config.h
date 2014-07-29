@@ -163,8 +163,11 @@ public:
 	bool GetWndBorderMode() { return cfg_wnd_border_mode; }
 	void SetWndBorderMode(bool b) { cfg_wnd_border_mode = b; }
 
-	int GetWndBorderSize() { return cfg_wnd_border_size; }
-	void SetWndBorderSize(int i) { cfg_wnd_border_size = i; }
+	int GetWndBorderSize() {return cfg_wnd_border_size; }
+	void SetWndBorderSize(int i) {
+		if (i == 0) i = 1;
+		cfg_wnd_border_size = i;
+	}
 
 	DWORD GetWndBorderColor() { return cfg_wnd_border_color; }
 	void SetWndBorderColor(DWORD dw) { cfg_wnd_border_color = dw; }

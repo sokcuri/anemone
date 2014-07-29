@@ -310,7 +310,7 @@
 #define ID_HOOKER_CONFIG                32828
 #define ID_HOOKER_MONITOR               32829
 #define ID_HOOKER_SETTING               32830
-#define ID_                             32831
+#define ID_BACKGROUND_SWITCH            32831
 #define ID_WINRESET                     32832
 #define IDC_STATIC                      -1
 

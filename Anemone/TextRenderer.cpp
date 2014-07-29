@@ -155,24 +155,18 @@ bool CTextRenderer::Paint()
 	// 창 배경 투명도를 0으로 주면 1로 강제변환... 비활성화함
 	//if (BGAlpha == 0) BGAlpha = 1;
 
-	if (!Cl.Config->GetWndBorderMode())
-	{
-		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
-		else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor) & 0xFF));
-		else graphics.Clear(Color(0, 0, 0, 0));
-	}
-	// 테두리 표시 모드
-	else
-	{
-		if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
-		else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor) & 0xFF));
-		else graphics.Clear(Color(0, 0, 0, 0));
+	if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
+	else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+	else graphics.Clear(Color(1, 0, 0, 0));
 
+	// 테두리 표시 모드
+	if (Cl.Config->GetWndBorderMode())
+	{
 		int nBorderWidth = Cl.Config->GetWndBorderSize();
 		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
 		Pen nBorderPen(Color((dwBorderClr >> 24) & 0xFF, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr) & 0xFF), (Gdiplus::REAL)nBorderWidth);
 
-		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2) - 1, (nBorderWidth / 2) - 1, rect.right - rect.left - nBorderWidth + 1, rect.bottom - rect.top - nBorderWidth + 1));
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
 
 	// 폰트가 사용가능한지 확인하고 불가할경우 대체폰트로 변경

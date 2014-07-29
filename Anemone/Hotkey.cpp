@@ -23,7 +23,9 @@ bool CHotkey::LoadKeyMap()
 
 
 	RegKey(VK_F6, false, false, false, ID_TEMP_CLICK_THOUGH);
+
 	RegKey(VK_F7, false, false, false, ID_WND_BORDER_MODE);
+	RegKey(VK_F7, false, true, false, ID_BACKGROUND_SWITCH);
 
 	// 원문 문장/이름 출력
 	RegKey(VK_F8, false, false, false, ID_PRINT_ORGTEXT);

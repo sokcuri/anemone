@@ -469,7 +469,8 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
-	
+	CheckMenuItem(hmenuTrackPopup, ID_BACKGROUND_SWITCH, (Cl.Config->GetBGSwitch() ? MF_CHECKED : MF_UNCHECKED));
+
 	CheckMenuRadioItem(hmenuTrackPopup, ID_TEMP_WINDOW_HIDE, ID_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? ID_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : ID_WINDOW_VISIBLE)), MF_BYCOMMAND);
 
 	// 우클릭 메뉴 활성화
@@ -1071,7 +1072,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				{
 					int nOutlineSize = (Cl.Config->GetWndBorderSize());
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 20));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 20));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nOutlineSize);
 
 					std::wstringstream ws;
@@ -1527,6 +1528,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
+		case ID_BACKGROUND_SWITCH:
+		{
+			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1791,8 +1798,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, ID_TEXTALIGN_RIGHT, 0);
 			break;
 		case IDC_SETTING_BACKGROUND_SWITCH:
-			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
-			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_BACKGROUND_SWITCH, 0);
 			break;
 		case IDC_SETTING_BACKGROUND_COLOR:
 		case IDC_SETTING_NAME_COLOR:
