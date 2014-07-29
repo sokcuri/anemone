@@ -196,6 +196,7 @@ typedef struct
 
 extern NOTIFYICONDATA niData;
 extern UINT WM_TASKBARCHANGED;
+extern int nMenuType;
 
 class _viewLog
 {
