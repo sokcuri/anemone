@@ -151,7 +151,7 @@ bool CConfig::LoadConfig()
 
 bool CConfig::SaveConfig()
 {
-	delete Cl.FileWatch;
+	Cl.FileWatch->TurnOff();
 
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
@@ -283,6 +283,6 @@ bool CConfig::SaveConfig()
 	wsprintf(buf, L"%d", GetWindowMovePoint());
 	WriteINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
-	Cl.FileWatch = new CFileWatch();
+	Cl.FileWatch->TurnOn();
 	return true;
 }

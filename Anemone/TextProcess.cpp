@@ -698,12 +698,7 @@ bool CTextProcess::OnDrawClipboard()
 	wContextT = wNameT;
 	wContextT += wTextT;
 
-	*(Cl.TextRenderer->szName) = wName;
-	*(Cl.TextRenderer->szNameT) = wNameT;
-	*(Cl.TextRenderer->szText) = wText;
-	*(Cl.TextRenderer->szTextT) = wTextT;
-	*(Cl.TextRenderer->szContext) = wContext;
-	*(Cl.TextRenderer->szContextT) = wContextT;
+	Cl.TextRenderer->SetTextSet(wName.c_str(), wNameT.c_str(), wText.c_str(), wTextT.c_str());
 	
 	_viewLog VL;
 

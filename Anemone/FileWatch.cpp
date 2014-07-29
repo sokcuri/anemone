@@ -54,7 +54,7 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 	FILE_NOTIFY_INFORMATION* pfni;
 	FILE_NOTIFY_INFORMATION* Prev_pfni;
 	DWORD Prev_TickCount = -1;
-	wchar_t Prev_FileName[260];
+	wchar_t Prev_FileName[MAX_PATH];
 
 	wchar_t fileName[MAX_PATH] = { 0 };
 	for (;;)

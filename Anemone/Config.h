@@ -166,7 +166,11 @@ public:
 	void SetClipSwitch(bool b) { cfg_clip_switch = b; }
 
 	int GetClipLength() { return cfg_clip_length; }
-	void SetClipLength(int i) { cfg_clip_length = i; }
+	void SetClipLength(int i)
+	{
+		if (i > 1000) i = 1000;
+		cfg_clip_length = i;
+	}
 
 	bool GetTextSwitch(int type)
 	{

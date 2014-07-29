@@ -881,14 +881,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (size - viewLogNum - 1 < 0) break;
 			viewLogNum++;
 
-			*(Cl.TextRenderer->szName) = viewLog[size - viewLogNum].wName;
-			*(Cl.TextRenderer->szNameT) = viewLog[size - viewLogNum].wNameT;
-			*(Cl.TextRenderer->szText) = viewLog[size - viewLogNum].wText;
-			*(Cl.TextRenderer->szTextT) = viewLog[size - viewLogNum].wTextT;
-			*(Cl.TextRenderer->szContext) = viewLog[size - viewLogNum].wName;
-			*(Cl.TextRenderer->szContext) += viewLog[size - viewLogNum].wText;
-			*(Cl.TextRenderer->szContextT) = viewLog[size - viewLogNum].wNameT;
-			*(Cl.TextRenderer->szContextT) += viewLog[size - viewLogNum].wTextT;
+			Cl.TextRenderer->SetTextSet(
+				viewLog[size - viewLogNum].wName.c_str(),
+				viewLog[size - viewLogNum].wNameT.c_str(),
+				viewLog[size - viewLogNum].wText.c_str(),
+				viewLog[size - viewLogNum].wTextT.c_str());
+
 			Cl.TextRenderer->Paint();
 		}
 			break;
@@ -899,14 +897,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (viewLogNum - 1 < 0) break;
 			viewLogNum--;
 
-			*(Cl.TextRenderer->szName) = viewLog[size - viewLogNum].wName;
-			*(Cl.TextRenderer->szNameT) = viewLog[size - viewLogNum].wNameT;
-			*(Cl.TextRenderer->szText) = viewLog[size - viewLogNum].wText;
-			*(Cl.TextRenderer->szTextT) = viewLog[size - viewLogNum].wTextT;
-			*(Cl.TextRenderer->szContext) = viewLog[size - viewLogNum].wName;
-			*(Cl.TextRenderer->szContext) += viewLog[size - viewLogNum].wText;
-			*(Cl.TextRenderer->szContextT) = viewLog[size - viewLogNum].wNameT;
-			*(Cl.TextRenderer->szContextT) += viewLog[size - viewLogNum].wTextT;
+			Cl.TextRenderer->SetTextSet(
+				viewLog[size - viewLogNum].wName.c_str(),
+				viewLog[size - viewLogNum].wNameT.c_str(),
+				viewLog[size - viewLogNum].wText.c_str(),
+				viewLog[size - viewLogNum].wTextT.c_str());
+
 			Cl.TextRenderer->Paint();
 		}
 			break;
