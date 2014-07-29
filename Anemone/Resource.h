@@ -180,6 +180,7 @@
 #define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDC_SETTING_REPEAT_TEXT2        1067
 #define IDC_SETTING_CLIPBOARD_WATCH2    1067
+#define IDC_SETTING_HOOK                1067
 #define IDC_SETTING_UPDATE_CHECK        1068
 #define IDC_SETTING_TRANS_SHADOW_COLOR  1069
 #define IDC_FILE_TRANSWIN_PREVIEW       1069
@@ -309,7 +310,7 @@
 #define ID_LOAD_DICTIONARY              32827
 #define ID_HOOKER_CONFIG                32828
 #define ID_HOOKER_MONITOR               32829
-#define ID_HOOKER_SETTING               32830
+#define ID_HOOKER_SETUP                 32830
 #define ID_BACKGROUND_SWITCH            32831
 #define ID_WINRESET                     32832
 #define IDC_STATIC                      -1

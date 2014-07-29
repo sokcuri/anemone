@@ -152,10 +152,10 @@ bool CTextRenderer::Paint()
 	DWORD BGColor = Cl.Config->GetBGColor();
 	BYTE BGAlpha = (BGColor >> 24) & 0xFF;
 
-	// 창 배경 투명도를 0으로 주면 1로 강제변환... 비활성화함
-	//if (BGAlpha == 0) BGAlpha = 1;
+	// 창 배경 투명도를 0으로 주면 1로 강제변환
+	if (BGAlpha == 0) BGAlpha = 1;
 
-	if (!IsActive && !bBGSwitch) graphics.Clear(Color(1, 0, 0, 0));
+	if (!IsActive && !bBGSwitch) graphics.Clear(Color(0, 0, 0, 0));
 	else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 	else graphics.Clear(Color(1, 0, 0, 0));
 
