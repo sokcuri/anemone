@@ -685,6 +685,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 
+	// 마우스 입력시 정보창 닫기
+	if (IsWindow(hWnds.About))
+	{
+		switch (message)
+		{
+			case WM_MOVING:
+			case WM_SIZING:
+			case WM_LBUTTONUP:
+			case WM_RBUTTONUP:
+				DestroyWindow(hWnds.About);
+				hWnds.About = NULL;
+				break;
+		}
+	}
+
 	switch (message)
 	{
 	case WM_CREATE:
@@ -707,7 +722,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 			break;
 		case ID_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+		{
+			if (!IsWindow(hWnds.About))
+			{
+				hWnds.About = CreateDialog(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnds.Main, About);
+				ShowWindow(hWnds.About, true); 
+			}
+			else
+			{
+				DestroyWindow(hWnds.About);
+				hWnds.About = NULL;
+			}
+		}
 			break;
 		case ID_EXIT:
 		case ID_TERMINATE_ANEMONE:
@@ -1629,6 +1655,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case ID_SETTING_CLOSE:
 			DestroyWindow(hWnd);
+			hWnds.Setting = NULL;
 			break;
 		case IDC_SETTING_TOPMOST:
 			SendMessage(hWnds.Main, WM_COMMAND, ID_TOPMOST, 0);
@@ -2887,7 +2914,6 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			int *nStatus = (int *)wcstoul(addrstr, NULL, 16);
 
 			(*nStatus) = 2;
-			//DestroyWindow(hWnd);
 		}
 			break;
 		default:

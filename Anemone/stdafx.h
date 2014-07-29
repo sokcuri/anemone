@@ -58,6 +58,7 @@ extern HINSTANCE hInst;
 // hWnd 모음
 struct _hWnds
 {
+	HWND About;
 	HWND Main;
 	HWND Parent;
 	HWND Setting;
