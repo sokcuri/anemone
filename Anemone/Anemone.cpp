@@ -49,6 +49,7 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
 DWORD WINAPI		FileTransThread(LPVOID lpParam);
@@ -718,13 +719,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
-			// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
+		// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
 		case ID_RESTORE_PARENT:
 		{
 			hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
 				0, 0, 0, 0, NULL, NULL, hInst, NULL);
 
 			SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
+		}
+			break;
+		case ID_WINRESET:
+		{
+
 		}
 			break;
 		case ID_ABOUT:
@@ -1481,6 +1487,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextProcess->LoadDictionary();
 		}
 			break;
+		case ID_HOOKER_CONFIG:
+		{
+			if (IsWindow(hWnds.HookCfg) == false)
+			{
+				RECT rect;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
+				hWnds.HookCfg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_HOOKCFG), hWnd, HookCfgProc);
+
+				GetWindowRect(hWnds.HookCfg, &rect);
+
+				SetWindowPos(hWnds.HookCfg, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWnds.HookCfg, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.HookCfg);
+				hWnds.HookCfg = NULL;
+				break;
+			}
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1660,6 +1689,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, ID_OPENINI, 0);
 			break;
 		case ID_SETTING_WINRESET:
+			SendMessage(hWnds.Main, WM_COMMAND, ID_WINRESET, 0);
 			break;
 		case ID_SETTING_ADV:
 			break;
@@ -2966,6 +2996,154 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 
+}
+
+INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_SHOWWINDOW:
+	{
+		HWND hITH = FindWindow(L"ITH", 0);
+		if (hITH)
+			SetDlgItemText(hWnd, IDC_HOOKCFG_ITH, L"ITH ON");
+		else SetDlgItemText(hWnd, IDC_HOOKCFG_ITH, L"ITH OFF");
+
+		HWND hAGTH = FindWindow(L"AGTHClass", 0);
+		if (hAGTH)
+			SetDlgItemText(hWnd, IDC_HOOKCFG_AGTH, L"AGTH ON");
+		else SetDlgItemText(hWnd, IDC_HOOKCFG_AGTH, L"AGTH OFF");
+	}
+		break;
+	case WM_COMMAND:
+	{
+		HWND hITH = FindWindow(L"ITH", 0);
+		HWND hAGTH = FindWindow(L"AGTHClass", 0);
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		HWND hwnd = 0;
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDC_HOOKCFG_SETBTN:
+		{
+			//HWND hID = FindWindowEx(hAGTH, 0, L"Edit", 0);
+		
+			//GetWindowText(hID, buf, 10000);
+			//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT2, L"...");
+			//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT2, buf);
+			//break;
+			int nCombo = 0;
+
+			while ((hwnd = FindWindowEx(hITH, hwnd, 0, 0)) != 0)
+			{
+				// COMBOBOX
+				if (GetWindowLong(hwnd, GWL_STYLE) == 0x50010303)
+				{
+					if (nCombo == 0)
+					{
+
+						nCombo++;
+					}
+					else
+					{
+						SendMessage(GetDlgItem(hWnds.HookCfg, IDC_HOOKCFG_LIST1), LB_RESETCONTENT, 0, 0);
+
+						int cb_current = SendMessage(hwnd, CB_GETCURSEL, 0, 0);
+						int cb_count = SendMessage(hwnd, CB_GETCOUNT, 0, 0);
+						for (int i = 0; i < cb_count; i++)
+						{
+							SendMessage(hwnd, CB_SETCURSEL, i, 0);
+							int cch = SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0);
+							wchar_t *buf = (wchar_t *)malloc((cch + 1) * 2);
+							buf[0] = 0x00;
+							if (SendMessage(hwnd, CB_GETLBTEXT, cch + 1, (WPARAM)buf) == CB_ERR)
+								SendMessage(hwnd, WM_GETTEXT, cch + 1, (WPARAM)buf);
+
+							std::wstringstream wss;
+							wss << L"길이 : ";
+							wss << cch;
+							wss << L"\r\n내용 : ";
+							wss << buf;
+							SetDlgItemText(hWnd, IDC_HOOKCFG_EDIT2, wss.str().c_str());
+
+							// Listbox에 등록
+							int max = SendMessage(GetDlgItem(hWnds.HookCfg, IDC_HOOKCFG_LIST1), LB_GETCOUNT, 0, 0);
+							//SendMessage(GetDlgItem(hWnds.HookCfg, IDC_HOOKCFG_LIST1), LB_SETSEL, 0, max);
+							SendMessage(GetDlgItem(hWnds.HookCfg, IDC_HOOKCFG_LIST1), LB_ADDSTRING, 0, (LPARAM)buf);
+							free(buf);
+						}
+					}
+				}
+
+				// EDIT
+				if (GetWindowLong(hwnd, GWL_STYLE) == 0x50200144)
+				{
+					SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"윈도우를 찾음");
+					
+					// EDIT 내용을 읽음
+					int cch = SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0);
+					wchar_t *buf = (wchar_t *)malloc((cch + 1) * 2);
+					SendMessage(hwnd, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
+					
+
+					std::wstringstream wss;
+
+					wss << L"길이 : ";
+					wss << cch;
+					wss << L"\r\n";
+					wss << L"내용 : ";
+					wss << buf;
+					
+					//GetWindowText(hwnd, buf, 10000);
+					//MessageBox(0, buf, 0, 0);
+					SetDlgItemText(hWnd, IDC_HOOKCFG_EDIT1, wss.str().c_str());
+
+					free(buf);
+				}
+			}
+		}
+				break;
+
+		case IDC_HOOKCFG_REFRESH:
+		{
+			hwnd = FindWindowEx(hITH, 0, L"Button", L"Option");
+			SendMessage(hwnd, WM_LBUTTONDOWN, 0, 0);
+			SendMessage(hwnd, WM_LBUTTONUP, 0, 0);
+			//SendMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
+			//SendMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
+			SetForegroundWindow(FindWindow(L"#32770", L"Option"));
+		}
+			break;
+		case IDOK:
+		case IDCANCEL:
+		case IDC_TRANSWIN_CLOSE:
+		{
+
+			DestroyWindow(hWnd);
+		}
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+	}
+	return 0;
 }
 
 bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)

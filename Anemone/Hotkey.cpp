@@ -18,6 +18,10 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
+	// юс╫ц
+	RegKey(VK_F1, false, false, false, ID_HOOKER_CONFIG);
+
+
 	RegKey(VK_F6, false, false, false, ID_TEMP_CLICK_THOUGH);
 	RegKey(VK_F7, false, false, false, ID_WND_BORDER_MODE);
 

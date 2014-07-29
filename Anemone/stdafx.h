@@ -67,6 +67,7 @@ struct _hWnds
 	HWND Clip;
 	HWND Trans;
 	HWND FileTrans;
+	HWND HookCfg;
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;
