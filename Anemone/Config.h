@@ -22,6 +22,10 @@ private:
 	int cfg_shadow_x            = 10;
 	int cfg_shadow_y            = 10;
 
+	int cfg_wnd_border_size = 5;
+	bool cfg_wnd_border_mode    = false;
+	DWORD cfg_wnd_border_color  = 0x80000000;
+
 	bool cfg_name_switch        = true;
 	bool cfg_name_revise        = true;
 	bool cfg_name_org_switch    = true;
@@ -61,7 +65,6 @@ private:
 	int cfg_trans_style			= 0;
 
 	bool cfg_temp_click_though = false;
-	bool cfg_wnd_border_mode = false;
 	bool cfg_clipboard_watch = true;
 	int cfg_window_hide = 0;
 	bool cfg_window_topmost = true;
@@ -80,9 +83,9 @@ private:
 	bool cfg_trans_onego = true;
 	bool cfg_update_notify = true;
 	int cfg_filetrans_output_type = 1;
-
 	int cfg_window_movepoint = 5;
 	bool cfg_prev_search_num = true;
+
 
 public:
 	CConfig();
@@ -159,6 +162,12 @@ public:
 
 	bool GetWndBorderMode() { return cfg_wnd_border_mode; }
 	void SetWndBorderMode(bool b) { cfg_wnd_border_mode = b; }
+
+	int GetWndBorderSize() { return cfg_wnd_border_size; }
+	void SetWndBorderSize(int i) { cfg_wnd_border_size = i; }
+
+	DWORD GetWndBorderColor() { return cfg_wnd_border_color; }
+	void SetWndBorderColor(DWORD dw) { cfg_wnd_border_color = dw; }
 
 	bool GetBGSwitch() { return cfg_bg_switch; }
 	DWORD GetBGColor() { return cfg_bg_color; }

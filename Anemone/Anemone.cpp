@@ -1070,6 +1070,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 
 				{
+					int nOutlineSize = (Cl.Config->GetWndBorderSize());
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 20));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nOutlineSize);
+
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"테두리 굵기";
+					ws << L" (";
+					ws << nOutlineSize;
+					ws << L")";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_WND_BORDER_TEXT, str.c_str());
+				}
+
+				{
 					int nOutlineSize = (Cl.Config->GetTextSize(CFG_TRANS, CFG_B));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_OUTLINE1_SIZE_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 20));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_OUTLINE1_SIZE_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nOutlineSize);
@@ -1791,6 +1807,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_TRANS_OUTLINE1:
 		case IDC_SETTING_TRANS_OUTLINE2:
 		case IDC_SETTING_TRANS_SHADOW_COLOR:
+		case IDC_SETTING_WND_BORDER_COLOR:
 			{
 				CHOOSECOLOR cc; 
 				DWORD dwColor;
@@ -1835,6 +1852,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					break;
 				case IDC_SETTING_TRANS_SHADOW_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
+					break;
+				case IDC_SETTING_WND_BORDER_COLOR:
+					dwColor = Cl.Config->GetWndBorderColor();
 					break;
 				}
 
@@ -1887,6 +1907,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 						break;
 					case IDC_SETTING_TRANS_SHADOW_COLOR:
 						Cl.Config->SetTextColor(CFG_TRANS, CFG_S, dw);
+						break;
+					case IDC_SETTING_WND_BORDER_COLOR:
+						Cl.Config->SetWndBorderColor(dw);
 						break;
 					}
 					
@@ -2005,6 +2028,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
+		case IDC_SETTING_HOOKER_CONFIG:
+			PostMessage(hWnds.Main, WM_COMMAND, ID_HOOKER_CONFIG, 0);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -2037,6 +2063,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_TRANS_OUTLINE1:
 		case IDC_SETTING_TRANS_OUTLINE2:
 		case IDC_SETTING_TRANS_SHADOW_COLOR:
+		case IDC_SETTING_WND_BORDER_COLOR:
 		{
 			LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
 
@@ -2082,6 +2109,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			case IDC_SETTING_TRANS_SHADOW_COLOR:
 				ColorVar = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
+				break;
+			case IDC_SETTING_WND_BORDER_COLOR:
+				ColorVar = Cl.Config->GetWndBorderColor();
 				break;
 			}
 
@@ -2384,6 +2414,34 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (i > 1000) break;
 
 			Cl.Config->SetClipLength(i);
+
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+		}
+		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_WND_BORDER_BAR))
+		{
+			int i;
+
+			switch (LOWORD(wParam))
+			{
+			case TB_LINEUP:
+			case TB_LINEDOWN:
+			case TB_PAGEUP:
+			case TB_PAGEDOWN:
+			case TB_TOP:
+			case TB_BOTTOM:
+			case TB_ENDTRACK:
+				i = (INT)SendDlgItemMessage(hWnd, IDC_SETTING_WND_BORDER_BAR, TBM_GETPOS, 0, 0);
+				break;
+
+			case TB_THUMBTRACK:
+				i = (INT)HIWORD(wParam);
+				break;
+			}
+
+			if (i > 20) break;
+
+			Cl.Config->SetWndBorderSize(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);

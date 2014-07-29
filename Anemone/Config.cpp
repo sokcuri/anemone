@@ -28,6 +28,11 @@ bool CConfig::LoadConfig()
 
 	ReadINI_Str(L"WNDBORDER_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetWndBorderMode(true) : SetWndBorderMode(false);
+	ReadINI_Str(L"WNDBORDER_SIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetWndBorderSize(_wtoi(buf));
+	ReadINI_Str(L"WNDBORDER_COLOR", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetWndBorderColor((DWORD)wcstoul(buf, NULL, 16));
+
 	ReadINI_Str(L"MAGNETIC_MINIMIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetMagneticMinimize(true) : SetMagneticMinimize(false);
 
@@ -167,6 +172,11 @@ bool CConfig::SaveConfig()
 
 	wcscpy(buf, (GetWndBorderMode() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"WNDBORDER_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetWndBorderSize());
+	WriteINI_Str(L"WNDBORDER_SIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%08X", GetWndBorderColor());
+	WriteINI_Str(L"WNDBORDER_COLOR", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
 	wcscpy(buf, (GetMagneticMinimize() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"MAGNETIC_MINIMIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
