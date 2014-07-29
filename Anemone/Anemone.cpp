@@ -225,7 +225,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		// 자석모드 타겟창이 강제 종료되면 부모창까지 같이 날아가는데 이를 복구한다
 		// 복구하지 않으면 자석모드 걸면 아네모네가 부모창에 달라붙지 못함
 		if (!IsWindow(hWnds.Parent))
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_RESTORE_PARENT, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_RESTORE_PARENT, 0);
 
 		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
@@ -296,7 +296,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				(CurFore != GetActiveWindow() && CurFore != 0 && hForeWnd != CurFore) || 
 				Cl.Config->GetMagneticMode() && CurFore != MagnetWnd.hWnd)
 			{
-				SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
+				SendMessage(hWnds.Main, WM_COMMAND, ID_DESTROY_MENU, (LONG)hMenuWnd);
 				//hForeWnd = GetForegroundWindow();
 
 				// 다른 프로세스의 팝업 메뉴를 위로 올리기
@@ -357,7 +357,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 							MagnetWnd.IsMinimize = true;
 							Cl.Config->SetWindowVisible(false);
 							ShowWindow(hWnds.Main, false);
-							SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+							SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 						}
 					}
 				}
@@ -375,7 +375,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 						// 다음 최소화시 기능이 작동하도록 변수 초기화
 						MagnetWnd.IsMinimize = false;
 						IsMinimizeOnce = false;
-						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+						SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 					}
 				}
 
@@ -387,7 +387,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 					// 자석모드 창 이동시 아네모네 메뉴를 끔
 					if (IsWindow(hMenuWnd))
 					{
-						SendMessage(hWnds.Main, WM_COMMAND, IDM_DESTROY_MENU, (LONG)hMenuWnd);
+						SendMessage(hWnds.Main, WM_COMMAND, ID_DESTROY_MENU, (LONG)hMenuWnd);
 					}
 
 					DEVMODE dmCurrent, dmRegistry;
@@ -438,7 +438,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 		Sleep(1);
 	}
@@ -462,12 +462,12 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	hmenuTrackPopup = GetSubMenu(hmenu, 0);
 
 	// 각 메뉴 아이템의 체크 여부를 선택한다
-	CheckMenuItem(hmenuTrackPopup, IDM_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hmenuTrackPopup, IDM_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hmenuTrackPopup, IDM_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hmenuTrackPopup, IDM_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	
-	CheckMenuRadioItem(hmenuTrackPopup, IDM_TEMP_WINDOW_HIDE, IDM_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? IDM_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : IDM_WINDOW_VISIBLE)), MF_BYCOMMAND);
+	CheckMenuRadioItem(hmenuTrackPopup, ID_TEMP_WINDOW_HIDE, ID_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? ID_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : ID_WINDOW_VISIBLE)), MF_BYCOMMAND);
 
 	// 우클릭 메뉴 활성화
 	TrackPopupMenu(hmenuTrackPopup, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
@@ -488,8 +488,7 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 	// 이부분이 정확히는 아네모네 창에서 메뉴가 열렸는지를 확인하는 함수
 	if (!PtInRect(&rc, pt))
 	{
-		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
-		if (hMenuWnd) CloseWindow((HWND)hMenuWnd);
+		SendMessage(hwnd, WM_COMMAND, ID_DESTROY_MENU, 0);
 	}
 
 	ClientToScreen(hwnd, &pt);
@@ -699,7 +698,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 			// 자석모드로 물려놓은 프로세스가 죽으면 부모창이 통째로 날라가기 때문에 살려놔야함
-		case IDM_RESTORE_PARENT:
+		case ID_RESTORE_PARENT:
 		{
 			hWnds.Parent = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, szParentClass, L"아네모네", WS_POPUP,
 				0, 0, 0, 0, NULL, NULL, hInst, NULL);
@@ -707,14 +706,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SetWindowLongPtr(hWnds.Main, -8, (LONG)hWnds.Parent);
 		}
 			break;
-		case IDM_ABOUT:
+		case ID_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
-		case IDM_EXIT:
-		case IDM_TERMINATE_ANEMONE:
+		case ID_EXIT:
+		case ID_TERMINATE_ANEMONE:
 			CleanUp();
 			break;
-		case IDM_TEMP_CLICK_THOUGH:
+		case ID_TEMP_CLICK_THOUGH:
 			(Cl.Config->GetClickThough() ? Cl.Config->SetClickThough(false) : Cl.Config->SetClickThough(true));
 
 			if (Cl.Config->GetClickThough())
@@ -729,9 +728,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				nExStyle &= ~WS_EX_TRANSPARENT;
 				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
 			}
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
-		case IDM_TEMP_WINDOW_HIDE:
+		case ID_TEMP_WINDOW_HIDE:
 		{
 			(Cl.Config->GetTempWinHide() ? Cl.Config->SetTempWinHide(false) : (Cl.Config->GetWindowVisible() ? Cl.Config->SetTempWinHide(true) : Cl.Config->SetTempWinHide(false)));
 			if (Cl.Config->GetTempWinHide())
@@ -753,7 +752,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_WINDOW_VISIBLE:
+		case ID_WINDOW_VISIBLE:
 		{
 			(Cl.Config->GetWindowVisible() ? Cl.Config->SetWindowVisible(false) : Cl.Config->SetWindowVisible(true));
 			if (!Cl.Config->GetWindowVisible())
@@ -774,17 +773,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_HIDEWIN_UNLOCK_HOTKEY:
+		case ID_HIDEWIN_UNLOCK_HOTKEY:
 		{
 			(Cl.Config->GetHideWinUnlockHotkey() ? Cl.Config->SetHideWinUnlockHotkey(false) : Cl.Config->SetHideWinUnlockHotkey(true));
 		}
 			break;
-		case IDM_HIDEWIN_UNWATCH_CLIPBOARD:
+		case ID_HIDEWIN_UNWATCH_CLIPBOARD:
 		{
 			(Cl.Config->GetHideWinUnWatchClip() ? Cl.Config->SetHideWinUnWatchClip(false) : Cl.Config->SetHideWinUnWatchClip(true));
 		}
 			break;
-		case IDM_MAGNETIC_MODE:
+		case ID_MAGNETIC_MODE:
 		{
 			// 아네모네 윈도우는 자석 모드가 걸리지 않음, 창 숨김 모드일때는 푸는것만 가능함
 			if (GetForegroundWindow() == GetActiveWindow() || !Cl.Config->GetWindowVisible())
@@ -832,12 +831,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_WND_BORDER_MODE:
+		case ID_WND_BORDER_MODE:
 			(Cl.Config->GetWndBorderMode() ? Cl.Config->SetWndBorderMode(false) : Cl.Config->SetWndBorderMode(true));
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_CLIPBOARD_SWITCH:
+		case ID_CLIPBOARD_SWITCH:
 		{
 			(Cl.Config->GetClipSwitch() ? Cl.Config->SetClipSwitch(false) : Cl.Config->SetClipSwitch(true));
 
@@ -850,10 +849,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				Cl.TextProcess->EndWatchClip();
 			}
 
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
-		case IDM_TEXT_PREV:
+		case ID_TEXT_PREV:
 		{
 			int size = viewLog.size()-1;
 
@@ -869,7 +868,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextRenderer->Paint();
 		}
 			break;
-		case IDM_TEXT_NEXT:
+		case ID_TEXT_NEXT:
 		{
 			int size = viewLog.size() - 1;
 
@@ -885,19 +884,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextRenderer->Paint();
 		}
 			break;
-		case IDM_OPENDIC:
+		case ID_OPENDIC:
 		{
 			OpenDicText(hWnd);
 		}
 			break;
-		case IDM_OPENINI:
+		case ID_OPENINI:
 		{
 			std::wstring path;
 			GetLoadPath(path, L"\\Anemone.ini");
 			ExecuteFile(path);
 		}
 			break;
-		case IDM_TOPMOST:
+		case ID_TOPMOST:
 			(Cl.Config->GetWindowTopMost() ? Cl.Config->SetWindowTopMost(false) : Cl.Config->SetWindowTopMost(true));
 
 			// 자석 모드일때는 항상 위 표시 동작을 유보한다
@@ -912,7 +911,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 			break;
-		case IDM_WINDOW_SETTING:
+		case ID_WINDOW_SETTING:
 		{
 			if (IsWindow(hWnds.Setting) == false)
 			{
@@ -935,7 +934,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
-		case IDM_SETTING_CHECK:
+		case ID_SETTING_CHECK:
 		{
 			if (IsWindow(hWnds.Setting))
 			{
@@ -1214,7 +1213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_WINDOW_TRANS:
+		case ID_WINDOW_TRANS:
 		{
 			if (IsWindow(hWnds.Trans) == false)
 			{
@@ -1240,7 +1239,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_WINDOW_FILETRANS:
+		case ID_WINDOW_FILETRANS:
 		{
 			if (IsWindow(hWnds.FileTrans) == false)
 			{
@@ -1263,35 +1262,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 			break;
-		case IDM_TEXTALIGN_LEFT:
+		case ID_TEXTALIGN_LEFT:
 			Cl.Config->SetTextAlign(0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_TEXTALIGN_MID:
+		case ID_TEXTALIGN_MID:
 			Cl.Config->SetTextAlign(1);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_TEXTALIGN_RIGHT:
+		case ID_TEXTALIGN_RIGHT:
 			Cl.Config->SetTextAlign(2);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_SEPERATE_NAME:
+		case ID_SEPERATE_NAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME) ? Cl.Config->SetTextSwitch(CFG_NAME, false) : Cl.Config->SetTextSwitch(CFG_NAME, true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_EXTERN_HOTKEY:
+		case ID_EXTERN_HOTKEY:
 			(Cl.Config->GetExternHotkey() ? Cl.Config->SetExternHotkey(false) : Cl.Config->SetExternHotkey(true));
 			break;
-		case IDM_PRINT_ORGTEXT:
+		case ID_PRINT_ORGTEXT:
 			(Cl.Config->GetTextSwitch(CFG_ORG) ? Cl.Config->SetTextSwitch(CFG_ORG, false) : Cl.Config->SetTextSwitch(CFG_ORG, true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
-		case IDM_PRINT_ORGNAME:
+		case ID_PRINT_ORGNAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME_ORG) ? Cl.Config->SetTextSwitch(CFG_NAME_ORG, false) : Cl.Config->SetTextSwitch(CFG_NAME_ORG, true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			break;
 
-		case IDM_TRANSTEXT_WNDMENU:
+		case ID_TRANSTEXT_WNDMENU:
 		{
 			HWND hTargetWnd = GetForegroundWindow();
 
@@ -1304,7 +1303,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SetMenu(hTargetWnd, hMenu);
 		}
 			break;
-		case IDM_TRANSTEXT_WNDTEXT:
+		case ID_TRANSTEXT_WNDTEXT:
 		{
 			wchar_t buf[255];
 			HWND hTargetWnd = GetForegroundWindow();
@@ -1320,12 +1319,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			TransWndText(hTargetWnd);
 		}
 			break;
-		case IDM_DESTROY_MENU:
+		case ID_DESTROY_MENU:
 		{
-			CloseWindow((HWND)lParam);
+			HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
+			if (hMenuWnd) CloseWindow((HWND)hMenuWnd);
 		}
 			break;
-		case IDM_TEXTSIZE_MINUS:
+		case ID_TEXTSIZE_MINUS:
 		{
 			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
 			if (nTextSize - 1 < 6) break;
@@ -1333,23 +1333,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize - 1);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
-			PostMessage(hWnd, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnd, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
-		case IDM_TEXTSIZE_PLUS:
+		case ID_TEXTSIZE_PLUS:
 		{
 			int nTextSize = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
 			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize + 1);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
-			PostMessage(hWnd, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnd, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
-		case IDM_WNDMOVE_TOP:
-		case IDM_WNDMOVE_BOTTOM:
-		case IDM_WNDMOVE_LEFT:
-		case IDM_WNDMOVE_RIGHT:
+		case ID_WNDMOVE_TOP:
+		case ID_WNDMOVE_BOTTOM:
+		case ID_WNDMOVE_LEFT:
+		case ID_WNDMOVE_RIGHT:
 		{
 			RECT rect;
 			int nMovePoint, x, y;
@@ -1361,16 +1361,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			switch (wmId)
 			{
-			case IDM_WNDMOVE_TOP:
+			case ID_WNDMOVE_TOP:
 				y -= nMovePoint;
 				break;
-			case IDM_WNDMOVE_BOTTOM:
+			case ID_WNDMOVE_BOTTOM:
 				y += nMovePoint;
 				break;
-			case IDM_WNDMOVE_LEFT:
+			case ID_WNDMOVE_LEFT:
 				x -= nMovePoint;
 				break;
-			case IDM_WNDMOVE_RIGHT:
+			case ID_WNDMOVE_RIGHT:
 				x += nMovePoint;
 				break;
 			}
@@ -1382,13 +1382,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				MagnetWnd.diff_y = y - MagnetWnd.rect_y;
 			}
 
+			// 팝업창이 떠 있으면 닫기
+			SendMessage(hWnd, WM_COMMAND, ID_DESTROY_MENU, 0);
+
 			SetWindowPos(hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE);
 		}
 			break;
-		case IDM_WNDSIZE_TOP:
-		case IDM_WNDSIZE_BOTTOM:
-		case IDM_WNDSIZE_LEFT:
-		case IDM_WNDSIZE_RIGHT:
+		case ID_WNDSIZE_TOP:
+		case ID_WNDSIZE_BOTTOM:
+		case ID_WNDSIZE_LEFT:
+		case ID_WNDSIZE_RIGHT:
 		{
 			RECT rect;
 			int nMovePoint, cx, cy;
@@ -1400,16 +1403,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			switch (wmId)
 			{
-			case IDM_WNDSIZE_TOP:
+			case ID_WNDSIZE_TOP:
 				cy -= nMovePoint;
 				break;
-			case IDM_WNDSIZE_BOTTOM:
+			case ID_WNDSIZE_BOTTOM:
 				cy += nMovePoint;
 				break;
-			case IDM_WNDSIZE_LEFT:
+			case ID_WNDSIZE_LEFT:
 				cx -= nMovePoint;
 				break;
-			case IDM_WNDSIZE_RIGHT:
+			case ID_WNDSIZE_RIGHT:
 				cx += nMovePoint;
 				break;
 			}
@@ -1418,12 +1421,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (cx < WND_MINTRACKSIZE) cx = WND_MINTRACKSIZE;
 			if (cy < WND_MINTRACKSIZE) cy = WND_MINTRACKSIZE;
 
+			// 팝업창이 떠 있으면 닫기
+			SendMessage(hWnd, WM_COMMAND, ID_DESTROY_MENU, 0);
+
 			SetWindowPos(hWnd, HWND_TOP, 0, 0, cx, cy, SWP_NOMOVE);
 		}
 			break;
 
 		// 마우스 좌클릭/우클릭
-		case IDM_MOUSE_LCLICK:
+		case ID_MOUSE_LCLICK:
 		{
 			POINT point;
 			GetCursorPos(&point);
@@ -1431,7 +1437,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			mouse_event(MOUSEEVENTF_LEFTUP, point.x, point.y, 0, 0);
 		}
 			break;
-		case IDM_MOUSE_RCLICK:
+		case ID_MOUSE_RCLICK:
 		{
 			POINT point;
 			GetCursorPos(&point);
@@ -1455,9 +1461,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case WM_LBUTTONUP:
 		{
-			HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
-			if (hMenuWnd) CloseWindow((HWND)hMenuWnd);
-
+			SendMessage(hWnd, WM_COMMAND, ID_DESTROY_MENU, 0);
+			
 			Cl.Config->SetWindowVisible(true);
 			ShowWindow(hWnds.Main, true);
 		}
@@ -1609,57 +1614,57 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 		switch (wmId)
 		{
-		case IDM_SETTING_EXIT:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TERMINATE_ANEMONE, 0);
+		case ID_SETTING_EXIT:
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TERMINATE_ANEMONE, 0);
 			break;
-		case IDM_SETTING_OPENDIC:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_OPENDIC, 0);
+		case ID_SETTING_OPENDIC:
+			SendMessage(hWnds.Main, WM_COMMAND, ID_OPENDIC, 0);
 			break;
-		case IDM_SETTING_OPENINI:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_OPENINI, 0);
+		case ID_SETTING_OPENINI:
+			SendMessage(hWnds.Main, WM_COMMAND, ID_OPENINI, 0);
 			break;
-		case IDM_SETTING_WINRESET:
+		case ID_SETTING_WINRESET:
 			break;
-		case IDM_SETTING_ADV:
+		case ID_SETTING_ADV:
 			break;
-		case IDM_SETTING_CLOSE:
+		case ID_SETTING_CLOSE:
 			DestroyWindow(hWnd);
 			break;
 		case IDC_SETTING_TOPMOST:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TOPMOST, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TOPMOST, 0);
 			break;
 		case IDC_SETTING_MAGNETIC_MINIMIZE:
 			(Cl.Config->GetMagneticMinimize() ? Cl.Config->SetMagneticMinimize(false) : Cl.Config->SetMagneticMinimize(true));
 			break;
 		case IDC_SETTING_HIDEWIN:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_WINDOW_VISIBLE, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_WINDOW_VISIBLE, 0);
 			break;
 		case IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_HIDEWIN_UNWATCH_CLIPBOARD, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_HIDEWIN_UNWATCH_CLIPBOARD, 0);
 			break;
 		case IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_HIDEWIN_UNLOCK_HOTKEY, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_HIDEWIN_UNLOCK_HOTKEY, 0);
 			break;
 		case IDC_SETTING_CLIPBOARD_WATCH:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_CLIPBOARD_SWITCH, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_CLIPBOARD_SWITCH, 0);
 			break;
 		case IDC_SETTING_WNDCLICK_THOUGH:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_CLICK_THOUGH, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TEMP_CLICK_THOUGH, 0);
 			break;
 		case IDC_SETTING_USE_MAGNETIC:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_MAGNETIC_MODE, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_MAGNETIC_MODE, 0);
 			break;
 		case IDC_SETTING_WND_BORDER_MODE:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_WND_BORDER_MODE, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_WND_BORDER_MODE, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGTEXT:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_PRINT_ORGTEXT, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_PRINT_ORGTEXT, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGNAME:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_PRINT_ORGNAME, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_PRINT_ORGNAME, 0);
 			break;
 		case IDC_SETTING_SEPERATE_NAME:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_SEPERATE_NAME, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SEPERATE_NAME, 0);
 			break;
 		case IDC_SETTING_REPEAT_TEXT:
 			switch (Cl.Config->GetRepeatTextProc())
@@ -1690,16 +1695,16 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_SETTING_ANE_REMOCON:
 			break;
 		case IDC_SETTING_EXTERN_HOTKEY:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_EXTERN_HOTKEY, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_EXTERN_HOTKEY, 0);
 			break;
 		case IDC_SETTING_TEXTALIGN_LEFT:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_LEFT, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TEXTALIGN_LEFT, 0);
 			break;
 		case IDC_SETTING_TEXTALIGN_MID:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_MID, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TEXTALIGN_MID, 0);
 			break;
 		case IDC_SETTING_TEXTALIGN_RIGHT:
-			SendMessage(hWnds.Main, WM_COMMAND, IDM_TEXTALIGN_RIGHT, 0);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_TEXTALIGN_RIGHT, 0);
 			break;
 		case IDC_SETTING_BACKGROUND_SWITCH:
 			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
@@ -1824,12 +1829,12 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_TEXTSIZE_MINUS:
 		{
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_TEXTSIZE_MINUS, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_TEXTSIZE_MINUS, 0);
 		}
 			return 0;
 		case IDC_SETTING_TEXTSIZE_PLUS:
 		{
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_TEXTSIZE_PLUS, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_TEXTSIZE_PLUS, 0);
 		}
 			return 0;
 		case IDC_SETTING_OUTLINE1_SIZE_MINUS:
@@ -1930,7 +1935,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		break;
 	case WM_ERASEBKGND:
 		return false;
@@ -2053,7 +2058,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetBGColor(BGColor);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTSIZE_TRACKBAR))
@@ -2083,7 +2088,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_ORG, CFG_A, i);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_OUTLINE1_SIZE_TRACKBAR))
@@ -2113,7 +2118,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_ORG, CFG_B, i);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_B, i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_OUTLINE2_SIZE_TRACKBAR))
@@ -2143,7 +2148,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_ORG, CFG_C, i);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_C, i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_X_TRACKBAR))
@@ -2169,7 +2174,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetShadowX(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_Y_TRACKBAR))
@@ -2195,7 +2200,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetShadowY(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_X_TRACKBAR))
@@ -2223,7 +2228,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetTextMarginX(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_Y_TRACKBAR))
@@ -2251,7 +2256,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetTextMarginY(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR))
@@ -2279,7 +2284,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetTextMarginName(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_CLIP_TRACKBAR))
@@ -2307,7 +2312,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			Cl.Config->SetClipLength(i);
 
-			PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 	}
@@ -2566,19 +2571,19 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
 		}
 			break;
-		case IDM_TRANS_START:
+		case ID_TRANS_START:
 		{
 			SetDlgItemText(hWnd, IDC_TRANSWIN_TRANSLATE, L"번역중지");
 		}
 			break;
-		case IDM_TRANS_PROGRESS:
+		case ID_TRANS_PROGRESS:
 		{
 			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), (LPCWSTR)lParam);
 		}
 			break;
-		case IDM_TRANS_COMPLETE:
-		case IDM_TRANS_ERROR:
-		case IDM_TRANS_ABORT:
+		case ID_TRANS_COMPLETE:
+		case ID_TRANS_ERROR:
+		case ID_TRANS_ABORT:
 		{
 			SetDlgItemText(hWnd, IDC_TRANSWIN_TRANSLATE, L"번역하기");
 			SetWindowText(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), (LPCWSTR)lParam);
@@ -2605,7 +2610,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -2802,7 +2807,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -2832,14 +2837,14 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
-		case IDM_FILE_TRANSPROG_START:
+		case ID_FILE_TRANSPROG_START:
 		{
 			wchar_t str[10];
 			_itow(lParam, str, 16);
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_STATUSADDR), str);
 		}
 			break;
-		case IDM_FILE_TRANSPROG_LISTSIZE:
+		case ID_FILE_TRANSPROG_LISTSIZE:
 		{
 			wchar_t str[10];
 			_itow(lParam, str, 10);
@@ -2848,7 +2853,7 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			SendMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_SETSTEP, (WPARAM)1, 0);
 		}
 			break;
-		case IDM_FILE_TRANSPROG_PROGRESS:
+		case ID_FILE_TRANSPROG_PROGRESS:
 		{
 			wchar_t str[10];
 			int i = lParam;
@@ -2864,12 +2869,12 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TEXT), (LPCWSTR)logstream.str().c_str());
 		}
 			break;
-		case IDM_FILE_TRANSPROG_COMPLETE:
+		case ID_FILE_TRANSPROG_COMPLETE:
 		{
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TEXT), (LPCWSTR)lParam);
 		}
 			break;
-		case IDM_FILE_TRANSPROG_NAME:
+		case ID_FILE_TRANSPROG_NAME:
 		{
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_NAME), (LPCWSTR)lParam);
 		}
@@ -2888,7 +2893,7 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-		SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -3374,12 +3379,12 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	
 	std::list<std::wstring>::iterator iter, iter_trans;
 
-	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_START, (LPARAM)&nStatus);
+	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_START, (LPARAM)&nStatus);
 
 	std::wstring filename = FT->lpszInputFileName;
 	filename = filename.substr(filename.rfind(L"\\")+1);
 
-	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
+	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
 
 	for (;; i++)
 	{
@@ -3427,7 +3432,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 		list = list_org;
 	}
 
-	SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
+	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
 
 	for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
 	{
@@ -3442,7 +3447,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 		}
 			output += Cl.TextProcess->eztrans_proc(*iter);
 
-		SendMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_PROGRESS, (LPARAM)i+1);
+		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_PROGRESS, (LPARAM)i+1);
 	}
 	/*
 	std::wstringstream logstream;
@@ -3451,7 +3456,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	logstream << list.size();
 
 	proclog = logstream.str();
-	PostMessage(hDlg, WM_COMMAND, IDM_FILE_TRANSPROG_COMPLETE, (LPARAM)proclog.c_str());
+	PostMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_COMPLETE, (LPARAM)proclog.c_str());
 	*/
 	nStatus = 0;
 

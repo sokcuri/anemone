@@ -81,7 +81,7 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 				if (wcscmp(fileName, L"anemone.ini") == 0)
 				{
 					Cl.Config->LoadConfig();
-					PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+					PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 				}
 
 				if (wcscmp(fileName, L"anedic.txt") == 0)

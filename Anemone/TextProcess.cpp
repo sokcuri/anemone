@@ -94,7 +94,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 	if (nStatus != 0) return empty;
 	nStatus = 1;
 
-	SendMessage(hWnd, WM_COMMAND, IDM_TRANS_START, 0);
+	SendMessage(hWnd, WM_COMMAND, ID_TRANS_START, 0);
 
 	for (; ; i++)
 	{
@@ -151,7 +151,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 			logstream << L")";
 
 			proclog = logstream.str();
-			SendMessage(hWnd, WM_COMMAND, IDM_TRANS_ABORT, (LPARAM)proclog.c_str());
+			SendMessage(hWnd, WM_COMMAND, ID_TRANS_ABORT, (LPARAM)proclog.c_str());
 
 			std::wstring abort_msg = L"Abort";
 			return abort_msg;
@@ -174,11 +174,11 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 		logstream << L"ms";
 
 		proclog = logstream.str();
-		SendMessage(hWnd, WM_COMMAND, IDM_TRANS_PROGRESS, (LPARAM)proclog.c_str());
+		SendMessage(hWnd, WM_COMMAND, ID_TRANS_PROGRESS, (LPARAM)proclog.c_str());
 	}
 
 	proclog = output;
-	SendMessage(hWnd, WM_COMMAND, IDM_TRANS_COMPLETE, (LPARAM)proclog.c_str());
+	SendMessage(hWnd, WM_COMMAND, ID_TRANS_COMPLETE, (LPARAM)proclog.c_str());
 
 	nStatus = 0;
 
@@ -718,8 +718,8 @@ bool CTextProcess::OnDrawClipboard()
 	// 임시 창 숨김 상태일때 클립보드 요청이 들어오면 창을 다시 띄운다
 	if (Cl.Config->GetTempWinHide())
 	{
-		PostMessage(hWnds.Main, WM_COMMAND, IDM_TEMP_WINDOW_HIDE, 0);
-		PostMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+		PostMessage(hWnds.Main, WM_COMMAND, ID_TEMP_WINDOW_HIDE, 0);
+		PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 	}
 
 	return true;

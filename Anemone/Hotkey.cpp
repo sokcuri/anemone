@@ -18,68 +18,68 @@ bool CHotkey::LoadKeyMap()
 {
 	key_map.erase(key_map.begin(), key_map.end());
 
-	RegKey(VK_F6, false, false, false, IDM_TEMP_CLICK_THOUGH);
-	RegKey(VK_F7, false, false, false, IDM_WND_BORDER_MODE);
+	RegKey(VK_F6, false, false, false, ID_TEMP_CLICK_THOUGH);
+	RegKey(VK_F7, false, false, false, ID_WND_BORDER_MODE);
 
 	// 원문 문장/이름 출력
-	RegKey(VK_F8, false, false, false, IDM_PRINT_ORGTEXT);
-	RegKey(VK_F8, false, true, false, IDM_PRINT_ORGNAME);
+	RegKey(VK_F8, false, false, false, ID_PRINT_ORGTEXT);
+	RegKey(VK_F8, false, true, false, ID_PRINT_ORGNAME);
 
 	// 이름 분리 표시
-	RegKey(VK_F9, false, false, false, IDM_SEPERATE_NAME);
+	RegKey(VK_F9, false, false, false, ID_SEPERATE_NAME);
 
-	RegKey(VK_F10, false, false, false, IDM_WINDOW_SETTING, true);
+	RegKey(VK_F10, false, false, false, ID_WINDOW_SETTING, true);
 
 	// 종료
-	RegKey(VK_F12, false, false, false, IDM_TERMINATE_ANEMONE);
+	RegKey(VK_F12, false, false, false, ID_TERMINATE_ANEMONE);
 
 	// 이전글 / 최근글 보기
-	RegKey(VK_NUMPAD9, false, false, false, IDM_TEXT_PREV);
-	RegKey(VK_NUMPAD3, false, false, false, IDM_TEXT_NEXT);
+	RegKey(VK_NUMPAD9, false, false, false, ID_TEXT_PREV);
+	RegKey(VK_NUMPAD3, false, false, false, ID_TEXT_NEXT);
 
 	// 글자 크기 UP/DOWN
-	RegKey(VK_SUBTRACT, false, false, false, IDM_TEXTSIZE_MINUS);
-	RegKey(VK_ADD, false, false, false, IDM_TEXTSIZE_PLUS);
+	RegKey(VK_SUBTRACT, false, false, false, ID_TEXTSIZE_MINUS);
+	RegKey(VK_ADD, false, false, false, ID_TEXTSIZE_PLUS);
 
 	// 창 잠깐 숨기기 / 창 완전 숨기기
-	RegKey(VK_NUMPAD5, false, false, false, IDM_TEMP_WINDOW_HIDE, true);
-	RegKey(VK_MULTIPLY, false, false, false, IDM_WINDOW_VISIBLE, true);
+	RegKey(VK_NUMPAD5, false, false, false, ID_TEMP_WINDOW_HIDE, true);
+	RegKey(VK_MULTIPLY, false, false, false, ID_WINDOW_VISIBLE, true);
 
 	// 창 이동
-	RegKey(VK_NUMPAD8, false, false, false, IDM_WNDMOVE_TOP);
-	RegKey(VK_NUMPAD2, false, false, false, IDM_WNDMOVE_BOTTOM);
-	RegKey(VK_NUMPAD4, false, false, false, IDM_WNDMOVE_LEFT);
-	RegKey(VK_NUMPAD6, false, false, false, IDM_WNDMOVE_RIGHT);
+	RegKey(VK_NUMPAD8, false, false, false, ID_WNDMOVE_TOP);
+	RegKey(VK_NUMPAD2, false, false, false, ID_WNDMOVE_BOTTOM);
+	RegKey(VK_NUMPAD4, false, false, false, ID_WNDMOVE_LEFT);
+	RegKey(VK_NUMPAD6, false, false, false, ID_WNDMOVE_RIGHT);
 
 	// 창 크기 조절
-	RegKey(VK_NUMPAD8, false, true, false, IDM_WNDSIZE_TOP);
-	RegKey(VK_NUMPAD2, false, true, false, IDM_WNDSIZE_BOTTOM);
-	RegKey(VK_NUMPAD4, false, true, false, IDM_WNDSIZE_LEFT);
-	RegKey(VK_NUMPAD6, false, true, false, IDM_WNDSIZE_RIGHT);
+	RegKey(VK_NUMPAD8, false, true, false, ID_WNDSIZE_TOP);
+	RegKey(VK_NUMPAD2, false, true, false, ID_WNDSIZE_BOTTOM);
+	RegKey(VK_NUMPAD4, false, true, false, ID_WNDSIZE_LEFT);
+	RegKey(VK_NUMPAD6, false, true, false, ID_WNDSIZE_RIGHT);
 
 	// 단문 번역/파일 번역창
-	RegKey(VK_F11, false, false, true, IDM_WINDOW_TRANS);
-	RegKey(VK_F11, false, true, true, IDM_WINDOW_FILETRANS);
+	RegKey(VK_F11, false, false, true, ID_WINDOW_TRANS);
+	RegKey(VK_F11, false, true, true, ID_WINDOW_FILETRANS);
 
 	// 전역 단축키
-	RegKey(VK_F12, true, false, true, IDM_EXTERN_HOTKEY, true);
+	RegKey(VK_F12, true, false, true, ID_EXTERN_HOTKEY, true);
 
 	// 사전 오픈
-	RegKey(VK_INSERT, false, false, true, IDM_OPENDIC, true);
+	RegKey(VK_INSERT, false, false, true, ID_OPENDIC, true);
 
 	// 자석모드
-	RegKey(VK_OEM_3, false, false, false, IDM_MAGNETIC_MODE, true);
+	RegKey(VK_OEM_3, false, false, false, ID_MAGNETIC_MODE, true);
 
 	// 마우스 클릭
-	RegKey(VK_NUMPAD0, false, false, false, IDM_MOUSE_LCLICK, true);
-	RegKey(VK_DECIMAL, false, false, false, IDM_MOUSE_RCLICK, true);
+	RegKey(VK_NUMPAD0, false, false, false, ID_MOUSE_LCLICK, true);
+	RegKey(VK_DECIMAL, false, false, false, ID_MOUSE_RCLICK, true);
 
 	// 창 번역
-	RegKey(VK_F9, false, false, true, IDM_TRANSTEXT_WNDMENU);
-	RegKey(VK_F10, false, false, true, IDM_TRANSTEXT_WNDTEXT);
+	RegKey(VK_F9, false, false, true, ID_TRANSTEXT_WNDMENU);
+	RegKey(VK_F10, false, false, true, ID_TRANSTEXT_WNDTEXT);
 
 	// 클립보드 감시
-	RegKey(VK_SCROLL, false, false, false, IDM_CLIPBOARD_SWITCH, true);
+	RegKey(VK_SCROLL, false, false, false, ID_CLIPBOARD_SWITCH, true);
 
 	return true;
 }
@@ -175,7 +175,7 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 						!Cl.Config->GetHideWinUnlockHotkey())))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
-						SendMessage(hWnds.Main, WM_COMMAND, IDM_SETTING_CHECK, 0);
+						SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 						return -1;
 					}
 				}

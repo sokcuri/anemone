@@ -160,7 +160,7 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 
 		switch (wmId)
 		{
-		case IDM_EXIT:
+		case ID_EXIT:
 			DestroyWindow(hWnd);
 			break;
 		default:
@@ -249,7 +249,7 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		// CONFIG
 		else if (pt.x >= 204 && pt.x <= 294 && pt.y >= 20 && pt.y <= 110)
 		{
-			if (message == WM_LBUTTONUP) PostMessage(hWnds.Main, WM_COMMAND, MAKELONG(IDM_WINDOW_SETTING, 0), 0);
+			if (message == WM_LBUTTONUP) PostMessage(hWnds.Main, WM_COMMAND, MAKELONG(ID_WINDOW_SETTING, 0), 0);
 		}
 
 		else if (message == WM_LBUTTONDOWN) SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
