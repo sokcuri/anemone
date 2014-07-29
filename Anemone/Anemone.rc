@@ -199,7 +199,7 @@ BEGIN
     GROUPBOX        "일반 설정",IDC_STATIC,7,114,161,239
     LTEXT           "──────────────────────",IDC_STATIC,12,138,155,8,WS_DISABLED
     LTEXT           "──────────────────────",IDC_STATIC,12,173,155,8,WS_DISABLED
-    CONTROL         "후커 직접 감시",ID_HOOKER_MONITOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,162,62,10
+    CONTROL         "후커 직접 감시",IDC_SETTING_HOOKER_MONITOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,162,62,10
     CONTROL         "클립보드 감시 (Scroll Lock)",IDC_SETTING_CLIPBOARD_WATCH,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,147,103,10
     PUSHBUTTON      "후커 설정",IDC_SETTING_HOOKER_CONFIG,113,160,50,14

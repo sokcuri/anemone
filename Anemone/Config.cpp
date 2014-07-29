@@ -36,6 +36,11 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"MAGNETIC_MINIMIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetMagneticMinimize(true) : SetMagneticMinimize(false);
 
+	ReadINI_Str(L"HOOKER_MONITOR_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHookMonitor(true) : SetHookMonitor(false);
+	ReadINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetHookInterval(_wtoi(buf));
+
 	ReadINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnWatchClip(true) : SetHideWinUnWatchClip(false);
 	ReadINI_Str(L"HIDEWIN_UNLOCK_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -176,9 +181,14 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"WNDBORDER_SIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%08X", GetWndBorderColor());
 	WriteINI_Str(L"WNDBORDER_COLOR", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-
+	
 	wcscpy(buf, (GetMagneticMinimize() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"MAGNETIC_MINIMIZE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
+	wcscpy(buf, (GetHookMonitor() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"HOOKER_MONITOR_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetHookInterval());
+	WriteINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
 	wcscpy(buf, (GetHideWinUnWatchClip() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());

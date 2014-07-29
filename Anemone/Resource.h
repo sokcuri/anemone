@@ -207,7 +207,6 @@
 #define IDC_FILE_TRANSPROG_NAME         1077
 #define IDC_SETTING_WND_BORDER_COLOR    1077
 #define IDC_FILE_TRANSPROG_LISTSIZE     1078
-#define IDC_HOOKSFG_LIST1               1079
 #define IDC_HOOKCFG_LIST1               1079
 #define IDC_HOOKCFG_LIST2               1080
 #define IDC_HOOKCFG_STATUS              1081
@@ -235,7 +234,7 @@
 #define ID_TRANS_ABORT                  1217
 #define ID_TRANS_ERROR                  1218
 #define ID_TRANS_START                  1219
-#define IDC_TAB1                        2001
+#define IDC_SETTING_HOOKER_MONITOR      2002
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -322,7 +321,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         2002
+#define _APS_NEXT_CONTROL_VALUE         2003
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

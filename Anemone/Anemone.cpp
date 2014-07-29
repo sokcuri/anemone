@@ -466,6 +466,7 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 
 	// 각 메뉴 아이템의 체크 여부를 선택한다
 	CheckMenuItem(hmenuTrackPopup, ID_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_HOOKER_MONITOR, (Cl.Config->GetHookMonitor() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
@@ -977,6 +978,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD, Cl.Config->GetHideWinUnWatchClip());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, Cl.Config->GetHideWinUnlockHotkey());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipSwitch());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_HOOKER_MONITOR, Cl.Config->GetHookMonitor());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WNDCLICK_THOUGH, Cl.Config->GetClickThough());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_USE_MAGNETIC, Cl.Config->GetMagneticMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WND_BORDER_MODE, Cl.Config->GetWndBorderMode());
@@ -1534,6 +1536,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 		}
 			break;
+		case ID_HOOKER_MONITOR:
+		{
+			(Cl.Config->GetHookMonitor() ? Cl.Config->SetHookMonitor(false) : Cl.Config->SetHookMonitor(true));
+
+			if (Cl.Config->GetHookMonitor())
+			{
+			
+			}
+			else
+			{
+
+			}
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -2033,6 +2050,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			(Cl.Config->GetPrevSearchNum() ? Cl.Config->SetPrevSearchNum(false) : Cl.Config->SetPrevSearchNum(true));
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+			break;
+		case IDC_SETTING_HOOKER_MONITOR:
+			PostMessage(hWnds.Main, WM_COMMAND, ID_HOOKER_MONITOR, 0);
 			break;
 		case IDC_SETTING_HOOKER_CONFIG:
 			PostMessage(hWnds.Main, WM_COMMAND, ID_HOOKER_CONFIG, 0);

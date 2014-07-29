@@ -85,7 +85,8 @@ private:
 	int cfg_filetrans_output_type = 1;
 	int cfg_window_movepoint = 5;
 	bool cfg_prev_search_num = true;
-
+	bool cfg_hook_monitor = false;
+	int cfg_hook_interval = 200;
 
 public:
 	CConfig();
@@ -93,6 +94,12 @@ public:
 
 	bool LoadConfig();
 	bool SaveConfig();
+
+	bool GetHookMonitor() { return cfg_hook_monitor; }
+	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }
+
+	int GetHookInterval() { return cfg_hook_interval; }
+	void SetHookInterval(int i) { cfg_hook_interval = i; }
 
 	bool GetPrevSearchNum() { return cfg_prev_search_num; }
 	void SetPrevSearchNum(bool b) { cfg_prev_search_num = b; }
