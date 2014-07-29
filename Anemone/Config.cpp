@@ -36,6 +36,9 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"HIDEWIN_UNLOCK_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnlockHotkey(true) : SetHideWinUnlockHotkey(false);
 
+	ReadINI_Str(L"PREV_SEARCH_NUMBER", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetPrevSearchNum(true) : SetPrevSearchNum(false);
+
 	ReadINI_Str(L"BG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetBGSwitch(true) : SetBGSwitch(false);
 	ReadINI_Str(L"BG_COLOR", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -171,6 +174,9 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetHideWinUnlockHotkey() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"HIDEWIN_UNLOCK_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	
+	wcscpy(buf, (GetPrevSearchNum() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"PREV_SEARCH_NUMBER", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
 	wcscpy(buf, (GetBGSwitch() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"BG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());

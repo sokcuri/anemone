@@ -206,6 +206,7 @@
 #define IDC_HOOKCFG_KEYBOX              1082
 #define IDC_HOOKCFG_ITH                 1083
 #define IDC_HOOKCFG_AGTH                1084
+#define IDC_SETTING_PREV_SEARCH_NUM     1085
 #define ID_WINDOW_SETTING               1201
 #define ID_SETTING_CHECK                1202
 #define ID_TEXT_PREV                    1203
@@ -311,7 +312,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         1083
+#define _APS_NEXT_CONTROL_VALUE         2000
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

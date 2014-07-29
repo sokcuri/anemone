@@ -82,6 +82,7 @@ private:
 	int cfg_filetrans_output_type = 1;
 
 	int cfg_window_movepoint = 5;
+	bool cfg_prev_search_num = true;
 
 public:
 	CConfig();
@@ -90,7 +91,10 @@ public:
 	bool LoadConfig();
 	bool SaveConfig();
 
-	int GetWindowMovePoint()  { return cfg_window_movepoint; }
+	bool GetPrevSearchNum() { return cfg_prev_search_num; }
+	void SetPrevSearchNum(bool b) { cfg_prev_search_num = b; }
+
+	int GetWindowMovePoint() { return cfg_window_movepoint; }
 	void SetWindowMovePoint(int i) { cfg_window_movepoint = i; }
 
 	int GetFileTransOutput() { return cfg_filetrans_output_type; }

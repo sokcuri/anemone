@@ -981,6 +981,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WND_BORDER_MODE, Cl.Config->GetWndBorderMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_PREV_SEARCH_NUM, Cl.Config->GetPrevSearchNum());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_UPDATE_NOTIFY, Cl.Config->GetUpdateNotify());
 
@@ -1998,6 +1999,11 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_UPDATE_CHECK:
 			UpdateNotify(hWnd, true);
+			break;
+		case IDC_SETTING_PREV_SEARCH_NUM:
+			(Cl.Config->GetPrevSearchNum() ? Cl.Config->SetPrevSearchNum(false) : Cl.Config->SetPrevSearchNum(true));
+			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

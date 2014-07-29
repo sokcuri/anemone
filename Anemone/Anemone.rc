@@ -228,7 +228,7 @@ BEGIN
     LTEXT           "──────────────────────",IDC_STATIC,12,215,155,8,WS_DISABLED
     LTEXT           "──────────────────────",IDC_STATIC,12,294,155,8,WS_DISABLED
     LTEXT           "──────────────────────",IDC_STATIC,12,247,155,8,WS_DISABLED
-    CONTROL         "인명 테이블 참조",IDC_SETTING_REPEAT_TEXT2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,269,68,10
+    CONTROL         "이전글 탐색시 번호 표시",IDC_SETTING_PREV_SEARCH_NUM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,269,88,10
     PUSHBUTTON      "업데이트 확인",IDC_SETTING_UPDATE_CHECK,113,301,50,14
 END
 

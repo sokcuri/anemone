@@ -299,7 +299,7 @@ bool CTextRenderer::Paint()
 	int mar_y = Cl.Config->GetTextMarginY();
 	int mar_name = Cl.Config->GetTextMarginName();
 
-	if (viewLogNum != 0)
+	if (viewLogNum != 0 && Cl.Config->GetPrevSearchNum())
 	{
 		std::wstringstream wss;
 		wss << viewLog.size()-viewLogNum;
