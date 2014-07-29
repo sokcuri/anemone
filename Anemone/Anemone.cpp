@@ -1114,7 +1114,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					std::wstringstream ws;
 					std::wstring str;
 
-					ws << L"그림자 X축";
+					ws << L"X축";
 					ws << L" (";
 					ws << n - 10;
 					ws << L")";
@@ -1131,7 +1131,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					std::wstringstream ws;
 					std::wstring str;
 
-					ws << L"그림자 Y축";
+					ws << L"Y축";
 					ws << L" (";
 					ws << n - 10;
 					ws << L")";

@@ -34,6 +34,8 @@
 #define IDD_FILE_TRANSWIN_PROG          134
 #define IDB_BITMAP1                     135
 #define IDD_HOOKCFG                     137
+#define IDB_CLOSE                       139
+#define IDB_TEST                        140
 #define ID_TERMINATE_ANEMONE            1001
 #define ID_TEMP_CLICK_THOUGH            1002
 #define ID_WND_BORDER_MODE              1003
@@ -159,6 +161,7 @@
 #define IDC_SETTING_SHADOW_TEXT         1060
 #define IDC_SETTING_SHADOW_ALPHA_TEXT   1060
 #define IDC_SETTING_EXTERN_HOTKEY2      1060
+#define IDC_SETTING_WND_BORDER_BAR      1060
 #define IDC_SETTING_TEXTMARGIN_Y_TEXT   1061
 #define IDC_SETTING_TEXTMARGIN_X_TEXT   1062
 #define IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR 1063
@@ -177,6 +180,7 @@
 #define IDC_SETTING_CLIP_TEXT           1066
 #define IDC_COLORDLG_ALPHA_EDIT         1067
 #define IDC_SETTING_REPEAT_TEXT2        1067
+#define IDC_SETTING_CLIPBOARD_WATCH2    1067
 #define IDC_SETTING_UPDATE_CHECK        1068
 #define IDC_SETTING_TRANS_SHADOW_COLOR  1069
 #define IDC_FILE_TRANSWIN_PREVIEW       1069
@@ -195,9 +199,13 @@
 #define IDC_FILE_TRANSPROG_CANCEL       1074
 #define IDC_FILE_TRANSPROG_SAVE         1075
 #define IDC_FILE_TRANSPROG_TEXT         1075
+#define IDC_SETTING_UPDATE_CHECK2       1075
 #define IDC_FILE_TRANSPROG_STATUSADDR   1076
+#define IDC_SETTING_BACKGROUND_TEXT2    1076
+#define IDC_SETTING_WND_BORDER_TEXT     1076
 #define IDC_FILE_TRANSPROC_NAME         1077
 #define IDC_FILE_TRANSPROG_NAME         1077
+#define IDC_SETTING_WND_BORDER_COLOR    1077
 #define IDC_FILE_TRANSPROG_LISTSIZE     1078
 #define IDC_HOOKSFG_LIST1               1079
 #define IDC_HOOKCFG_LIST1               1079
@@ -226,6 +234,7 @@
 #define ID_TRANS_ABORT                  1217
 #define ID_TRANS_ERROR                  1218
 #define ID_TRANS_START                  1219
+#define IDC_TAB1                        2001
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -310,9 +319,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         2000
+#define _APS_NEXT_CONTROL_VALUE         2002
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
