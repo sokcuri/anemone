@@ -12,7 +12,7 @@ public:
 	{
 		return m_gpToken;
 	}
-	int TextDraw(Graphics *graphics, const wchar_t *contextText, wchar_t *fontName, int fontStyle, int fntSize, int outlineInThick, int outlineOutThick, Color textColor, Color outlineInColor, Color outlineOutColor, Color shadowColor, bool textVisible, bool outlineInVisible, bool outlineOutVisible, bool shadowVisible, Rect *layoutRect);
+	int TextDraw(Graphics *graphics, const wchar_t *contextText, int textAlign, wchar_t *fontName, int fontStyle, int fntSize, int outlineInThick, int outlineOutThick, Color textColor, Color outlineInColor, Color outlineOutColor, Color shadowColor, bool textVisible, bool outlineInVisible, bool outlineOutVisible, bool shadowVisible, Rect *layoutRect);
 
 	void SetName(const wchar_t *str)
 	{

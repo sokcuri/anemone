@@ -202,33 +202,13 @@ class _viewLog
 public:
 	_viewLog(const _viewLog &vL)
 	{
-		int nLen;
-
-		nLen = wcslen(vL.Name);
-		Name = (wchar_t *)malloc((nLen + 1) * 2);
-		if (nLen > 1000) nLen = 1000;
-		memcpy(Name, vL.Name, nLen * 2);
-		Name[nLen] = 0x00;
-
-		nLen = wcslen(vL.NameT);
-		NameT = (wchar_t *)malloc((nLen + 1) * 2);
-		if (nLen > 1000) nLen = 1000;
-		memcpy(NameT, vL.NameT, nLen * 2);
-		NameT[nLen] = 0x00;
-
-		nLen = wcslen(vL.Text);
-		Text = (wchar_t *)malloc((nLen + 1) * 2);
-		if (nLen > 1000) nLen = 1000;
-		memcpy(Text, vL.Text, nLen * 2);
-		Text[nLen] = 0x00;
-
-		nLen = wcslen(vL.TextT);
-		TextT = (wchar_t *)malloc((nLen + 1) * 2);
-		if (nLen > 1000) nLen = 1000;
-		memcpy(TextT, vL.TextT, nLen * 2);
-		TextT[nLen] = 0x00;
+		__viewLog(vL.Name, vL.NameT, vL.Text, vL.TextT);
 	}
 	_viewLog(const wchar_t *name, const wchar_t *namet, const wchar_t *text, const wchar_t *textt)
+	{
+		__viewLog(name, namet, text, textt);
+	}
+	void __viewLog(const wchar_t *name, const wchar_t *namet, const wchar_t *text, const wchar_t *textt)
 	{
 		int nLen;
 
