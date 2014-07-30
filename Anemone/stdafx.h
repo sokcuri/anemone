@@ -89,6 +89,7 @@ struct _MagnetWnd
 	int rect_x;
 	int rect_y;
 	bool IsTopMost;
+	DWORD IgnoreTick;
 };
 extern _MagnetWnd MagnetWnd;
 

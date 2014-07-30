@@ -424,8 +424,23 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 					if (dmCurrent.dmPelsWidth == dmRegistry.dmPelsWidth &&
 						dmCurrent.dmPelsHeight == dmRegistry.dmPelsHeight)
+					//if (dmCurrent.dmPelsWidth == MagnetWnd.res_x &&
+					//	dmCurrent.dmPelsHeight == MagnetWnd.res_y)
 					{
-						SetWindowPos(hWnds.Main, NULL, rect.left + MagnetWnd.diff_x, rect.top + MagnetWnd.diff_y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
+						if (GetTickCount() > MagnetWnd.IgnoreTick)
+							SetWindowPos(hWnds.Main, NULL, rect.left + MagnetWnd.diff_x, rect.top + MagnetWnd.diff_y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
+						else
+						{
+							MagnetWnd.rect_x = rect.left;
+							MagnetWnd.rect_y = rect.top;
+
+							RECT AneRect;
+							GetWindowRect(hWnds.Main, &AneRect);
+
+							MagnetWnd.diff_x = AneRect.left - MagnetWnd.rect_x;
+							MagnetWnd.diff_y = AneRect.top - MagnetWnd.rect_y;
+
+						}
 					}
 
 					MagnetWnd.rect_x = rect.left;
@@ -767,13 +782,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
 		EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmREG);
 
+		bool IsMagnet = Cl.Config->GetMagneticMode();
+		if (IsMagnet)
+		{
+			//SendMessage(hWnds.Main, WM_COMMAND, ID_MAGNETIC_MODE, 0);
+		}
+
 		_wndinfo wi;
 		wi.res_x = dmCUR.dmPelsWidth;
 		wi.res_y = dmCUR.dmPelsHeight;
 
 		if (Cl.Config->GetWndRes(wi))
 		{
+			Cl.Config->SetMagneticMode(true);
+
+			MagnetWnd.IsMagnet = false;
 			SetWindowPos(hWnds.Main, 0, wi.x, wi.y, wi.cx, wi.cy, SWP_NOZORDER);
+
+			// 자석 모드 사용 중에는 MagnetWnd의 diff_x, diff_y를 변경시켜야 부모창이 움직이면 초기화되지 않음
+			if (Cl.Config->GetMagneticMode())
+			{
+				MagnetWnd.diff_x = wi.x - MagnetWnd.rect_x;
+				MagnetWnd.diff_y = wi.y - MagnetWnd.rect_y;
+			}
+
+			MagnetWnd.IsMagnet = true;
+
+			// 1초동안 자석모드를 일시 해제한다
+			MagnetWnd.IgnoreTick = GetTickCount() + 1000;
 		}
 	}
 		break;
@@ -3205,7 +3241,7 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			int n = Cl.Config->GetHookInterval();
 
 			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 200));
-			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/10);
+			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/5);
 
 			std::wstringstream ws;
 
@@ -3247,7 +3283,7 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			if (i > 200) break;
 
 			std::wstringstream ws;
-			i *= 10;
+			i *= 5;
 			ws << i;
 
 			SetDlgItemText(hWnd, IDC_HOOKCFG_INTERVAL_EDIT, ws.str().c_str());
