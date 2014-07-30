@@ -59,6 +59,7 @@ BEGIN
             MENUITEM "텍스트파일 번역하기\tALT+SHIFT+F11",   ID_WINDOW_FILETRANS
         END
         MENUITEM "환경 설정\tF10",                  ID_WINDOW_SETTING
+        MENUITEM "후커 감시 설정",                    ID_HOOKER_CONFIG
         MENUITEM SEPARATOR
         MENUITEM "아네모네 정보",                     ID_ABOUT
         POPUP "단축키 일람"

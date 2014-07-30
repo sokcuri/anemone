@@ -157,7 +157,7 @@ bool CTextRenderer::Paint()
 
 	if (!IsActive && !bBGSwitch) graphics.Clear(Color(0, 0, 0, 0));
 	else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
-	else graphics.Clear(Color(1, 0, 0, 0));
+	else graphics.Clear(Color(0, 0, 0, 0));
 
 	// 테두리 표시 모드
 	if (Cl.Config->GetWndBorderMode())
