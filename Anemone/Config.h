@@ -98,8 +98,8 @@ public:
 	bool GetHookMonitor() { return cfg_hook_monitor; }
 	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }
 
-	int GetHookInterval() { return cfg_hook_interval; }
-	void SetHookInterval(int i) { cfg_hook_interval = i; }
+	DWORD GetHookInterval() { return cfg_hook_interval; }
+	void SetHookInterval(DWORD i) { cfg_hook_interval = i; }
 
 	bool GetPrevSearchNum() { return cfg_prev_search_num; }
 	void SetPrevSearchNum(bool b) { cfg_prev_search_num = b; }

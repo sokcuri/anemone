@@ -8,7 +8,10 @@ public:
 
 	void StartWatchClip();
 	void EndWatchClip();
+	void StartHookMonitor();
+	void EndHookMonitor();
 	bool OnDrawClipboard();
+	bool OnDrawClipboardByHooker(wchar_t *lpwszstr);
 	//std::wstring eztrans_mt_proc(std::wstring &input);
 	//unsigned int WINAPI ThreadFunction(void *arg);
 	std::wstring TranslateText(HWND hWnd, const std::wstring &input);
@@ -16,6 +19,7 @@ public:
 	std::wstring eztrans_proc(const std::wstring &input);
 	bool LoadDictionary();
 private:
+	static CTextProcess *m_pThis;
 	std::wstring HangulEncode(const std::wstring &input);
 	std::wstring HangulDecode(const std::wstring &input);
 	std::wstring NameSplit(int nCode, std::wstring &input);
@@ -31,5 +35,16 @@ private:
 	bool _UnPatchUDic(const wchar_t *dicFile, void *offile);
 	void ApplyForceAneDicAll(std::wstring &input);
 	void ApplyForceAneDic(std::wstring &input);
+	bool ProcessText(std::wstring &wContext);
+
+	HANDLE hHookMonitorThread;
+	DWORD WINAPI _HookMonitorProc(LPVOID lpParam);
+
+	// Trampoline
+	static DWORD WINAPI HookMonitorProc(LPVOID lpParam)
+	{
+		return m_pThis->_HookMonitorProc(lpParam);
+	}
+
 };
 

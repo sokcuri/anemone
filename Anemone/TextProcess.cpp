@@ -1,11 +1,14 @@
 ﻿#include "StdAfx.h"
 #include "TextProcess.h"
 
+CTextProcess *CTextProcess::m_pThis = NULL;
 
 CTextProcess::CTextProcess()
 {
+	m_pThis = this;
 	Cl.TextProcess->LoadDictionary();
 	Cl.TextProcess->StartWatchClip();
+	if (Cl.Config->GetHookMonitor()) StartHookMonitor();
 }
 
 
@@ -28,6 +31,284 @@ void CTextProcess::StartWatchClip()
 void CTextProcess::EndWatchClip()
 {
 	ChangeClipboardChain(hWnds.Main, NULL);
+}
+
+void CTextProcess::StartHookMonitor()
+{
+	SECURITY_ATTRIBUTES ThreadAttributes;
+	ThreadAttributes.bInheritHandle = false;
+	ThreadAttributes.lpSecurityDescriptor = NULL;
+	ThreadAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+
+	hHookMonitorThread = CreateThread(&ThreadAttributes, 0, HookMonitorProc, NULL, 0, NULL);
+	if (hHookMonitorThread == NULL)
+	{
+		MessageBox(0, L"쓰레드 생성 작업을 실패했습니다.", 0, MB_ICONERROR);
+	}
+}
+
+void CTextProcess::EndHookMonitor()
+{
+	if (hHookMonitorThread != NULL)
+	{
+		TerminateThread(hHookMonitorThread, 0);
+		hHookMonitorThread = 0;
+	}
+}
+
+DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
+{
+	HWND hITH, hEdit, hThCombo;
+
+	while (1)
+	{
+		hITH = 0;
+		hEdit = 0;
+
+		// ITH가 발견되지 않으면 발견될떄까지 찾는다
+		while ((hITH = FindWindow(L"ITH", 0)) == 0){ Sleep(200); }
+
+		// ITH 에디트 컨트롤을 찾는다
+		for (HWND hFind = 0; (hFind = FindWindowEx(hITH, hFind, 0, 0)) != 0; ) {
+			if (GetWindowLong(hFind, GWL_STYLE) == 0x50200144)
+			{
+				hEdit = hFind;
+			}
+		}
+
+		for (HWND hFind = 0, nCombo = 0; ((hFind = FindWindowEx(hITH, hFind, 0, 0)) != 0); )
+		{
+			// COMBOBOX
+			if (GetWindowLong(hFind, GWL_STYLE) == 0x50010303)
+			{
+				if (nCombo == 0) nCombo++;
+				else hThCombo = hFind;
+			}
+		}
+
+		DWORD nLast_TickCount = 0;
+
+		wchar_t *Prev_Word = 0;
+		wchar_t *Last_Word = 0;
+		bool nPrev_Complete = false;
+		int nStep = 0;
+		int nFStep = 0;
+		int nThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
+
+		bool bChanged = false;
+		bool bWait = false;
+
+		while ( 1 )
+		{
+			if (GetWindowLong(hEdit, GWL_STYLE) != 0x50200144) break;
+
+			// EDIT 내용을 읽음
+			int cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
+			wchar_t *buf = (wchar_t *)malloc((cch + 1) * 2);
+			if (buf == NULL)
+			{
+				Sleep(100);
+				continue;
+			}
+			buf[0] = 0x00;
+			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
+			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
+
+			// 0번 쓰레드는 번역하지 않는다
+			if (nCurThNum == 0)
+			{
+				free(buf);
+				if (Prev_Word) free(Prev_Word);
+				Prev_Word = 0;
+				Sleep(10);
+				continue;
+			}
+
+			// 초기화
+			if (Prev_Word == 0)
+				Prev_Word = buf;
+
+			// Clear 하거나 쓰레드 변경시 초기화
+			if (!bWait)
+			{
+				if (wcslen(buf) < wcslen(Prev_Word) || nCurThNum != nThNum)
+				{
+					bWait = true;
+					nLast_TickCount = GetTickCount();
+				}
+			}
+			else // 1초간 기다렸다가 초기화
+			{
+				if (GetTickCount() - nLast_TickCount <= 1000)
+					continue;
+				else
+				{
+					bWait = false;
+					bChanged = false;
+					free(Prev_Word);
+
+					nLast_TickCount = 0;
+					Prev_Word = buf;
+					nThNum = nCurThNum;
+				}
+			}
+
+			// 변경 최초 감지
+			if (!bChanged)
+			{
+				if (wcslen(buf) != wcslen(Prev_Word))
+				{
+					bChanged = true;
+					Last_Word = buf;
+					nLast_TickCount = GetTickCount();
+				}
+				// 달라진게 없으면 메모리 해제
+				else if (Prev_Word != buf)
+				{
+					free(buf);
+				}
+			}
+
+			else if (bChanged)
+			{
+				// 일정 시간 안에 텍스트가 추가되면 기다린다
+				if (GetTickCount() - nLast_TickCount <= Cl.Config->GetHookInterval())
+				{
+					if (wcslen(buf) != wcslen(Last_Word))
+					{
+						free(Last_Word);
+						Last_Word = buf;
+						nLast_TickCount = GetTickCount();
+					}
+					else
+					{
+						free(buf);
+					}
+				}
+
+				// 일정 시간동안 추가된 텍스트가 없을 때 출력
+				else
+				{
+					int nShift = 0;
+					if (buf[wcslen(Prev_Word)] == 0x0D && buf[wcslen(Prev_Word)+1] == 0x0A)
+						nShift = 4;
+
+					wchar_t *text_buffer = (wchar_t *)malloc((wcslen(Last_Word) + 1 - nShift) * 2);
+					wcscpy(text_buffer, Last_Word + wcslen(Prev_Word) + nShift);
+
+					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer);
+					PostMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
+
+					wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
+					wcscpy(buf_copy, Last_Word);
+
+					free(Prev_Word);
+					free(Last_Word);
+					free(buf);
+
+					Prev_Word = buf_copy;
+
+					nLast_TickCount = 0;
+					bChanged = false;
+				}
+			}
+
+			/*
+			// 처음
+			if (nPrev_TickCount == 0)
+			{
+				nPrev_TickCount = GetTickCount();
+				Prev_Word = buf;
+				nFStep++;
+				continue;
+			}
+
+			// Prev_Word == 0 or buf < prev_word
+			if (Prev_Word == 0 || wcslen(buf) < wcslen(Prev_Word))
+			{
+				if (Prev_Word != 0) free(Prev_Word);
+				Prev_Word = buf;
+				nPrev_TickCount = GetTickCount();
+				continue;
+			}
+
+			// buf가 LastWord보다 큰경우
+			if (Last_Word == 0 || wcslen(buf) - wcslen(Last_Word) > 0)
+			{
+				if (Last_Word != 0) free(Last_Word);
+				Last_Word = buf;
+				continue;
+			}
+
+			if (wcslen(buf) != wcslen(Prev_Word))
+			{
+				std::wstringstream wss1;
+				wss1 << L"prev : ";
+				wss1 << wcslen(Prev_Word);
+				wss1 << L"\r\n";
+				wss1 << L"current : ";
+				wss1 << wcslen(buf);
+				wss1 << L"\r\n";
+				wss1 << Last_Word;
+
+				SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, wss1.str().c_str());
+			}
+
+			// 인터벌 안에 새로운 단어가 들어옴 (연속되는 단어, 문장일 가능성)
+			if (GetTickCount() - nPrev_TickCount <= Cl.Config->GetHookInterval())
+			{
+				if (Last_Word != 0) free(Last_Word);
+				Last_Word = buf;
+				//nPrev_TickCount = nCurr_TickCount;
+			}
+			// 인터벌 지난 문장
+			else 
+			{
+
+				int nLength = wcslen(Last_Word) - wcslen(Prev_Word) - 4;
+				if (nLength > 0)
+				{
+					buf = (wchar_t *)malloc((nLength + 1) * 2);
+					//buf = (wchar_t *)malloc((10 + 1) * 2);
+					//wcscpy(buf, L"테스트 메세지입니다");
+					wcscpy(buf, Last_Word + wcslen(Prev_Word) + 4);
+					//memcpy(buf, Last_Word + wcslen(Prev_Word)*2, nLength * 2);
+
+					buf[wcslen(Prev_Word)] = 0x00;
+					PostMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)buf);
+
+					nStep++;
+					
+					std::wstringstream wss2;
+					wss2 << L"Result : ";
+					wss2 << buf;
+					wss2 << L"\r\n\r\n";
+					wss2 << L"Step : ";
+					wss2 << nFStep;
+					wss2 << L"\r\nStep : ";
+					wss2 << nStep;
+					wss2 << L"\r\nPrev_TickCount : ";
+					wss2 << nPrev_TickCount;
+					wss2 << L"\r\nCurrent_TickCount : ";
+					wss2 << GetTickCount();
+
+
+					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT2, wss2.str().c_str());
+
+
+					nPrev_TickCount = GetTickCount();
+
+
+					free(Prev_Word);
+					free(Last_Word);
+					Prev_Word = 0;
+					Last_Word = 0;
+				}
+			}*/
+			Sleep(1);
+		}
+		Sleep(30);
+	}
 }
 /*
 std::wstring CTextProcess::eztrans_mt_proc(std::wstring &input)
@@ -610,7 +891,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 
 bool CTextProcess::OnDrawClipboard()
 {
-	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContext, wContextT;
+	std::wstring wContext;
 
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
 	if (IsActive == 2)
@@ -639,10 +920,10 @@ bool CTextProcess::OnDrawClipboard()
 
 	OpenClipboard(hWnds.Clip);
 	HANDLE hClipData = GetClipboardData(CF_UNICODETEXT);
-	
+
 	if (hClipData == NULL)
 	{
-		Cl.TextRenderer->Paint(); 
+		Cl.TextRenderer->Paint();
 		CloseClipboard();
 		return false;
 	}
@@ -656,6 +937,30 @@ bool CTextProcess::OnDrawClipboard()
 		CloseClipboard();
 		return false;
 	}
+	ProcessText(wContext);
+	CloseClipboard();
+	return true;
+}
+
+bool CTextProcess::OnDrawClipboardByHooker(wchar_t *lpwszstr)
+{
+	std::wstring wContext;
+	wContext = lpwszstr;
+	
+	// 인식 길이를 넘는 글자가 들어오면 버리기
+	if (wContext.length() > (unsigned int)Cl.Config->GetClipLength())
+	{
+		return false;
+	}
+
+	ProcessText(wContext);
+	free(lpwszstr);
+	return true;
+}
+
+bool CTextProcess::ProcessText(std::wstring &wContext)
+{
+	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContextT;
 
 	// 반복 처리
 	if (Cl.Config->GetRepeatTextProc() > 2)
@@ -706,8 +1011,6 @@ bool CTextProcess::OnDrawClipboard()
 	
 	//MessageBox(0, viewLog[viewLog.size()-1].TextT, 0, 0);
 	viewLogNum = 0;
-	
-	CloseClipboard();
 	
 	IsActive = true;
 	Cl.TextRenderer->Paint();
@@ -1072,4 +1375,5 @@ CTextProcess::~CTextProcess()
 {
 	// 클립보드 감시 종료
 	EndWatchClip();
+	EndHookMonitor();
 }

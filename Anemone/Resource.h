@@ -88,6 +88,7 @@
 #define IDC_SETTING_TEXTALIGN_RIGHT     1023
 #define IDC_SLIDER1                     1024
 #define IDC_SETTING_BACKGROUND_TRACKBAR 1024
+#define IDC_HOOKCFG_INTERVAL_BAR        1024
 #define IDC_BUTTON1                     1025
 #define IDC_SETTING_BACKGROUND_COLOR    1025
 #define IDC_FILE_TRANSWIN_LOAD_BROWSER  1025
@@ -235,6 +236,8 @@
 #define ID_TRANS_ERROR                  1218
 #define ID_TRANS_START                  1219
 #define IDC_SETTING_HOOKER_MONITOR      2002
+#define IDC_EDIT4                       2004
+#define IDC_HOOKCFG_INTERVAL_EDIT       2004
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -312,6 +315,7 @@
 #define ID_HOOKER_SETUP                 32830
 #define ID_BACKGROUND_SWITCH            32831
 #define ID_WINRESET                     32832
+#define ID_HOOK_DRAWTEXT                32833
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -320,8 +324,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         2003
+#define _APS_NEXT_COMMAND_VALUE         32834
+#define _APS_NEXT_CONTROL_VALUE         2005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

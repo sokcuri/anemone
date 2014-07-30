@@ -1251,8 +1251,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					std::wstringstream ws;
 					std::wstring str;
 
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(100, 1000));
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n);
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(10, 100));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_CLIP_TRACKBAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/10);
 					
 					ws << L"클립보드 최대 글자수 ";
 					ws << L"(";
@@ -1542,13 +1542,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (Cl.Config->GetHookMonitor())
 			{
-			
+				Cl.TextProcess->StartHookMonitor();
 			}
 			else
 			{
-
+				Cl.TextProcess->EndHookMonitor();
 			}
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+		}
+			break;
+		case ID_HOOK_DRAWTEXT:
+		{
+			Cl.TextProcess->OnDrawClipboardByHooker((wchar_t *)lParam);
 		}
 			break;
 		default:
@@ -2439,7 +2444,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			if (i > 1000) break;
 
-			Cl.Config->SetClipLength(i);
+			Cl.Config->SetClipLength(i*10);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 0);
@@ -3096,15 +3101,67 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	{
 	case WM_SHOWWINDOW:
 	{
-		HWND hITH = FindWindow(L"ITH", 0);
-		if (hITH)
-			SetDlgItemText(hWnd, IDC_HOOKCFG_ITH, L"ITH ON");
-		else SetDlgItemText(hWnd, IDC_HOOKCFG_ITH, L"ITH OFF");
+		if (Cl.Config->GetHookMonitor())
+		{
+			HWND hITH = FindWindow(L"ITH", 0);
+			if (hITH)
+				SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 켜져 있습니다.");
+			else SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 꺼져 있습니다.");
 
+			int n = Cl.Config->GetHookInterval();
+
+			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(20, 200));
+			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/10);
+
+			std::wstringstream ws;
+
+			ws << n;
+			SetDlgItemTextW(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_EDIT, ws.str().c_str());
+		}
+
+		/*
 		HWND hAGTH = FindWindow(L"AGTHClass", 0);
 		if (hAGTH)
 			SetDlgItemText(hWnd, IDC_HOOKCFG_AGTH, L"AGTH ON");
 		else SetDlgItemText(hWnd, IDC_HOOKCFG_AGTH, L"AGTH OFF");
+		*/
+	}
+		break;
+	case WM_HSCROLL:
+	{
+		if ((HWND)lParam == GetDlgItem(hWnd, IDC_HOOKCFG_INTERVAL_BAR))
+		{
+			int i;
+
+			switch (LOWORD(wParam))
+			{
+			case TB_LINEUP:
+			case TB_LINEDOWN:
+			case TB_PAGEUP:
+			case TB_PAGEDOWN:
+			case TB_TOP:
+			case TB_BOTTOM:
+			case TB_ENDTRACK:
+				i = (INT)SendDlgItemMessage(hWnd, IDC_HOOKCFG_INTERVAL_BAR, TBM_GETPOS, 0, 0);
+				break;
+
+			case TB_THUMBTRACK:
+				i = (INT)HIWORD(wParam);
+				break;
+			}
+
+			if (i > 200) break;
+
+			std::wstringstream ws;
+			i *= 10;
+			ws << i;
+
+			SetDlgItemText(hWnd, IDC_HOOKCFG_INTERVAL_EDIT, ws.str().c_str());
+
+			Cl.Config->SetHookInterval(i);
+
+			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+		}
 	}
 		break;
 	case WM_COMMAND:
@@ -3208,12 +3265,10 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		}
 			break;
 		case IDOK:
-		case IDCANCEL:
-		case IDC_TRANSWIN_CLOSE:
-		{
-
 			DestroyWindow(hWnd);
-		}
+			break;
+		case IDCANCEL:
+			DestroyWindow(hWnd);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

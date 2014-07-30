@@ -7,6 +7,7 @@ CFileWatch *CFileWatch::m_pThis = NULL;
 
 CFileWatch::CFileWatch()
 {
+	m_pThis = this;
 	TurnOn();
 }
 
