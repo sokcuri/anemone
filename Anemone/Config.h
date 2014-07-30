@@ -95,6 +95,9 @@ public:
 	bool LoadConfig();
 	bool SaveConfig();
 
+	bool LoadWndConfig();
+	bool SaveWndConfig();
+
 	bool GetHookMonitor() { return cfg_hook_monitor; }
 	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }
 

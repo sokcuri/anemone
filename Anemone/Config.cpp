@@ -312,3 +312,145 @@ bool CConfig::SaveConfig()
 	Cl.FileWatch->TurnOn();
 	return true;
 }
+
+bool CConfig::LoadWndConfig()
+{
+	FILE *fp;
+	wchar_t buff[1024];
+	std::wstring WndConfig;
+	int nLine = 0;
+
+	GetLoadPath(WndConfig, L"\\WndInfo.ini");
+
+	if (_wfopen_s(&fp, WndConfig.c_str(), L"rt,ccs=UTF-8") != 0)
+	{
+		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
+		return false;
+	}
+
+	// 정규식 패턴
+	// ^\\[([0-9]+)x([0-9]+)\\]
+	// ([A-Z]+)\=([0-9]+)\|([0-9]+)\|([0-9]+)\|([0-9]+)
+
+	std::wregex regex_sect(L"^\\[([0-9]+)x([0-9]+)\\]");
+	std::wregex regex_field(L"([A-Z]+)\=([0-9]+)\|([0-9]+)\|([0-9]+)\|([0-9]+)");
+
+	std::wsmatch m;
+
+	/*
+	<< res_x res_y type x y cx cy
+	>>
+
+	int res_x
+	int res_y
+	int type
+
+	int x
+	int y
+	int cx
+	int cy
+	*/
+
+	int res_x;
+	int res_y;
+
+	// 한줄씩 읽기
+	while (fgetws(buff, 1000, fp) != NULL)
+	{
+		std::wstring str = buff;
+		if (std::regex_match(str, m, regex_sect))
+		{
+			res_x = _wtoi(m[0].str().c_str());
+			res_y = _wtoi(m[1].str().c_str());
+			//GetWndItem(arr, res_x, res_y, type, x, y, cx, cy);
+		}
+		else if (std::regex_match(str, m, regex_field))
+		{
+			if (res_x != 0 && res_y != 0)
+			{
+				if (m[0] == L"MAIN") type = 0;
+				else if (m[1] == L"SETTING") type = 1;
+				x = _wtoi(m[1].str().c_str());
+				y = _wtoi(m[2].str().c_str());
+				cx = _wtoi(m[3].str().c_str());
+				cy = _wtoi(m[4].str().c_str());
+			}
+		}
+	}
+}
+
+bool CConfig::SaveWndConfig()
+{
+	FILE *fp;
+	wchar_t buff[1024];
+	std::wstring WndConfig;
+	int nLine = 0;
+
+	GetLoadPath(WndConfig, L"\\WndInfo.ini");
+
+	if (_wfopen_s(&fp, WndConfig.c_str(), L"wt,ccs=UTF-8") != 0)
+	{
+		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
+		return false;
+	}
+
+	// 정규식 패턴
+	// ^\\[([0-9]+)x([0-9]+)\\]
+	// ([A-Z]+)\=([0-9]+)\|([0-9]+)\|([0-9]+)\|([0-9]+)
+
+	std::wregex regex_sect(L"^\\[([0-9]+)x([0-9]+)\\]");
+	std::wregex regex_field(L"([A-Z]+)\=([0-9]+)\|([0-9]+)\|([0-9]+)\|([0-9]+)");
+
+	std::wsmatch m;
+
+	/*
+	<< res_x res_y type x y cx cy
+	>>
+
+	int res_x
+	int res_y
+	int type
+
+	int x
+	int y
+	int cx
+	int cy
+	*/
+
+	int res_x;
+	int res_y;
+
+	for (int i = 0; i < wndinfo.size(); i++)
+	{
+		if (res_x != wndinfo[i].res_x && res_y != wndinfo[i].res_y)
+		{
+			res_x = wndinfo[0].res_x;
+			res_y = wndinfo[0].res_y
+				fwprintf(fp, L"[%dx%d]", wndinfo[i].res_x, wndinfo[i].res_y)
+		}
+	}
+
+	// 한줄씩 읽기
+	while (fgetws(buff, 1000, fp) != NULL)
+	{
+		std::wstring str = buff;
+		if (std::regex_match(str, m, regex_sect))
+		{
+			res_x = _wtoi(m[0].str().c_str());
+			res_y = _wtoi(m[1].str().c_str());
+			//GetWndItem(arr, res_x, res_y, type, x, y, cx, cy);
+		}
+		else if (std::regex_match(str, m, regex_field))
+		{
+			if (res_x != 0 && res_y != 0)
+			{
+				if (m[0] == L"MAIN") type = 0;
+				else if (m[1] == L"SETTING") type = 1;
+				x = _wtoi(m[1].str().c_str());
+				y = _wtoi(m[2].str().c_str());
+				cx = _wtoi(m[3].str().c_str());
+				cy = _wtoi(m[4].str().c_str());
+			}
+		}
+	}
+}
