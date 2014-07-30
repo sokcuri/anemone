@@ -316,6 +316,7 @@
 #define ID_BACKGROUND_SWITCH            32831
 #define ID_WINRESET                     32832
 #define ID_HOOK_DRAWTEXT                32833
+#define ID_SET_WNDRES					32834
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -324,7 +325,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32834
+#define _APS_NEXT_COMMAND_VALUE         32835
 #define _APS_NEXT_CONTROL_VALUE         2005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

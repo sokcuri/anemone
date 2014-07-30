@@ -98,6 +98,9 @@ public:
 	bool LoadWndConfig();
 	bool SaveWndConfig();
 
+	bool SetWndRes(struct _wndinfo &wi);
+	bool GetWndRes(struct _wndinfo &wi);
+
 	bool GetHookMonitor() { return cfg_hook_monitor; }
 	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }
 

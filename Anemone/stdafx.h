@@ -259,3 +259,14 @@ public:
 
 extern std::vector<_viewLog> viewLog;
 extern int viewLogNum;
+
+struct _wndinfo
+{
+	int res_x;
+	int res_y;
+	int x;
+	int y;
+	int cx;
+	int cy;
+};
+extern std::vector<_wndinfo> WndInfo;

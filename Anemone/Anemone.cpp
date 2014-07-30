@@ -40,6 +40,9 @@ int IsActive = 0;
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
 
+// 아네모네 윈도우 저장
+std::vector<_wndinfo> WndInfo;
+
 ATOM				WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnProc);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -97,7 +100,16 @@ int APIENTRY _tWinMain(
 	// 환경설정 클래스
 	Cl.Config = new CConfig();
 	Cl.Config->LoadConfig();
-
+	Cl.Config->LoadWndConfig();
+	/*
+	std::wregex regex_field(L"^(\\d+)x(\\d+)=(\\d+)[|](\\d+)[|](\\d+)[|](\\d+)(\\s+)");
+	std::wstring str = L"123x456=789|123|456|781\r\n";
+	std::wsmatch m;
+	if (std::regex_match(str, m, regex_field))
+	{
+		MessageBox(0, L"X", 0, 0);
+	}
+	*/
 	// 업데이트 체크
 	if (Cl.Config->GetUpdateNotify())
 		if (UpdateNotify(0, false)) return FALSE;
@@ -174,14 +186,15 @@ void CleanUp()
 	TerminateThread(MagnetWnd.hThread, 0);
 	Shell_NotifyIcon(NIM_DELETE, &niData);
 	
+	Cl.Config->SaveWndConfig();
 	Cl.Config->SaveConfig();
 
 	DestroyWindow(hWnds.Parent);
 
+	delete Cl.TextProcess;
 	delete Cl.TextRenderer;
 	delete Cl.Remocon;
 	delete Cl.FileWatch;
-	delete Cl.TextProcess;
 	delete Cl.Hotkey;
 	delete Cl.TransEngine;
 	delete Cl.Config;
@@ -310,7 +323,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 			}
 
 		}
-		
+
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
 			if (Cl.Config->GetMagneticMode())
@@ -641,14 +654,33 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   int cx = GetSystemMetrics(SM_CXSCREEN);
-   int cy = GetSystemMetrics(SM_CYSCREEN);
+   int sm_cx = GetSystemMetrics(SM_CXSCREEN);
+   int sm_cy = GetSystemMetrics(SM_CYSCREEN);
 
-   int x = 500;
-   int y = 200;
+   int cx = 500;
+   int cy = 200;
+
+   int x = (sm_cx - cx) / 2;
+   int y = (sm_cy - cy) / 2;
+
+   DEVMODE dmREG, dmCUR;
+   EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
+   EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmREG);
+
+   _wndinfo wi;
+   wi.res_x = dmCUR.dmPelsWidth;
+   wi.res_y = dmCUR.dmPelsHeight;
+
+   if (Cl.Config->GetWndRes(wi))
+   {
+	   x = wi.x;
+	   y = wi.y;
+	   cx = wi.cx;
+	   cy = wi.cy;
+   }
 
    hWnds.Main = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOPMOST, szWindowClass, szTitle, WS_POPUP,
-      (cx-x)/2, (cy-y)/2, x, y, hWnds.Parent, NULL, hInstance, NULL);
+      x, y, cx, cy, hWnds.Parent, NULL, hInstance, NULL);
 
    HANDLE hThread = NULL;
    DWORD dwThreadID = NULL;
@@ -713,6 +745,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
+	}
+		break;
+	case WM_DISPLAYCHANGE:
+	{
+		Cl.Hotkey->RemoveHook();
+		Cl.Hotkey->InstallHook();
+
+		DEVMODE dmREG, dmCUR;
+		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
+		EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmREG);
+
+		_wndinfo wi;
+		wi.res_x = dmCUR.dmPelsWidth;
+		wi.res_y = dmCUR.dmPelsHeight;
+
+		if (Cl.Config->GetWndRes(wi))
+		{
+			SetWindowPos(hWnds.Main, 0, wi.x, wi.y, wi.cx, wi.cy, SWP_NOZORDER);
+		}
 	}
 		break;
 	case WM_COMMAND:
@@ -952,6 +1003,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
+				Cl.Config->SaveWndConfig();
 				Cl.Config->SaveConfig();
 				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnds.Main, SettingProc);
 
@@ -962,6 +1014,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
+				Cl.Config->SaveWndConfig();
+				Cl.Config->SaveConfig();
+
 				DestroyWindow(hWnds.Setting);
 				hWnds.Setting = NULL;
 				break;
@@ -1436,6 +1491,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// 팝업창이 떠 있으면 닫기
 			SendMessage(hWnd, WM_COMMAND, ID_DESTROY_MENU, 0);
 
+			// 윈도우 위치 저장
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)&rect);
+
 			SetWindowPos(hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE);
 		}
 			break;
@@ -1474,6 +1532,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// 팝업창이 떠 있으면 닫기
 			SendMessage(hWnd, WM_COMMAND, ID_DESTROY_MENU, 0);
+
+			// 윈도우 위치 저장
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)&rect);
 
 			SetWindowPos(hWnd, HWND_TOP, 0, 0, cx, cy, SWP_NOMOVE);
 		}
@@ -1556,6 +1617,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextProcess->OnDrawClipboardByHooker((wchar_t *)lParam);
 		}
 			break;
+		case ID_SET_WNDRES:
+		{
+			RECT *prc = (RECT *)lParam;
+
+			// 현재 윈도우 위치를 변수에 저장
+			DEVMODE dmCUR;
+			EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
+
+			_wndinfo wi;
+			wi.res_x = dmCUR.dmPelsWidth;
+			wi.res_y = dmCUR.dmPelsHeight;
+			wi.x = prc->left;
+			wi.y = prc->top;
+			wi.cx = prc->right - prc->left;
+			wi.cy = prc->bottom - prc->top;
+
+			Cl.Config->SetWndRes(wi);
+		}
+		break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1602,6 +1682,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MagnetWnd.diff_x = prc->left - MagnetWnd.rect_x;
 			MagnetWnd.diff_y = prc->top - MagnetWnd.rect_y;
 		}
+
+		// 윈도우 위치 저장
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)prc);
 
 		// 크기 조정중에는 화면이 갱신되도록 한다
 		if (message == WM_SIZING) Cl.TextRenderer->Paint();
