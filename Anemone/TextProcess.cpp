@@ -307,7 +307,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			}*/
 			Sleep(1);
 		}
-		Sleep(30);
+		Sleep(1);
 	}
 }
 /*
