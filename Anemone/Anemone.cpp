@@ -323,6 +323,17 @@ unsigned int WINAPI MagneticThread(void *arg)
 			}
 
 		}
+		
+		// 아네모네 창이 항상 위로 오도록
+		if (!Cl.Config->GetMagneticMode() &&
+			Cl.Config->GetWindowTopMost())
+		{
+			if (FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
+			{
+				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{

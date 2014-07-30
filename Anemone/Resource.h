@@ -316,7 +316,7 @@
 #define ID_BACKGROUND_SWITCH            32831
 #define ID_WINRESET                     32832
 #define ID_HOOK_DRAWTEXT                32833
-#define ID_SET_WNDRES					32834
+#define ID_SET_WNDRES                   32834
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
