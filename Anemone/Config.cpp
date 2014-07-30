@@ -379,6 +379,14 @@ bool CConfig::LoadWndConfig()
 	}
 }
 
+bool CConfig::AddWndRes()
+{
+	for (int i = 0; i < wndinfo.size(); i++)
+	{
+
+	}
+}
+
 bool CConfig::SaveWndConfig()
 {
 	FILE *fp;
@@ -419,6 +427,7 @@ bool CConfig::SaveWndConfig()
 
 	int res_x;
 	int res_y;
+	std::wstring type;
 
 	for (int i = 0; i < wndinfo.size(); i++)
 	{
@@ -426,31 +435,19 @@ bool CConfig::SaveWndConfig()
 		{
 			res_x = wndinfo[0].res_x;
 			res_y = wndinfo[0].res_y
-				fwprintf(fp, L"[%dx%d]", wndinfo[i].res_x, wndinfo[i].res_y)
+			fwprintf(fp, L"[%dx%d]\r\n", wndinfo[i].res_x, wndinfo[i].res_y)
 		}
-	}
+		
+		switch (wndinfo[i].type)
+		{
+		case 0:
+			type = L"MAIN";
+			break;
+		case 1:
+			type = L"SETTING";
+			break;
+		}
+		fwprintf(fp, L"%s = %d|%d|%d|%d\r\n", type.c_str(), wndinfo[i].x, wndinfo[i].y, wndinfo[i].cx, wndinfo[i].cy);
 
-	// 한줄씩 읽기
-	while (fgetws(buff, 1000, fp) != NULL)
-	{
-		std::wstring str = buff;
-		if (std::regex_match(str, m, regex_sect))
-		{
-			res_x = _wtoi(m[0].str().c_str());
-			res_y = _wtoi(m[1].str().c_str());
-			//GetWndItem(arr, res_x, res_y, type, x, y, cx, cy);
-		}
-		else if (std::regex_match(str, m, regex_field))
-		{
-			if (res_x != 0 && res_y != 0)
-			{
-				if (m[0] == L"MAIN") type = 0;
-				else if (m[1] == L"SETTING") type = 1;
-				x = _wtoi(m[1].str().c_str());
-				y = _wtoi(m[2].str().c_str());
-				cx = _wtoi(m[3].str().c_str());
-				cy = _wtoi(m[4].str().c_str());
-			}
-		}
 	}
 }
