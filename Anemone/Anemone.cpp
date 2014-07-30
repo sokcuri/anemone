@@ -830,6 +830,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_WINRESET:
 		{
+			RECT rect;
+			GetWindowRect(hWnds.Main, &rect);
+
+			int sm_cx = GetSystemMetrics(SM_CXSCREEN);
+			int sm_cy = GetSystemMetrics(SM_CYSCREEN);
+
+			int cx = 500;
+			int cy = 200;
+
+			int x = (sm_cx - cx) / 2;
+			int y = (sm_cy - cy) / 2;
+
+			SetWindowPos(hWnds.Main, 0, x, y, cx, cy, SWP_NOZORDER);
+
+			GetWindowRect(hWnds.Main, &rect);
+			SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)&rect);
 
 		}
 			break;

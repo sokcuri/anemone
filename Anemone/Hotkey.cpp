@@ -19,9 +19,6 @@ bool CHotkey::LoadKeyMap()
 	key_map.erase(key_map.begin(), key_map.end());
 
 	// 임시
-	RegKey(VK_F1, false, false, false, ID_HOOKER_CONFIG);
-
-
 	RegKey(VK_F6, false, false, false, ID_TEMP_CLICK_THOUGH);
 
 	RegKey(VK_F7, false, false, false, ID_WND_BORDER_MODE);
@@ -32,7 +29,7 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F8, false, true, false, ID_PRINT_ORGNAME);
 
 	// 이름 분리 표시
-	RegKey(VK_F9, false, false, false, ID_SEPERATE_NAME);
+	RegKey(VK_F8, true, false, false, ID_SEPERATE_NAME);
 
 	RegKey(VK_F10, false, false, false, ID_WINDOW_SETTING, true);
 
@@ -50,6 +47,9 @@ bool CHotkey::LoadKeyMap()
 	// 창 잠깐 숨기기 / 창 완전 숨기기
 	RegKey(VK_NUMPAD5, false, false, false, ID_TEMP_WINDOW_HIDE, true);
 	RegKey(VK_MULTIPLY, false, false, false, ID_WINDOW_VISIBLE, true);
+
+	// 창 위치 리셋
+	RegKey(VK_DIVIDE, false, false, false, ID_WINRESET);
 
 	// 창 이동
 	RegKey(VK_NUMPAD8, false, false, false, ID_WNDMOVE_TOP);
@@ -84,9 +84,9 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F9, false, false, true, ID_TRANSTEXT_WNDMENU);
 	RegKey(VK_F10, false, false, true, ID_TRANSTEXT_WNDTEXT);
 
-	// 클립보드 감시
+	// 클립보드 감시/후커 직접 감시
 	RegKey(VK_SCROLL, false, false, false, ID_CLIPBOARD_SWITCH, true);
-
+	RegKey(VK_OEM_5, true, true, false, ID_HOOKER_MONITOR, true);
 	return true;
 }
 

@@ -43,7 +43,7 @@ BEGIN
     POPUP "ANEMONE_MENU"
     BEGIN
         MENUITEM "클립보드 감시\tScroll Lock",        ID_CLIPBOARD_SWITCH
-        MENUITEM "후커 직접 감시",                    ID_HOOKER_MONITOR
+        MENUITEM "후커 직접 감시\tCTRL+ALT+\\",       ID_HOOKER_MONITOR
         MENUITEM SEPARATOR
         MENUITEM "창 너머 클릭\tF6",                 ID_TEMP_CLICK_THOUGH
         MENUITEM "자석 모드 사용\t'",                 ID_MAGNETIC_MODE
@@ -185,7 +185,7 @@ BEGIN
     CONTROL         "원문 문장 출력 (F8)",IDC_SETTING_PRINT_ORGTEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,195,77,10
     CONTROL         "원문 이름 출력 (ALT+F8)",IDC_SETTING_PRINT_ORGNAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,209,94,10
     LTEXT           "──────────────────────",IDC_STATIC,12,220,155,8,WS_DISABLED
-    CONTROL         "이름 분리 표시 (F9)",IDC_SETTING_SEPERATE_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,228,77,10
+    CONTROL         "이름 분리 표시 (CTRL+F8)",IDC_SETTING_SEPERATE_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,228,99,10
     CONTROL         "대사 끝에 붙은 이름 인식",IDC_SETTING_TEXTEND_NAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,242,94,10
     LTEXT           "──────────────────────",IDC_STATIC,12,252,155,8,WS_DISABLED
     CONTROL         "반복 문자 처리",IDC_SETTING_REPEAT_TEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,260,76,10
