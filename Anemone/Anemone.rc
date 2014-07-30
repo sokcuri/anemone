@@ -45,10 +45,11 @@ BEGIN
         MENUITEM "클립보드 감시\tScroll Lock",        ID_CLIPBOARD_SWITCH
         MENUITEM "후커 직접 감시\tCTRL+ALT+\\",       ID_HOOKER_MONITOR
         MENUITEM SEPARATOR
-        MENUITEM "창 너머 클릭\tF6",                 ID_TEMP_CLICK_THOUGH
         MENUITEM "자석 모드 사용\t'",                 ID_MAGNETIC_MODE
+        MENUITEM "창 너머 클릭\tF6",                 ID_TEMP_CLICK_THOUGH
         MENUITEM "창 테두리 표시\tF7",                ID_WND_BORDER_MODE
         MENUITEM "창 배경 표시\tALT+F7",             ID_BACKGROUND_SWITCH
+        MENUITEM "백로그 윈도우\tF9",                 ID_ANEMONE_32836
         MENUITEM SEPARATOR
         MENUITEM "창 숨기기\tNUM *",                ID_WINDOW_VISIBLE
         MENUITEM "잠깐 숨기기\tNUM 5",               ID_TEMP_WINDOW_HIDE
@@ -194,7 +195,7 @@ BEGIN
     LTEXT           "──────────────────────",IDC_STATIC,12,299,155,8,WS_DISABLED
     PUSHBUTTON      "업데이트 확인",IDC_SETTING_UPDATE_CHECK,113,306,50,14
     CONTROL         "업데이트 알림",IDC_SETTING_UPDATE_NOTIFY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,307,91,10
-    CONTROL         "리모콘 기능 사용",IDC_SETTING_ANE_REMOCON,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,14,321,69,10
+    CONTROL         "리모콘 기능 사용",IDC_SETTING_ANE_REMOCON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,321,69,10
     CONTROL         "전역 단축키 사용 (CTRL+SHIFT+F12)",IDC_SETTING_EXTERN_HOTKEY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,335,132,10
     GROUPBOX        "일반 설정",IDC_STATIC,7,114,161,239

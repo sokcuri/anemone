@@ -90,7 +90,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 		wchar_t *Prev_Word = 0;
 		wchar_t *Last_Word = 0;
-		bool nPrev_Complete = false;
+
 		int nStep = 0;
 		int nFStep = 0;
 		int nThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
@@ -189,26 +189,34 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				// 일정 시간동안 추가된 텍스트가 없을 때 출력
 				else
 				{
+					/*
+					free(Prev_Word);
+					free(buf);
+					Prev_Word = Last_Word;
+
+					bChanged = false;
+					nLast_TickCount = 0;
+					*/
+					
 					int nShift = 0;
 					if (buf[wcslen(Prev_Word)] == 0x0D && buf[wcslen(Prev_Word)+1] == 0x0A)
 						nShift = 4;
 
-					wchar_t *text_buffer = (wchar_t *)malloc((wcslen(Last_Word) + 1 - nShift) * 2);
-					wcscpy(text_buffer, Last_Word + wcslen(Prev_Word) + nShift);
+					wchar_t *text_buffer = Last_Word + wcslen(Prev_Word) + nShift;
 
 					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer);
 
 					if (Cl.Config->GetHookMonitor())
-						PostMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
+						SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
 
-					wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
-					wcscpy(buf_copy, Last_Word);
+					//wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
+					//wcscpy(buf_copy, Last_Word);
 
 					free(Prev_Word);
-					free(Last_Word);
+					//free(Last_Word);
 					free(buf);
 
-					Prev_Word = buf_copy;
+					Prev_Word = Last_Word;
 
 					nLast_TickCount = 0;
 					bChanged = false;
@@ -956,7 +964,6 @@ bool CTextProcess::OnDrawClipboardByHooker(wchar_t *lpwszstr)
 	}
 
 	ProcessText(wContext);
-	free(lpwszstr);
 	return true;
 }
 

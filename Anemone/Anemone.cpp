@@ -162,7 +162,7 @@ int APIENTRY _tWinMain(
 	// 트레이 아이콘 생성
 	CreateTrayIcon(hWnds.Main);
 
-	//ShowWindow(hWnds.Remocon, true);
+	ShowWindow(hWnds.Remocon, true);
 
 	// 윈도우 표시
 	ShowWindow(hWnds.Main, true);
@@ -1944,6 +1944,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			(Cl.Config->GetForceAneDic() ? Cl.Config->SetForceAneDic(false) : Cl.Config->SetForceAneDic(true));
 			break;
 		case IDC_SETTING_ANE_REMOCON:
+			(Cl.Config->GetRemoconMode() ? Cl.Config->SetRemoconMode(false) : Cl.Config->SetRemoconMode(true));
 			break;
 		case IDC_SETTING_EXTERN_HOTKEY:
 			SendMessage(hWnds.Main, WM_COMMAND, ID_EXTERN_HOTKEY, 0);
