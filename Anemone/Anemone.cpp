@@ -3223,23 +3223,20 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	{
 	case WM_SHOWWINDOW:
 	{
-		if (Cl.Config->GetHookMonitor())
-		{
-			HWND hITH = FindWindow(L"ITH", 0);
-			if (hITH)
-				SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 켜져 있습니다.");
-			else SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 꺼져 있습니다.");
+		HWND hITH = FindWindow(L"ITH", 0);
+		if (hITH)
+			SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 켜져 있습니다.");
+		else SetDlgItemText(hWnd, IDC_HOOKCFG_STATUS, L"ITH가 꺼져 있습니다.");
 
-			int n = Cl.Config->GetHookInterval();
+		int n = Cl.Config->GetHookInterval();
 
-			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 200));
-			SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/5);
+		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 200));
+		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/5);
 
-			std::wstringstream ws;
+		std::wstringstream ws;
 
-			ws << n;
-			SetDlgItemTextW(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_EDIT, ws.str().c_str());
-		}
+		ws << n;
+		SetDlgItemTextW(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_EDIT, ws.str().c_str());
 
 		/*
 		HWND hAGTH = FindWindow(L"AGTHClass", 0);

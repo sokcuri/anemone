@@ -6,9 +6,9 @@ CTextProcess *CTextProcess::m_pThis = NULL;
 CTextProcess::CTextProcess()
 {
 	m_pThis = this;
-	Cl.TextProcess->LoadDictionary();
-	Cl.TextProcess->StartWatchClip();
-	if (Cl.Config->GetHookMonitor()) StartHookMonitor();
+	LoadDictionary();
+	StartWatchClip();
+	StartHookMonitor();
 }
 
 
