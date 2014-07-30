@@ -197,7 +197,9 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					wcscpy(text_buffer, Last_Word + wcslen(Prev_Word) + nShift);
 
 					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer);
-					PostMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
+
+					if (Cl.Config->GetHookMonitor())
+						PostMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
 
 					wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
 					wcscpy(buf_copy, Last_Word);

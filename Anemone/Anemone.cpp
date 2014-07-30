@@ -1648,14 +1648,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			(Cl.Config->GetHookMonitor() ? Cl.Config->SetHookMonitor(false) : Cl.Config->SetHookMonitor(true));
 
-			if (Cl.Config->GetHookMonitor())
-			{
-				Cl.TextProcess->StartHookMonitor();
-			}
-			else
-			{
-				Cl.TextProcess->EndHookMonitor();
-			}
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
