@@ -322,7 +322,7 @@
 #define ID_ANEMONE_32836                32836
 #define ID_32837                        32837
 #define ID_WINDOW_BACKLOG               32838
-#define ID_OPEN_HOMEPAGE				32839
+#define ID_SETTING_HOMEPAGE                32839
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

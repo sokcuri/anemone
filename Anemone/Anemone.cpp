@@ -1734,11 +1734,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetWndRes(wi);
 		}
 		break;
-		case ID_OPEN_HOMEPAGE:
-		{
-			ShellExecute(NULL, L"open", L"http://www.eroha.net/", L"", L"", SW_SHOW);
-		}
-			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1928,6 +1923,12 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SendMessage(hWnds.Main, WM_COMMAND, ID_WINRESET, 0);
 			break;
 		case ID_SETTING_ADV:
+			break;
+		case ID_SETTING_HOMEPAGE:
+		{
+			ShellExecute(NULL, L"open", L"http://www.eroha.net/", L"", L"", SW_SHOW);
+			MessageBox(0, 0, 0, 0);
+		}
 			break;
 		case ID_SETTING_CLOSE:
 			DestroyWindow(hWnd);
