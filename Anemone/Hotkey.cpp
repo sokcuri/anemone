@@ -34,7 +34,7 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F10, false, false, false, ID_WINDOW_SETTING, true);
 
 	// 종료
-	RegKey(VK_F12, false, false, false, ID_TERMINATE_ANEMONE);
+	RegKey(VK_F12, false, true, false, ID_TERMINATE_ANEMONE);
 
 	// 이전글 / 최근글 보기
 	RegKey(VK_NUMPAD9, false, false, false, ID_TEXT_PREV);

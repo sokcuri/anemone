@@ -86,7 +86,8 @@ private:
 	int cfg_window_movepoint = 5;
 	bool cfg_prev_search_num = true;
 	bool cfg_hook_monitor = false;
-	int cfg_hook_interval = 200;
+	int cfg_hook_interval = 45;
+	bool cfg_hook_textsign_cut = true;
 
 public:
 	CConfig();
@@ -103,6 +104,9 @@ public:
 
 	bool GetHookMonitor() { return cfg_hook_monitor; }
 	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }
+
+	bool GetHookTextSignCut() { return cfg_hook_textsign_cut; }
+	void SetHookTextSignCut(bool b) { cfg_hook_textsign_cut = b; }
 
 	DWORD GetHookInterval() { return cfg_hook_interval; }
 	void SetHookInterval(DWORD i) { cfg_hook_interval = i; }

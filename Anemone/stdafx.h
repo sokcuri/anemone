@@ -69,6 +69,7 @@ struct _hWnds
 	HWND Trans;
 	HWND FileTrans;
 	HWND HookCfg;
+	HWND BackLog;
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;

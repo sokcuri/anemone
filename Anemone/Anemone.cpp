@@ -5,14 +5,15 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1000
+#define ANEMONE_VERSION 990
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
 TCHAR szTitle[MAX_LOADSTRING];					// 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
-TCHAR szSettingClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
-TCHAR szParentClass[MAX_LOADSTRING];			// 기본 창 클래스 이름입니다.
+TCHAR szSettingClass[MAX_LOADSTRING];
+TCHAR szParentClass[MAX_LOADSTRING];
+TCHAR szBackLogClass[MAX_LOADSTRING];
 
 // 전역 단축키
 std::vector<_key_map> key_map;
@@ -52,6 +53,7 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TransWinProgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	BackLogProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
@@ -77,9 +79,11 @@ int APIENTRY _tWinMain(
 	LoadString(hInstance, IDC_ANEMONEWND, szWindowClass, MAX_LOADSTRING);
 	wcscpy(szSettingClass, L"Anemone_Setting_Class");
 	wcscpy(szParentClass, L"AneParentClass");
+	wcscpy(szBackLogClass, L"AneBackLogClass");
 
 	WindowClassRegister(hInstance, szWindowClass, WndProc);
 	WindowClassRegister(hInstance, szParentClass, ParentWndProc);
+	WindowClassRegister(hInstance, szBackLogClass, BackLogProc);
 
 	// 아네모네가 실행중인지 확인
 	if (FindWindow(szWindowClass, 0) || FindWindow(szParentClass, 0))
@@ -162,7 +166,7 @@ int APIENTRY _tWinMain(
 	// 트레이 아이콘 생성
 	CreateTrayIcon(hWnds.Main);
 
-	ShowWindow(hWnds.Remocon, true);
+	//ShowWindow(hWnds.Remocon, true);
 
 	// 윈도우 표시
 	ShowWindow(hWnds.Main, true);
@@ -1086,6 +1090,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
+		case ID_WINDOW_BACKLOG:
+		{
+			if (IsWindow(hWnds.BackLog) == false)
+			{
+				RECT rect;
+				GetWindowRect(hWnds.Main, &rect);
+				int width = rect.right - rect.left;
+				int height = rect.bottom - rect.top;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
+				hWnds.BackLog = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szBackLogClass, NULL, WS_BORDER,
+					CW_USEDEFAULT, 0, width, height,
+					hWnd, (HMENU)NULL, hInst, NULL);
+
+				cx = GetSystemMetrics(SM_CXSCREEN);
+				cy = GetSystemMetrics(SM_CYSCREEN);
+				GetWindowRect(hWnds.BackLog, &rect);
+
+				SetWindowPos(hWnds.BackLog, 0, ((cx - (rect.right - rect.left)) / 2), ((cy - (rect.bottom - rect.top)) / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+				//hWnds.BackLog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_BACKLOG), hWnds.Main, SettingProc);
+
+				GetWindowRect(hWnds.BackLog, &rect);
+
+				SetWindowPos(hWnds.BackLog, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWnds.BackLog, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.BackLog);
+				hWnds.BackLog = NULL;
+				break;
+			}
+		}
+		break;
 		case ID_SETTING_CHECK:
 		{
 			if (IsWindow(hWnds.Setting))
@@ -1601,6 +1641,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)&rect);
 
 			SetWindowPos(hWnd, HWND_TOP, 0, 0, cx, cy, SWP_NOMOVE);
+
+			Cl.TextRenderer->Paint();
 		}
 			break;
 
@@ -1692,6 +1734,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetWndRes(wi);
 		}
 		break;
+		case ID_OPEN_HOMEPAGE:
+		{
+			ShellExecute(NULL, L"open", L"http://www.eroha.net/", L"", L"", SW_SHOW);
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -1849,6 +1896,11 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message)
 	{
+	case WM_SHOWWINDOW:
+	{
+
+	}
+		break;
 	case WM_DESTROY:
 	{
 		Cl.Config->SaveConfig();
@@ -3252,6 +3304,8 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 200));
 		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/5);
 
+		CheckDlgButton(hWnd, IDC_HOOKCFG_TEXT_SIGNCUT, (Cl.Config->GetHookTextSignCut() ? true : false));
+
 		std::wstringstream ws;
 
 		ws << n;
@@ -3402,6 +3456,57 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			SetForegroundWindow(FindWindow(L"#32770", L"Option"));
 		}
 			break;
+		case IDC_HOOKCFG_TEXT_SIGNCUT:
+		{
+			(Cl.Config->GetHookTextSignCut() ? Cl.Config->SetHookTextSignCut(false) : Cl.Config->SetHookTextSignCut(true));
+		}
+			break;
+		case IDOK:
+			DestroyWindow(hWnd);
+			break;
+		case IDCANCEL:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+		break;
+	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		break;
+	case WM_ERASEBKGND:
+		return false;
+	case WM_MOVING:
+	case WM_SIZING:
+	{
+		RECT *prc = (RECT *)lParam;
+		SetWindowPos(hWnd, NULL, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, 0);
+	}
+		break;
+	}
+	return 0;
+}
+
+INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+
+	switch (message)
+	{
+	case WM_SHOWWINDOW:
+	{
+
+	}
+		break;
+	case WM_COMMAND:
+	{
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		HWND hwnd = 0;
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
 		case IDOK:
 			DestroyWindow(hWnd);
 			break;

@@ -229,6 +229,7 @@ LRESULT CRemocon::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		m_bTracking = false;
 		break;
 	case WM_LBUTTONDOWN:
+		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		break;
 	case WM_LBUTTONUP:
 		POINT pt;

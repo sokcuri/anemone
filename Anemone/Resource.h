@@ -42,6 +42,7 @@
 #define IDC_CHECK1                      1004
 #define IDC_SETTING_TOPMOST             1004
 #define IDC_TRANSWIN_TRANS_ONEGO        1004
+#define IDC_HOOKCFG_TEXT_SIGNCUT        1004
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_FILE_TRANSWIN_OUTPUT1       1005
@@ -320,6 +321,8 @@
 #define ID_HOOKER_                      32835
 #define ID_ANEMONE_32836                32836
 #define ID_32837                        32837
+#define ID_WINDOW_BACKLOG               32838
+#define ID_OPEN_HOMEPAGE				32839
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -328,7 +331,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32838
+#define _APS_NEXT_COMMAND_VALUE         32840
 #define _APS_NEXT_CONTROL_VALUE         2005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

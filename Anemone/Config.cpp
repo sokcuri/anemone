@@ -40,6 +40,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHookMonitor(true) : SetHookMonitor(false);
 	ReadINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetHookInterval(_wtoi(buf));
+	ReadINI_Str(L"HOOKER_TEXT_SIGNCUT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHookTextSignCut(true) : SetHookTextSignCut(false);
 
 	ReadINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnWatchClip(true) : SetHideWinUnWatchClip(false);
@@ -189,6 +191,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"HOOKER_MONITOR_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetHookInterval());
 	WriteINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wcscpy(buf, (GetHookTextSignCut() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"HOOKER_TEXT_SIGNCUT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
 	wcscpy(buf, (GetHideWinUnWatchClip() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -376,7 +380,7 @@ bool CConfig::LoadWndConfig()
 
 bool CConfig::SetWndRes(_wndinfo &wi)
 {
-	for (int i = 0; i < WndInfo.size(); i++)
+	for (DWORD i = 0; i < WndInfo.size(); i++)
 	{
 		if (WndInfo[i].res_x == wi.res_x && WndInfo[i].res_y == wi.res_y)
 		{
@@ -394,7 +398,7 @@ bool CConfig::SetWndRes(_wndinfo &wi)
 
 bool CConfig::GetWndRes(_wndinfo &wi)
 {
-	for (int i = 0; i < WndInfo.size(); i++)
+	for (DWORD i = 0; i < WndInfo.size(); i++)
 	{
 		if (WndInfo[i].res_x == wi.res_x && WndInfo[i].res_y == wi.res_y)
 		{
@@ -412,7 +416,6 @@ bool CConfig::GetWndRes(_wndinfo &wi)
 bool CConfig::SaveWndConfig()
 {
 	FILE *fp;
-	wchar_t buff[1024];
 	std::wstring WndConfig;
 	int nLine = 0;
 
@@ -427,11 +430,7 @@ bool CConfig::SaveWndConfig()
 
 	//fwprintf(fp, L"");
 
-	int res_x;
-	int res_y;
-	std::wstring type;
-
-	for (int i = 0; i < WndInfo.size(); i++)
+	for (DWORD i = 0; i < WndInfo.size(); i++)
 	{
 		fwprintf(fp, L"%dx%d=%d|%d|%d|%d\r\n", WndInfo[i].res_x, WndInfo[i].res_y, WndInfo[i].x, WndInfo[i].y, WndInfo[i].cx, WndInfo[i].cy);
 	}
