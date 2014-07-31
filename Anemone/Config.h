@@ -17,14 +17,14 @@ private:
 	int cfg_clip_length         = 300;
 
 	bool cfg_bg_switch          = true;
-	DWORD cfg_bg_color          = 0x130091FB;
+	DWORD cfg_bg_color          = 0x70C0C0C0;
 
 	int cfg_shadow_x            = 10;
 	int cfg_shadow_y            = 10;
 
-	int cfg_wnd_border_size = 5;
-	bool cfg_wnd_border_mode    = false;
-	DWORD cfg_wnd_border_color  = 0x80000000;
+	int cfg_wnd_border_size     = 3;
+	bool cfg_wnd_border_mode    = true;
+	DWORD cfg_wnd_border_color  = 0x80FFFFFF;
 
 	bool cfg_name_switch        = true;
 	bool cfg_name_revise        = true;
@@ -40,7 +40,7 @@ private:
 	int cfg_name_size_c         = 3;
 	int cfg_name_style			= 0;
 
-	bool cfg_org_switch         = true;
+	bool cfg_org_switch         = false;
 	bool cfg_org_shadow         = true;
 	wchar_t cfg_org_font[260];
 	DWORD cfg_org_color_a       = 0xFFFFFFFF;

@@ -1898,7 +1898,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	{
 	case WM_SHOWWINDOW:
 	{
-
+		SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 	}
 		break;
 	case WM_DESTROY:
@@ -1908,8 +1908,6 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	case WM_LBUTTONDOWN:
 		SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
-		break;
-	case WM_SHOWWINDOW:
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
