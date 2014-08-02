@@ -81,13 +81,13 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 			{
 				if (wcscmp(fileName, L"anemone.ini") == 0)
 				{
-					MessageBox(0, L"anemone.ini", 0, 0);
+					//MessageBox(0, L"anemone.ini", 0, 0);
 					PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_CONFIG, 0);
 				}
 
 				if (wcscmp(fileName, L"anedic.txt") == 0)
 				{
-					MessageBox(0, L"anedic.ini", 0, 0);
+					//MessageBox(0, L"anedic.ini", 0, 0);
 					PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
 				}
 			}

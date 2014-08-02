@@ -3624,7 +3624,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		nLen = (int)strstr(pStr, "]") - (int)strstr(pStr, "[") - 1;
 		if (nLen > 0)
 		{
-			lpszVER = (char *)HeapAlloc(AneHeap, 0, nLen+1);
+			lpszVER = (char *)HeapAlloc(AneHeap, 0, nLen + 1);
 			memcpy(lpszVER, strstr(pStr, "[") + 1, nLen);
 			lpszVER[nLen] = 0x00;
 		}
@@ -3680,56 +3680,62 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 			lpszMEMO = (char *)HeapAlloc(AneHeap, 0, 1);
 			lpszMEMO[0] = 0x00;
 		}
-	}
 
-	if (hInternet) InternetCloseHandle(hInternet);
-	if (hURL) InternetCloseHandle(hURL);
-	if (hRequest) InternetCloseHandle(hRequest);
+		if (hInternet) InternetCloseHandle(hInternet);
+		if (hURL) InternetCloseHandle(hURL);
+		if (hRequest) InternetCloseHandle(hRequest);
 
-	ver = atoi(lpszVER);
+		ver = atoi(lpszVER);
 
-	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, NULL, NULL);
-	lpwszDOWN = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
-	MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, lpwszDOWN, nLen);
+		nLen = MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, NULL, NULL);
+		lpwszDOWN = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
+		MultiByteToWideChar(CP_UTF8, 0, lpszDOWN, strlen(lpszDOWN) + 1, lpwszDOWN, nLen);
 
-	nLen = MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, NULL, NULL);
-	lpwszMEMO = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
-	MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, lpwszMEMO, nLen);
+		nLen = MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, NULL, NULL);
+		lpwszMEMO = (wchar_t *)HeapAlloc(AneHeap, 0, (nLen + 1) * 2);
+		MultiByteToWideChar(CP_UTF8, 0, lpszMEMO, strlen(lpszMEMO) + 1, lpwszMEMO, nLen);
 
-	std::wstringstream wss;
+		std::wstringstream wss;
 
-	wss << L"아네모네 새로운 버전을 확인했습니다.\r\n홈페이지로 이동할까요?";
-	wss << L"\r\n\r\n";
-	wss << lpwszMEMO;
+		wss << L"아네모네 새로운 버전을 확인했습니다.\r\n홈페이지로 이동할까요?";
+		wss << L"\r\n\r\n";
+		wss << lpwszMEMO;
 
-	if (ver > ANEMONE_VERSION)
-	{
-		if (MessageBox(hWnd, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
+		if (ver > ANEMONE_VERSION)
 		{
-			ShellExecute(NULL, L"open", lpwszDOWN, L"", L"", SW_SHOW);
+			if (MessageBox(hWnd, wss.str().c_str(), L"업데이트 확인", MB_ICONINFORMATION | MB_YESNO) == IDYES)
+			{
+				ShellExecute(NULL, L"open", lpwszDOWN, L"", L"", SW_SHOW);
 
-			HeapFree(AneHeap, 0, lpszVER);
-			HeapFree(AneHeap, 0, lpszDOWN);
-			HeapFree(AneHeap, 0, lpszMEMO);
-			HeapFree(AneHeap, 0, lpwszDOWN);
-			HeapFree(AneHeap, 0, lpwszMEMO);
-			return true;
+				HeapFree(AneHeap, 0, lpszVER);
+				HeapFree(AneHeap, 0, lpszDOWN);
+				HeapFree(AneHeap, 0, lpszMEMO);
+				HeapFree(AneHeap, 0, lpwszDOWN);
+				HeapFree(AneHeap, 0, lpwszMEMO);
+				return true;
+			}
 		}
+		else if (IsCurMsg == true && ver == 0)
+		{
+			MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+		}
+		else if (IsCurMsg == true)
+		{
+			MessageBox(hWnd, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
+		}
+
+		HeapFree(AneHeap, 0, lpszVER);
+		HeapFree(AneHeap, 0, lpszDOWN);
+		HeapFree(AneHeap, 0, lpszMEMO);
+		HeapFree(AneHeap, 0, lpwszDOWN);
+		HeapFree(AneHeap, 0, lpwszMEMO);
+		return false;
 	}
-	else if (IsCurMsg == true && ver == 0)
+
+	if (IsCurMsg == true)
 	{
 		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 	}
-	else if (IsCurMsg == true)
-	{
-		MessageBox(hWnd, L"아네모네가 최신 버전입니다", L"업데이트 확인", MB_ICONINFORMATION);
-	}
-
-	HeapFree(AneHeap, 0, lpszVER);
-	HeapFree(AneHeap, 0, lpszDOWN);
-	HeapFree(AneHeap, 0, lpszMEMO);
-	HeapFree(AneHeap, 0, lpwszDOWN);
-	HeapFree(AneHeap, 0, lpwszMEMO);
 	return false;
 }
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr)
