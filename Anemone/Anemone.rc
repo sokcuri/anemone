@@ -52,7 +52,7 @@ BEGIN
         MENUITEM "백로그 윈도우\tF9",                 ID_WINDOW_BACKLOG, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "창 숨기기\tNUM *",                ID_WINDOW_VISIBLE
-        MENUITEM "잠깐 숨기기\tNUM 5",               ID_TEMP_WINDOW_HIDE
+        MENUITEM "잠깐 숨기기\tNUM /",               ID_TEMP_WINDOW_HIDE
         MENUITEM SEPARATOR
         POPUP "텍스트 번역"
         BEGIN
@@ -66,8 +66,8 @@ BEGIN
         POPUP "단축키 일람"
         BEGIN
             MENUITEM "창 이동\tNUM (8 2 4 6)",         ID_32801
-            MENUITEM "창 크기 조절\tNUM ALT+(8 2 4 6)",  0
-            MENUITEM "창 위치 리셋\tNUM /",              32832
+            MENUITEM "창 크기 조절\tALT+NUM (8 2 4 6)",  ID_32840
+            MENUITEM "창 위치 리셋\tCTRL+NUM 5",         32832
             MENUITEM SEPARATOR
             MENUITEM "글자 크기 줄이기\tNUM -",            ID_TEXTSIZE_MINUS
             MENUITEM "글자 크기 키우기\tNUM +",            ID_TEXTSIZE_PLUS

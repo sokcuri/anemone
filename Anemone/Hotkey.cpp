@@ -45,11 +45,11 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_ADD, false, false, false, ID_TEXTSIZE_PLUS);
 
 	// 창 잠깐 숨기기 / 창 완전 숨기기
-	RegKey(VK_NUMPAD5, false, false, false, ID_TEMP_WINDOW_HIDE, true);
 	RegKey(VK_MULTIPLY, false, false, false, ID_WINDOW_VISIBLE, true);
+	RegKey(VK_DIVIDE, false, false, false, ID_TEMP_WINDOW_HIDE);
 
 	// 창 위치 리셋
-	RegKey(VK_DIVIDE, false, false, false, ID_WINRESET);
+	RegKey(VK_NUMPAD5, true, false, false, ID_WINRESET, true);
 
 	// 창 이동
 	RegKey(VK_NUMPAD8, false, false, false, ID_WNDMOVE_TOP);
@@ -174,11 +174,10 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 					if ((*it).Alt != bAlt) continue;
 					if ((*it).Shift != bShift) continue;
 					if ((*it).Ctrl != bCtrl) continue;
-					
-					if ((*it).Always == true || Cl.Config->GetExternHotkey() &&
-						(Cl.Config->GetWindowVisible() || !Cl.Config->GetWindowVisible() &&
-						(Cl.Config->GetTempWinHide() || !Cl.Config->GetTempWinHide() &&
-						!Cl.Config->GetHideWinUnlockHotkey())))
+
+					if ((*it).func == ID_EXTERN_HOTKEY ||
+						Cl.Config->GetExternHotkey() &&
+						((*it).Always == true || Cl.Config->GetWindowVisible() || Cl.Config->GetTempWinHide() || !Cl.Config->GetHideWinUnlockHotkey()))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
 						//SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
