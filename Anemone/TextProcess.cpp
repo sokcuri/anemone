@@ -234,20 +234,26 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 						}
 						else if (text_buffer[i] == 0x0D && text_buffer[i + 1] == 0x0A)
 						{
+							if (i - j > 1)
+							{
+								// 끝에 붙은 0x0D, 0x0A는 제외한다
+								wchar_t *text_buffer2 = (wchar_t *)malloc((i - j + 1) * 2);
+								wcsncpy(text_buffer2, text_buffer + j, i - j - 1);
+								text_buffer2[i - j - 1] = 0x00;
+
+								SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer2);
+
+								if (Cl.Config->GetHookMonitor())
+									SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer2);
+
+								free(text_buffer2);
+							}
+
+							// 0x0D 0x0A가 한번 더 있는 경우 PASS
 							if (i + 3 < wcslen(text_buffer) && text_buffer[i + 2] == 0x0D && text_buffer[i + 3] == 0x0A)
 							{
 								i += 2;
 							}
-							wchar_t *text_buffer2 = (wchar_t *)malloc((i - j + 1) * 2);
-							wcsncpy(text_buffer2, text_buffer + j, i - j);
-							text_buffer2[i - j] = 0x00;
-
-							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer2);
-
-							if (Cl.Config->GetHookMonitor())
-								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer2);
-
-							free(text_buffer2);
 
 							j = i + 2;
 							i++;
@@ -1250,7 +1256,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 	// 사전 파일 읽기
 
-	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UNICODE") != 0)
+	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
 	{
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;
