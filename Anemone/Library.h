@@ -5,6 +5,7 @@ void GetLoadPath(std::wstring &dir, std::wstring path);
 bool GetEZTPath(std::wstring &dir);
 bool GetEZTPath(std::wstring &dir, std::wstring path);
 bool GetEZTPathFromREG(std::wstring &dir);
+bool GetEZTPathFromINI(std::wstring &dir);
 bool ReadINI_Str(const wchar_t *key, const wchar_t *section, wchar_t *buf, wchar_t *file);
 bool WriteINI_Str(const wchar_t *key, const wchar_t *section, wchar_t *buf, wchar_t *file);
 int UCS2toUTF8(char *dst, wchar_t *ucs2, int count);

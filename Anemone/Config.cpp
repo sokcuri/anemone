@@ -7,6 +7,7 @@ CConfig::CConfig()
 	wcscpy_s(cfg_name_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_org_font, L"¸¼Àº °íµñ");
 	wcscpy_s(cfg_trans_font, L"¸¼Àº °íµñ");
+	cfg_eztrans_path[0] = 0x00;
 }
 
 
@@ -161,6 +162,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetForceAneDic(true) : SetForceAneDic(false);
 	ReadINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetWindowMovePoint(_wtoi(buf));
+	ReadINI_Str(L"EZTRANS_PATH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetEzTransPath(buf);
 	return true;
 }
 
@@ -312,6 +315,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"ANEDIC_FORCEAPPLY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetWindowMovePoint());
 	WriteINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%s", GetEzTransPath());
+	WriteINI_Str(L"EZTRANS_PATH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
 	Cl.FileWatch->TurnOn();
 	return true;

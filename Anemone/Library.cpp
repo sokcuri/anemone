@@ -18,6 +18,7 @@ void GetLoadPath(std::wstring &dir, std::wstring path)
 
 bool GetEZTPath(std::wstring &dir)
 {
+	if (GetEZTPathFromINI(dir)) return true;
 	if (GetEZTPathFromREG(dir)) return true;
 	return false;
 }
@@ -46,6 +47,29 @@ bool GetEZTPathFromREG(std::wstring &dir)
 
 	dir = szPath;
 	return true;
+}
+
+// 설정에서 이지트랜스 경로를 얻어옵니다
+bool GetEZTPathFromINI(std::wstring &dir)
+{
+	if (Cl.Config->GetEzTransPath()[0] != 0x00)
+	{
+		FILE *fp;
+		std::wstring path = Cl.Config->GetEzTransPath();
+		path += L"\\J2KEngine.dll";
+		if (_wfopen_s(&fp, path.c_str(), L"rb") != 0)
+		{
+			//MessageBox(0, L"이지트랜스 DLL을 찾을 수 없습니다", 0, 0);
+			return false;
+		}
+		fclose(fp);
+
+		dir = Cl.Config->GetEzTransPath();
+
+		return true;
+	}
+
+	return false;
 }
 
 bool ReadINI_Str(const wchar_t *key, const wchar_t *section, wchar_t *buf, wchar_t *file)

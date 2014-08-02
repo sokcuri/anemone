@@ -1794,6 +1794,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// 클립보드 데이터가 들어왔을때
 	case WM_DRAWCLIPBOARD:
 	{
+
+		Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
+
+		Cl.TextRenderer->Paint();
+
 		Cl.TextProcess->OnDrawClipboard();
 	}
 		break;

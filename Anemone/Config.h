@@ -19,6 +19,8 @@ private:
 	bool cfg_bg_switch          = true;
 	DWORD cfg_bg_color          = 0x70C0C0C0;
 
+	wchar_t cfg_eztrans_path[260];
+
 	int cfg_shadow_x            = 10;
 	int cfg_shadow_y            = 10;
 
@@ -98,6 +100,13 @@ public:
 
 	bool LoadWndConfig();
 	bool SaveWndConfig();
+
+	wchar_t *GetEzTransPath() { return cfg_eztrans_path; }
+	void SetEzTransPath(wchar_t *str)
+	{
+		if (wcslen(str) > 255) return;
+		wcscpy(cfg_eztrans_path, str);
+	}
 
 	bool SetWndRes(struct _wndinfo &wi);
 	bool GetWndRes(struct _wndinfo &wi);

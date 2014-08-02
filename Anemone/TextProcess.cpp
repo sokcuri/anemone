@@ -955,6 +955,7 @@ bool CTextProcess::OnDrawClipboard()
 {
 	std::wstring wContext;
 
+
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
 	if (IsActive == 2)
 	{
