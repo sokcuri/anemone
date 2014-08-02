@@ -174,6 +174,18 @@ bool CConfig::SaveConfig()
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
 
+	// 설정파일이 존재하지 않는 경우 UNICODE로 파일 생성
+	FILE *fp;
+	if (_wfopen_s(&fp, INIPath.c_str(), L"rt,ccs=UNICODE") != 0)
+	{
+		if (_wfopen_s(&fp, INIPath.c_str(), L"wt,ccs=UNICODE") == 0)
+		{
+			fwrite(L"[CONFIG]", sizeof(wchar_t), 8, fp);
+			fclose(fp);
+		}
+	}
+	fclose(fp);
+
 	wchar_t buf[255];
 	wcscpy(buf, (GetClipSwitch() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"CLIPBOARD_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
