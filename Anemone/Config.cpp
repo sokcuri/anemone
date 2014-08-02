@@ -331,7 +331,7 @@ bool CConfig::LoadWndConfig()
 
 	GetLoadPath(WndConfig, L"\\WndInfo.ini");
 
-	if (_wfopen_s(&fp, WndConfig.c_str(), L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, WndConfig.c_str(), L"rt,ccs=UNICODE") != 0)
 	{
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;
@@ -426,7 +426,7 @@ bool CConfig::SaveWndConfig()
 
 	GetLoadPath(WndConfig, L"\\WndInfo.ini");
 
-	if (_wfopen_s(&fp, WndConfig.c_str(), L"wt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, WndConfig.c_str(), L"wt,ccs=UNICODE") != 0)
 	{
 		MessageBox(0, L"열 수 없음", 0, 0);
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);

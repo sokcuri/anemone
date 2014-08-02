@@ -1250,7 +1250,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 	// 사전 파일 읽기
 
-	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UNICODE") != 0)
 	{
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;

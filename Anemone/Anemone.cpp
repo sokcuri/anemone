@@ -650,10 +650,10 @@ bool OpenDicText(HWND hWnd)
 		L"//\r\n\r\n" };
 
 	FILE *fp;
-	if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, path.c_str(), L"rt,ccs=UNICODE") != 0)
 	{
 		// 아네모네 사전 파일이 없는 경우 초기 내용 작성
-		if (_wfopen_s(&fp, path.c_str(), L"wt,ccs=UTF-8") == 0)
+		if (_wfopen_s(&fp, path.c_str(), L"wt,ccs=UNICODE") == 0)
 		{
 			fwrite(AneDicHeader, sizeof(wchar_t), wcslen(AneDicHeader), fp);
 			fclose(fp);
@@ -3048,7 +3048,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 				FILE *fp;
 				wchar_t wstr[1024];
 
-				if (_wfopen_s(&fp, ofn.lpstrFile, L"rt,ccs=UTF-8") != 0)
+				if (_wfopen_s(&fp, ofn.lpstrFile, L"rt,ccs=UNICODE") != 0)
 				{
 					SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"! 파일을 열 수 없습니다.");
 					return false;
@@ -3937,7 +3937,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	ShowWindow(hDlg, true);
 	int nLines;
 
-	if (_wfopen_s(&fpr, FT->lpszInputFileName, L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fpr, FT->lpszInputFileName, L"rt,ccs=UNICODE") != 0)
 	{
 		std::wstringstream wss;
 		wss << L"원문 파일이 존재하지 않거나 읽기 권한이 없습니다 :\r\n\r\n";
@@ -3948,7 +3948,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 		return false;
 	}
 
-	if (_wfopen_s(&fpw, FT->lpszOutputFileName, L"wt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fpw, FT->lpszOutputFileName, L"wt,ccs=UNICODE") != 0)
 	{
 		std::wstringstream wss;
 		wss << L"저장될 파일이 사용중이거나 쓰기 권한이 없습니다 :\r\n\r\n";
