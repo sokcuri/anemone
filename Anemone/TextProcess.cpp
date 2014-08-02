@@ -238,8 +238,8 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 							{
 								// 끝에 붙은 0x0D, 0x0A는 제외한다
 								wchar_t *text_buffer2 = (wchar_t *)malloc((i - j + 1) * 2);
-								wcsncpy(text_buffer2, text_buffer + j, i - j - 1);
-								text_buffer2[i - j - 1] = 0x00;
+								wcsncpy(text_buffer2, text_buffer + j, i - j);
+								text_buffer2[i - j] = 0x00;
 
 								SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer2);
 
