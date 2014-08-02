@@ -1243,7 +1243,6 @@ bool CTextProcess::_UnPatchUDic(const wchar_t *dicFile, void *param)
 
 bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 {
-	std::vector<aneDicStruct> NewAneDic;
 	FILE *fp;
 	int nLine;
 	wchar_t wstr[1024];
@@ -1258,12 +1257,13 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 	// 사전 파일 읽기
 
-	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UNICODE") != 0)
 	{
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;
 	}
 	nLine = 0;
+	AneDic.clear();
 
 	// 한줄씩 읽기
 	while (fgetws(wstr, 1000, fp) != NULL)
@@ -1413,12 +1413,10 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		wcscpy_s(DIC.wjpn, wjpn);
 		wcscpy_s(DIC.wkor, wkor);
-		NewAneDic.push_back(DIC);
+		AneDic.push_back(DIC);
 	}
 
-	sort(NewAneDic.begin(), NewAneDic.end());
-	AneDic.clear();
-	AneDic = NewAneDic;
+	sort(AneDic.begin(), AneDic.end());
 
 	fclose(fp);
 	return true;

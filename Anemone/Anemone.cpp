@@ -3683,7 +3683,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 	}
 	else
 	{
-		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+		if (IsCurMsg == true) MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 		return false;
 	}
 
