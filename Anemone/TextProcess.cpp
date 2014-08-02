@@ -215,13 +215,52 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					if (buf[wcslen(Prev_Word)] == 0x0D && buf[wcslen(Prev_Word)+1] == 0x0A)
 						nShift = 4;
 
+					
 					wchar_t *text_buffer = Last_Word + wcslen(Prev_Word) + nShift;
+					
+					for (DWORD i = 0, j = 0; i < wcslen(text_buffer); i++)
+					{
+						if (i + 1 == wcslen(text_buffer))
+						{
+							wchar_t *text_buffer2 = (wchar_t *)malloc((wcslen(text_buffer) - j + 1) * 2);
+							wcscpy(text_buffer2, text_buffer + j);
 
+							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer2);
+
+							if (Cl.Config->GetHookMonitor())
+								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer2);
+
+							free(text_buffer2);
+						}
+						else if (text_buffer[i] == 0x0D && text_buffer[i + 1] == 0x0A)
+						{
+							if (i + 3 < wcslen(text_buffer) && text_buffer[i + 2] == 0x0D && text_buffer[i + 3] == 0x0A)
+							{
+								i += 2;
+							}
+							wchar_t *text_buffer2 = (wchar_t *)malloc((i - j + 1) * 2);
+							wcsncpy(text_buffer2, text_buffer + j, i - j);
+							text_buffer2[i - j] = 0x00;
+
+							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer2);
+
+							if (Cl.Config->GetHookMonitor())
+								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer2);
+
+							free(text_buffer2);
+
+							j = i + 2;
+							i++;
+						}
+					}
+					
+					
+					/*
 					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer);
 
 					if (Cl.Config->GetHookMonitor())
 						SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)text_buffer);
-
+						*/
 					//wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
 					//wcscpy(buf_copy, Last_Word);
 
