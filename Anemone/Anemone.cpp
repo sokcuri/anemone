@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 990
+#define ANEMONE_VERSION 991
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -3583,7 +3583,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 		if (hURL) InternetCloseHandle(hURL);
 		if (hRequest) InternetCloseHandle(hRequest);
 
-		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
+		if (IsCurMsg == true) MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 		return false;
 	}
 
@@ -3716,7 +3716,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 			return true;
 		}
 	}
-	else if (ver == 0)
+	else if (IsCurMsg == true && ver == 0)
 	{
 		MessageBox(hWnd, L"아네모네 버전 확인 실패", L"업데이트 확인", MB_ICONASTERISK);
 	}

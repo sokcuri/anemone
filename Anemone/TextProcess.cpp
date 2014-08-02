@@ -104,7 +104,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 			// EDIT 내용을 읽음
 			int cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
-			wchar_t *buf = (wchar_t *)malloc((cch + 1) * 2);
+			wchar_t *buf = (wchar_t *)malloc((cch + 2) * 2);
 			if (buf == NULL)
 			{
 				Sleep(100);
@@ -112,6 +112,8 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			}
 			buf[0] = 0x00;
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
+			if (buf[0] == 0x00) continue;
+
 			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
 
 			// 0번 쓰레드는 번역하지 않는다
