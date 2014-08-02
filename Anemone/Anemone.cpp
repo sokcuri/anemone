@@ -1767,6 +1767,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
+		break;
 
 	// 창을 이동하거나 크기 조정시
 	case WM_MOVING:
@@ -1927,7 +1928,6 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case ID_SETTING_HOMEPAGE:
 		{
 			ShellExecute(NULL, L"open", L"http://www.eroha.net/", L"", L"", SW_SHOW);
-			MessageBox(0, 0, 0, 0);
 		}
 			break;
 		case ID_SETTING_CLOSE:
