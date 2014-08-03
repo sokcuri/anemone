@@ -147,6 +147,24 @@ bool CTextRenderer::Paint()
 	graphics.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit);
 	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
 
+	int nBorderWidth = 0;
+
+	graphics.Clear(Color(0, 0, 0, 0));
+
+	// 테두리 표시 모드
+	if (Cl.Config->GetWndBorderMode())
+	{
+		nBorderWidth = Cl.Config->GetWndBorderSize();
+		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
+		BYTE BorderAlpha = (dwBorderClr >> 24) & 0xFF;
+
+		if (BorderAlpha == 0) BorderAlpha = 1;
+
+		Pen nBorderPen(Color(BorderAlpha, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr)& 0xFF), (Gdiplus::REAL)nBorderWidth);
+
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2) + (nBorderWidth % 2), (nBorderWidth / 2) + (nBorderWidth % 2), rect.right - rect.left - nBorderWidth - (nBorderWidth % 2), rect.bottom - rect.top - nBorderWidth - (nBorderWidth % 2)));
+	}
+
 	//130091FB
 	bool bBGSwitch = Cl.Config->GetBGSwitch();
 	DWORD BGColor = Cl.Config->GetBGColor();
@@ -155,19 +173,13 @@ bool CTextRenderer::Paint()
 	// 창 배경 투명도를 0으로 주면 1로 강제변환
 	if (BGAlpha == 0) BGAlpha = 1;
 
-	if (!IsActive && !bBGSwitch) graphics.Clear(Color(0, 0, 0, 0));
-	else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
-	else graphics.Clear(Color(0, 0, 0, 0));
+	SolidBrush BGbrush(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
 
-	// 테두리 표시 모드
-	if (Cl.Config->GetWndBorderMode())
-	{
-		int nBorderWidth = Cl.Config->GetWndBorderSize();
-		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
-		Pen nBorderPen(Color((dwBorderClr >> 24) & 0xFF, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr) & 0xFF), (Gdiplus::REAL)nBorderWidth);
+	if (bBGSwitch) graphics.FillRectangle(&BGbrush, Rect((nBorderWidth), (nBorderWidth), rect.right - rect.left - (nBorderWidth * 2), rect.bottom - rect.top - (nBorderWidth * 2)));
 
-		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
-	}
+		//if (!IsActive && !bBGSwitch) graphics.Clear(Color(0, 0, 0, 0));
+		//else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		//else graphics.Clear(Color(0, 0, 0, 0));
 
 	// 폰트가 사용가능한지 확인하고 불가할경우 대체폰트로 변경
 	int fontAvaliable;
@@ -316,7 +328,7 @@ bool CTextRenderer::Paint()
 		//for (int i = 1; i <= 10; i++)
 		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
 
-		TextDraw(&graphics, L"~아네모네 V1.00 베타 2~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
+		TextDraw(&graphics, L"~아네모네 V1.00 베타 3~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
 
 		//if (!Cl.Config->GetWndBorderMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}
@@ -326,7 +338,7 @@ bool CTextRenderer::Paint()
 		if (bOrgSwitch)   pad_y += TextDraw(&graphics, (bNameSwitch ? GetText() : GetContext()), textAlign, fnOrg, fnOrgStyle, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 		if (bTransSwitch) pad_y += TextDraw(&graphics, (bNameSwitch ? GetTextT() : GetContextT()), textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 	}
-	int nBorderWidth = 5;
+
 	//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 	//graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 

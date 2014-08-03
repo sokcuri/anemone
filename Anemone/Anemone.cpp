@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 991
+#define ANEMONE_VERSION 992
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
