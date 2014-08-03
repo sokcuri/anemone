@@ -657,7 +657,7 @@ bool OpenDicText(HWND hWnd)
 		{
 			fwrite(AneDicHeader, sizeof(wchar_t), wcslen(AneDicHeader), fp);
 			fclose(fp);
-			MessageBox(hWnd, L"기본 사전 파일이 생성되었습니다.\r\n열린 텍스트 파일의 설명을 읽어보시고 사용하세요.", L"알림", 0);
+			//MessageBox(hWnd, L"기본 사전 파일이 생성되었습니다.\r\n열린 텍스트 파일의 설명을 읽어보시고 사용하세요.", L"알림", 0);
 		}
 		else
 		{
