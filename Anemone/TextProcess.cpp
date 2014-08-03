@@ -107,12 +107,12 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			wchar_t *buf = (wchar_t *)malloc((cch + 2) * 2);
 			if (buf == NULL)
 			{
-				Sleep(100);
+				Sleep(5);
 				continue;
 			}
 			buf[0] = 0x00;
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
-			if (buf[0] == 0x00) continue;
+			if (cch != 0 && buf[0] == 0x00) continue;
 
 			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
 
@@ -120,9 +120,9 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			if (nCurThNum == 0)
 			{
 				free(buf);
-				if (Prev_Word) free(Prev_Word);
+				if (Prev_Word != 0) free(Prev_Word);
 				Prev_Word = 0;
-				Sleep(10);
+				Sleep(5);
 				continue;
 			}
 
@@ -147,10 +147,12 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				{
 					bWait = false;
 					bChanged = false;
-					free(Prev_Word);
+					if (Prev_Word != 0) free(Prev_Word);
+					if (Last_Word != 0) free(Last_Word);
 
-					nLast_TickCount = 0;
 					Prev_Word = buf;
+					Last_Word = 0;
+					nLast_TickCount = 0;
 					nThNum = nCurThNum;
 				}
 			}
@@ -212,6 +214,12 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					bChanged = false;
 					nLast_TickCount = 0;
 					*/
+
+					if (wcslen(Last_Word) != cch)
+					{
+						free(Last_Word);
+						Last_Word = buf;
+					}
 					
 					int nShift = 0;
 					if (buf[wcslen(Prev_Word)] == 0x0D && buf[wcslen(Prev_Word)+1] == 0x0A)
