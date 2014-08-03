@@ -183,7 +183,7 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 						Cl.Config->GetHideWinUnlockHotkey() == 0))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
-						//SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+						SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 						return -1;
 					}
 				}

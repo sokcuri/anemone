@@ -23,5 +23,6 @@ private:
 	{
 		return m_pThis->_FileChangeNotifyProc(m_nTimerID, uiMsg, dwUser, dw1, d2);
 	}
+
 };
 

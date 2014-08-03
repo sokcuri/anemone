@@ -1448,12 +1448,20 @@ bool CTextProcess::LoadDictionary()
 	GetLoadPath(AneDic, L"\\AneDic.txt");
 	GetEZTPath(DicJK, L"\\Dat\\UserDict.jk");
 
+	if (bLoadDic == true)
+	{
+		PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
+		return false;
+	}
+
+	bLoadDic = true;
 	if (_LoadDic(AneDic.c_str()))
 	{
 		OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
 		Cl.TransEngine->J2K_ReloadUserDict();
 		_UnPatchUDic(DicJK.c_str(), offile);
 	}
+	bLoadDic = false;
 	return true;
 }
 

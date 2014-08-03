@@ -48,7 +48,6 @@ int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, int 
 	if (outlineOutVisible) outlineTotalThick += outlineOutThick;
 
 	Font font(&fontFamily, (Gdiplus::REAL)fntSize, fontStyle);
-
 	graphics->MeasureString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &boundRect);
 	//SolidBrush tempBrush(outlineOutColor);
 	//graphics->DrawString(contextText, wcslen(contextText), &font, Gdiplus::RectF((Gdiplus::REAL)layoutRect->X, (Gdiplus::REAL)layoutRect->Y, (Gdiplus::REAL)layoutRect->Width, (Gdiplus::REAL)layoutRect->Height), &strformat, &tempBrush);
@@ -69,7 +68,7 @@ int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, int 
 
 		graphics->DrawPath(&pen_shadow, &path_shadow);
 	}
-	
+
 	path.AddString(contextText, wcslen(contextText),
 		&fontFamily, fontStyle,
 		emSize, Gdiplus::Rect(layoutRect->X, layoutRect->Y, layoutRect->Width, layoutRect->Height), &strformat);
@@ -328,7 +327,7 @@ bool CTextRenderer::Paint()
 		//for (int i = 1; i <= 10; i++)
 		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
 
-		TextDraw(&graphics, L"~아네모네 V1.00 베타 3~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
+		TextDraw(&graphics, L"~아네모네 V1.00 베타 3a~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
 
 		//if (!Cl.Config->GetWndBorderMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}

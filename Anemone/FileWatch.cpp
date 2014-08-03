@@ -1,14 +1,17 @@
 #include "stdafx.h"
 #include "FileWatch.h"
 
-#define cbBuffer 1024
-
 CFileWatch *CFileWatch::m_pThis = NULL;
+std::vector<std::wstring> fileList;
 
 CFileWatch::CFileWatch()
 {
-	m_pThis = this;
 	TurnOn();
+}
+
+CFileWatch::~CFileWatch()
+{
+	TurnOff();
 }
 
 void CFileWatch::TurnOn()
@@ -30,36 +33,30 @@ void CFileWatch::TurnOff()
 	TerminateThread(hWatchThread, 0);
 }
 
-CFileWatch::~CFileWatch()
-{
-	TurnOff();
-}
-
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 {
 	HWND hwnd = (HWND)lpParam;
+	UINT m_nTimerID;
 
 	std::wstring Path;
 	GetLoadPath(Path);
 
 	HANDLE hDir = CreateFile(Path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		0, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0);
-	
-	BYTE* pBuffer[cbBuffer];
+	CONST DWORD cbBuffer = 1024 * 1024;
+	BYTE* pBuffer = (PBYTE)malloc(cbBuffer);
 	BOOL bWatchSubtree = FALSE;
 	DWORD dwNotifyFilter = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
 		FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE |
 		FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION;
 	DWORD bytesReturned;
 
-	FILE_NOTIFY_INFORMATION* pfni;
-	FILE_NOTIFY_INFORMATION* Prev_pfni;
-	DWORD Prev_TickCount = -1;
-	wchar_t Prev_FileName[MAX_PATH];
+	m_nTimerID = timeSetEvent(300, 0, (LPTIMECALLBACK)FileChangeNotifyProc, 0, TIME_PERIODIC);
 
-	wchar_t fileName[MAX_PATH] = { 0 };
+	wchar_t temp[MAX_PATH] = { 0 };
 	for (;;)
 	{
+		FILE_NOTIFY_INFORMATION* pfni;
 		BOOL fOk = ReadDirectoryChangesW(hDir, pBuffer, cbBuffer,
 			bWatchSubtree, dwNotifyFilter, &bytesReturned, 0, 0);
 		if (!fOk)
@@ -71,28 +68,80 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 		pfni = (FILE_NOTIFY_INFORMATION*)pBuffer;
 
 		do {
-			memcpy(fileName, pfni->FileName, pfni->FileNameLength);
-			fileName[pfni->FileNameLength / 2] = 0;
+			memcpy(temp, pfni->FileName, pfni->FileNameLength);
+			temp[pfni->FileNameLength / 2] = 0;
+			std::wstring filename(temp);
+			transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-			_wcslwr_s(fileName, pfni->FileNameLength);
-
-			if (wcscmp(fileName, L"anemone.ini") == 0)
+			if (fileList.begin() == fileList.end())
 			{
-				//MessageBox(0, L"anemone.ini", 0, 0);
-				PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_CONFIG, 0);
+				fileList.push_back(filename.c_str());
 			}
 
-			if (wcscmp(fileName, L"anedic.txt") == 0)
+			std::vector<std::wstring>::iterator it = fileList.begin();
+			for (; it != fileList.end(); it++)
 			{
-				//MessageBox(0, L"anedic.ini", 0, 0);
-				PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
+				if (it + 1 == fileList.end())
+				{
+					fileList.push_back(filename.c_str());
+					break;
+				}
+				else if ((*it).compare(filename.c_str()) == 0) break;
 			}
 
-			wcsncpy_s(Prev_FileName, fileName, 255);
-
-			Prev_pfni = pfni;
 			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
-		} while (Prev_pfni->NextEntryOffset > 0);
+		} while (pfni->NextEntryOffset > 0);
 	}
+	return 0;
+}
+
+MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dwUser, DWORD dw1, DWORD d2)
+{
+	bool c_config;
+	bool c_anedic;
+
+	c_config = false;
+	c_anedic = false;
+
+	if (fileList.begin() == fileList.end()) return 0;
+
+	std::vector<std::wstring>::iterator it = fileList.begin();
+	for (; it != fileList.end(); it++)
+	{
+		if ((*it).compare(L"anemone.ini") == 0)
+		{
+			c_config = true;
+		}
+
+		if ((*it).compare(L"anedic.txt") == 0)
+		{
+			c_anedic = true;
+		}
+	}
+	fileList.clear();
+	
+	// 감시 모드가 작동중일때 파일변경시
+	if (c_config == true)
+	{
+		c_config = false;
+
+		//MessageBox(0, 0, 0, 0);
+		//Cl.Config->LoadConfig();
+
+		PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_CONFIG, 0);
+
+		PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
+		//PostMessage(hSettingWnd, WM_USER, UM_REFRESH_SETTING, 0);
+	}
+
+	if (c_anedic == true)
+	{
+		c_anedic = false;
+
+		// 아네모네 사전 다시읽기
+		//Cl.TextProcess->LoadDictionary();
+		PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
+	}
+
 	return 0;
 }

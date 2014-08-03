@@ -26,6 +26,7 @@ private:
 	bool DoubleTextFix(std::wstring &input);
 	bool DoubleSentenceFix(std::wstring &input);
 
+	bool bLoadDic = false;
 	int nStatus = 0;
 	std::wstring proclog;
 	bool g_DicTopPriority;

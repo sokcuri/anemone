@@ -327,6 +327,7 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"EZTRANS_PATH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
 	Cl.FileWatch->TurnOn();
+	Cl.TextProcess->LoadDictionary();
 	return true;
 }
 
