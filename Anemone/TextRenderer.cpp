@@ -154,7 +154,7 @@ bool CTextRenderer::Paint()
 	// 테두리 표시 모드
 	if (Cl.Config->GetWndBorderMode())
 	{
-		nBorderWidth = Cl.Config->GetWndBorderSize();
+		nBorderWidth = Cl.Config->GetWndBorderSize() * 2;
 		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
 		BYTE BorderAlpha = (dwBorderClr >> 24) & 0xFF;
 

@@ -1249,7 +1249,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				{
 					int nOutlineSize = (Cl.Config->GetWndBorderSize());
-					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 20));
+					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 10));
 					SendDlgItemMessage(hWnds.Setting, IDC_SETTING_WND_BORDER_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)nOutlineSize);
 
 					std::wstringstream ws;
@@ -2683,7 +2683,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				break;
 			}
 
-			if (i > 20) break;
+			if (i > 10) break;
 
 			Cl.Config->SetWndBorderSize(i);
 
