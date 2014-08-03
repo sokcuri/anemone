@@ -88,8 +88,12 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 		DWORD nLast_TickCount = 0;
 
-		wchar_t *Prev_Word = 0;
-		wchar_t *Last_Word = 0;
+		//wchar_t *Prev_Word = 0;
+		//wchar_t *Last_Word = 0;
+
+		std::wstring Prev_Word;
+		std::wstring Last_Word;
+		std::wstring Current_Word;
 
 		int nStep = 0;
 		int nFStep = 0;
@@ -114,26 +118,27 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
 			if (cch != 0 && buf[0] == 0x00) continue;
 
+			Current_Word = buf;
+			free(buf);
+
 			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
 
 			// 0번 쓰레드는 번역하지 않는다
 			if (nCurThNum == 0)
 			{
-				free(buf);
-				if (Prev_Word != 0) free(Prev_Word);
-				Prev_Word = 0;
+				Prev_Word = L"";
 				Sleep(5);
 				continue;
 			}
 
 			// 초기화
-			if (Prev_Word == 0)
-				Prev_Word = buf;
+			if (Prev_Word == L"")
+				Prev_Word = Current_Word;
 
 			// Clear 하거나 쓰레드 변경시 초기화
 			if (!bWait)
 			{
-				if (wcslen(buf) < wcslen(Prev_Word) || nCurThNum != nThNum)
+				if (Current_Word.length() < Prev_Word.length() || nCurThNum != nThNum)
 				{
 					bWait = true;
 					nLast_TickCount = GetTickCount();
@@ -147,11 +152,11 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				{
 					bWait = false;
 					bChanged = false;
-					if (Prev_Word != 0) free(Prev_Word);
-					if (Last_Word != 0) free(Last_Word);
+					//if (Prev_Word != 0) free(Prev_Word);
+					//if (Last_Word != 0) free(Last_Word);
 
-					Prev_Word = buf;
-					Last_Word = 0;
+					Prev_Word = Current_Word;
+					Last_Word = L"";
 					nLast_TickCount = 0;
 					nThNum = nCurThNum;
 				}
@@ -160,16 +165,15 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			// 변경 최초 감지
 			if (!bChanged)
 			{
-				if (wcslen(buf) != wcslen(Prev_Word))
+				if (Current_Word.length() != Prev_Word.length())
 				{
 					bChanged = true;
-					Last_Word = buf;
+					Last_Word = Current_Word;
 					nLast_TickCount = GetTickCount();
 				}
 				// 달라진게 없으면 메모리 해제
-				else if (Prev_Word != buf)
+				else if (Prev_Word != Current_Word)
 				{
-					free(buf);
 				}
 			}
 
@@ -178,26 +182,24 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				// 일정 시간 안에 텍스트가 추가되면 기다린다
 				if (GetTickCount() - nLast_TickCount <= Cl.Config->GetHookInterval())
 				{
-					if (wcslen(buf) != wcslen(Last_Word))
+					if (Current_Word.length() != Last_Word.length())
 					{
-						free(Last_Word);
-						Last_Word = buf;
+						Last_Word = Current_Word;
 						nLast_TickCount = GetTickCount();
 					}
 					else
 					{
-						free(buf);
 					}
 
 					// 문장 끝에 부호를 만나면 자르기
 					if (Cl.Config->GetHookTextSignCut() &&
-						(Last_Word[wcslen(Last_Word) - 1] == L'」' ||
-						Last_Word[wcslen(Last_Word) - 1] == L'』' ||
-						Last_Word[wcslen(Last_Word) - 1] == L'）' ||
-						Last_Word[wcslen(Last_Word) - 1] == L')' ||
-						Last_Word[wcslen(Last_Word) - 1] == L'。' ||
-						Last_Word[wcslen(Last_Word) - 1] == L'？' ||
-						Last_Word[wcslen(Last_Word) - 1] == L'！'))
+						(Last_Word[Last_Word.length() - 1] == L'」' ||
+						Last_Word[Last_Word.length() - 1] == L'』' ||
+						Last_Word[Last_Word.length() - 1] == L'）' ||
+						Last_Word[Last_Word.length() - 1] == L')' ||
+						Last_Word[Last_Word.length() - 1] == L'。' ||
+						Last_Word[Last_Word.length() - 1] == L'？' ||
+						Last_Word[Last_Word.length() - 1] == L'！'))
 					{
 						nLast_TickCount = GetTickCount() - 100000;
 					}
@@ -215,18 +217,17 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					nLast_TickCount = 0;
 					*/
 
-					if (wcslen(Last_Word) != cch)
+					if (Last_Word.length() != cch)
 					{
-						free(Last_Word);
-						Last_Word = buf;
+						Last_Word = Current_Word;
 					}
 					
 					int nShift = 0;
-					if (buf[wcslen(Prev_Word)] == 0x0D && buf[wcslen(Prev_Word)+1] == 0x0A)
+					if (Current_Word[Prev_Word.length()] == 0x0D && Current_Word[Prev_Word.length() + 1] == 0x0A)
 						nShift = 4;
 
 					
-					wchar_t *text_buffer = Last_Word + wcslen(Prev_Word) + nShift;
+					wchar_t *text_buffer = (wchar_t *)Last_Word.c_str() + Prev_Word.length() + nShift;
 					
 					for (DWORD i = 0, j = 0; i < wcslen(text_buffer); i++)
 					{
@@ -280,11 +281,10 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					//wchar_t *buf_copy = (wchar_t *)malloc((wcslen(Last_Word) + 1) * 2);
 					//wcscpy(buf_copy, Last_Word);
 
-					free(Prev_Word);
 					//free(Last_Word);
-					free(buf);
 
 					Prev_Word = Last_Word;
+					Last_Word = L"";
 
 					nLast_TickCount = 0;
 					bChanged = false;
