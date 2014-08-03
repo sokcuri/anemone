@@ -41,8 +41,6 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHookMonitor(true) : SetHookMonitor(false);
 	ReadINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetHookInterval(_wtoi(buf));
-	ReadINI_Str(L"HOOKER_TEXT_SIGNCUT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHookTextSignCut(true) : SetHookTextSignCut(false);
 
 	ReadINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnWatchClip(true) : SetHideWinUnWatchClip(false);
@@ -206,8 +204,6 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"HOOKER_MONITOR_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetHookInterval());
 	WriteINI_Str(L"HOOKER_MONITOR_INTERVAL", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-	wcscpy(buf, (GetHookTextSignCut() ? L"ON" : L"OFF"));
-	WriteINI_Str(L"HOOKER_TEXT_SIGNCUT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
 	wcscpy(buf, (GetHideWinUnWatchClip() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());

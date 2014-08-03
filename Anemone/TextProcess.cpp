@@ -191,6 +191,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					{
 					}
 
+					/*
 					// 문장 끝에 부호를 만나면 자르기
 					if (Cl.Config->GetHookTextSignCut() &&
 						(Last_Word[Last_Word.length() - 1] == L'」' ||
@@ -202,7 +203,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 						Last_Word[Last_Word.length() - 1] == L'！'))
 					{
 						nLast_TickCount = GetTickCount() - 100000;
-					}
+					}*/
 				}
 
 				// 일정 시간동안 추가된 텍스트가 없을 때 출력

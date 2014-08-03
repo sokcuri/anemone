@@ -3324,8 +3324,6 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 200));
 		SendDlgItemMessage(hWnds.HookCfg, IDC_HOOKCFG_INTERVAL_BAR, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)n/5);
 
-		CheckDlgButton(hWnd, IDC_HOOKCFG_TEXT_SIGNCUT, (Cl.Config->GetHookTextSignCut() ? true : false));
-
 		std::wstringstream ws;
 
 		ws << n;
@@ -3474,11 +3472,6 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			//SendMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
 			//SendMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
 			SetForegroundWindow(FindWindow(L"#32770", L"Option"));
-		}
-			break;
-		case IDC_HOOKCFG_TEXT_SIGNCUT:
-		{
-			(Cl.Config->GetHookTextSignCut() ? Cl.Config->SetHookTextSignCut(false) : Cl.Config->SetHookTextSignCut(true));
 		}
 			break;
 		case IDOK:
