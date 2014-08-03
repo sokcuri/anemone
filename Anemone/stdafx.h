@@ -188,7 +188,12 @@ struct aneDicStruct
 	char kor[31];
 	char part[5];
 	char attr[42];
-	int operator<(aneDicStruct rhs) { return ((wcscmp(wjpn, rhs.wjpn) < 0) || (wcscmp(wjpn, rhs.wjpn) == 0) && (line < rhs.line)); }
+	int operator<(aneDicStruct rhs) {
+		if (wcslen(wjpn) > wcslen(rhs.wjpn) || (wcslen(wjpn) == wcslen(rhs.wjpn) && (wcscmp(wjpn, rhs.wjpn) > 0)) || ((wcslen(wjpn) == wcslen(rhs.wjpn) && (wcscmp(wjpn, rhs.wjpn) == 0)) && line < rhs.line))
+			return true;
+		//return ((wcslen(wjpn) > wcslen(rhs.wjpn)) || (wcslen(wjpn) <= wcslen(rhs.wjpn)) && (wcscmp(wjpn, rhs.wjpn) > 0)); }
+		return false;
+	}
 };
 extern std::vector<aneDicStruct> AneDic;
 
