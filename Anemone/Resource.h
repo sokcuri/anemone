@@ -324,6 +324,8 @@
 #define ID_WINDOW_BACKLOG               32838
 #define ID_SETTING_HOMEPAGE             32839
 #define ID_32840                        32840
+#define ID_ANEMONE_32841                32841
+#define ID_ANEDIC_SITE                  32842
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -332,7 +334,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32841
+#define _APS_NEXT_COMMAND_VALUE         32843
 #define _APS_NEXT_CONTROL_VALUE         2005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

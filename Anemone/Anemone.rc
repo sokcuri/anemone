@@ -62,6 +62,7 @@ BEGIN
         MENUITEM "환경 설정\tF10",                  ID_WINDOW_SETTING
         MENUITEM "후커 감시 설정",                    ID_HOOKER_CONFIG
         MENUITEM SEPARATOR
+        MENUITEM "개별사전 모음 사이트",                 ID_ANEDIC_SITE
         MENUITEM "아네모네 정보",                     ID_ABOUT
         POPUP "단축키 일람"
         BEGIN

@@ -1753,6 +1753,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextProcess->OnDrawClipboardByHooker((wchar_t *)lParam);
 		}
 			break;
+		case ID_ANEDIC_SITE:
+		{
+			ShellExecute(NULL, L"open", L"http://www.minori.kr/anemone_dic/", L"", L"", SW_SHOW);
+		}
+			break;
 		case ID_SET_WNDRES:
 		{
 			RECT *prc = (RECT *)lParam;
