@@ -1721,12 +1721,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
-				hWnds.HookCfg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_HOOKCFG), hWnd, HookCfgProc);
+				hWnds.HookCfg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_HOOKCFG), hWnds.Main, HookCfgProc);
 
 				GetWindowRect(hWnds.HookCfg, &rect);
 
 				SetWindowPos(hWnds.HookCfg, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
 				ShowWindow(hWnds.HookCfg, 1);
+
+				SetWindowPos(hWnds.HookCfg, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 			}
 			else
 			{
@@ -2300,7 +2302,27 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			PostMessage(hWnds.Main, WM_COMMAND, ID_HOOKER_MONITOR, 0);
 			break;
 		case IDC_SETTING_HOOKER_CONFIG:
-			PostMessage(hWnds.Main, WM_COMMAND, ID_HOOKER_CONFIG, 0);
+		{
+			if (IsWindow(hWnds.HookCfg) == false)
+			{
+				RECT rect;
+				int cx = GetSystemMetrics(SM_CXSCREEN);
+				int cy = GetSystemMetrics(SM_CYSCREEN);
+
+				hWnds.HookCfg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_HOOKCFG), hWnds.Setting, HookCfgProc);
+
+				GetWindowRect(hWnds.HookCfg, &rect);
+
+				SetWindowPos(hWnds.HookCfg, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWnds.HookCfg, 1);
+			}
+			else
+			{
+				DestroyWindow(hWnds.HookCfg);
+				hWnds.HookCfg = NULL;
+				break;
+			}
+		}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
