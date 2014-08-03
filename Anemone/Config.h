@@ -71,7 +71,7 @@ private:
 	int cfg_window_hide = 0;
 	bool cfg_window_topmost = true;
 	bool cfg_hidewin_unwatch_clipboard = true;
-	bool cfg_hidewin_unlock_hotkey = true;
+	int cfg_hidewin_unlock_hotkey = 1;
 	bool cfg_magnetic_mode = false;
 	bool cfg_magnetic_minimize = true;
 	int cfg_repeat_text = 1;
@@ -165,8 +165,8 @@ public:
 	bool GetMagneticMode() { return cfg_magnetic_mode; }
 	void SetMagneticMode(bool b) { cfg_magnetic_mode = b; }
 
-	bool GetHideWinUnlockHotkey() { return cfg_hidewin_unlock_hotkey; }
-	void SetHideWinUnlockHotkey(bool b) { cfg_hidewin_unlock_hotkey = b; }
+	int GetHideWinUnlockHotkey() { return cfg_hidewin_unlock_hotkey; }
+	void SetHideWinUnlockHotkey(int i) { cfg_hidewin_unlock_hotkey = i; }
 
 	bool GetHideWinUnWatchClip() { return cfg_hidewin_unwatch_clipboard; }
 	void SetHideWinUnWatchClip(bool b) { cfg_hidewin_unwatch_clipboard = b; }

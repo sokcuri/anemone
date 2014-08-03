@@ -47,7 +47,7 @@ bool CConfig::LoadConfig()
 	ReadINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnWatchClip(true) : SetHideWinUnWatchClip(false);
 	ReadINI_Str(L"HIDEWIN_UNLOCK_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetHideWinUnlockHotkey(true) : SetHideWinUnlockHotkey(false);
+	if (buf[0] != NULL) SetHideWinUnlockHotkey(_wtoi(buf));
 
 	ReadINI_Str(L"PREV_SEARCH_NUMBER", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetPrevSearchNum(true) : SetPrevSearchNum(false);
@@ -211,7 +211,7 @@ bool CConfig::SaveConfig()
 
 	wcscpy(buf, (GetHideWinUnWatchClip() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"HIDEWIN_NOWATCH_CLIP", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
-	wcscpy(buf, (GetHideWinUnlockHotkey() ? L"ON" : L"OFF"));
+	wsprintf(buf, L"%d", GetHideWinUnlockHotkey());
 	WriteINI_Str(L"HIDEWIN_UNLOCK_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
 	wcscpy(buf, (GetPrevSearchNum() ? L"ON" : L"OFF"));

@@ -927,7 +927,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_HIDEWIN_UNLOCK_HOTKEY:
 		{
-			(Cl.Config->GetHideWinUnlockHotkey() ? Cl.Config->SetHideWinUnlockHotkey(false) : Cl.Config->SetHideWinUnlockHotkey(true));
+			(Cl.Config->GetHideWinUnlockHotkey() == 2 ? Cl.Config->SetHideWinUnlockHotkey(0) : (Cl.Config->GetHideWinUnlockHotkey() == 0) ? Cl.Config->SetHideWinUnlockHotkey(1) : Cl.Config->SetHideWinUnlockHotkey(2));
 		}
 			break;
 		case ID_HIDEWIN_UNWATCH_CLIPBOARD:
@@ -1135,7 +1135,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_MAGNETIC_MINIMIZE, Cl.Config->GetMagneticMinimize());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN, !Cl.Config->GetWindowVisible());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD, Cl.Config->GetHideWinUnWatchClip());
-				CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, Cl.Config->GetHideWinUnlockHotkey());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_CLIPBOARD_WATCH, Cl.Config->GetClipSwitch());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_HOOKER_MONITOR, Cl.Config->GetHookMonitor());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WNDCLICK_THOUGH, Cl.Config->GetClickThough());
@@ -1146,6 +1145,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PREV_SEARCH_NUM, Cl.Config->GetPrevSearchNum());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_UPDATE_NOTIFY, Cl.Config->GetUpdateNotify());
+
+				{
+					(Cl.Config->GetHideWinUnlockHotkey() == 0) ? CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, false) : 
+						CheckDlgButton(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, true);
+
+					std::wstringstream ws;
+					std::wstring str;
+
+					ws << L"창을 숨기면 단축키 일시 해제";
+					if (Cl.Config->GetHideWinUnlockHotkey() == 2)
+						ws << L" (전역)";
+					else if (Cl.Config->GetHideWinUnlockHotkey() == 1)
+						ws << L" (일부)";
+					else ws << L"";
+					str = ws.str();
+					SetDlgItemTextW(hWnds.Setting, IDC_SETTING_HIDEWIN_UNLOCK_HOTKEY, str.c_str());
+				}
 
 				{
 					(Cl.Config->GetRepeatTextProc() == 0) ? CheckDlgButton(hWnds.Setting, IDC_SETTING_REPEAT_TEXT, false) :

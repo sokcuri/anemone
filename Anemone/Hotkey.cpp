@@ -43,7 +43,7 @@ bool CHotkey::LoadKeyMap()
 	// ±ÛÀÚ Å©±â UP/DOWN
 	RegKey(VK_SUBTRACT, false, false, false, ID_TEXTSIZE_MINUS);
 	RegKey(VK_ADD, false, false, false, ID_TEXTSIZE_PLUS);
-
+	
 	// Ã¢ Àá±ñ ¼û±â±â / Ã¢ ¿ÏÀü ¼û±â±â
 	RegKey(VK_MULTIPLY, false, false, false, ID_WINDOW_VISIBLE, true);
 	RegKey(VK_DIVIDE, false, false, false, ID_TEMP_WINDOW_HIDE, true);
@@ -177,7 +177,10 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 					if ((*it).func == ID_EXTERN_HOTKEY ||
 						Cl.Config->GetExternHotkey() &&
-						((*it).Always == true || Cl.Config->GetWindowVisible() || !Cl.Config->GetTempWinHide() || !Cl.Config->GetHideWinUnlockHotkey()))
+						((*it).Always == true && Cl.Config->GetHideWinUnlockHotkey() != 2 ||
+						(!Cl.Config->GetWindowVisible() && ((*it).func == ID_WINDOW_VISIBLE || (*it).func == ID_TEMP_WINDOW_HIDE)) ||
+						Cl.Config->GetWindowVisible() ||
+						Cl.Config->GetHideWinUnlockHotkey() == 0))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
 						//SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
