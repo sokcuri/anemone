@@ -1002,8 +1002,11 @@ bool CTextProcess::OnDrawClipboard()
 
 	if (hClipData == NULL)
 	{
-		Cl.TextRenderer->Paint();
+		//Cl.TextRenderer->Paint();
+		//MessageBox(0, L"Invaild Clipboard Data", 0, 0);
 		CloseClipboard();
+		Cl.TextProcess->EndWatchClip();
+		Cl.TextProcess->StartWatchClip();
 		return false;
 	}
 

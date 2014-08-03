@@ -1795,10 +1795,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DRAWCLIPBOARD:
 	{
 
-/*		Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
+		//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
 
-		Cl.TextRenderer->Paint();
-		*/
+		//Cl.TextRenderer->Paint();
+		
 		Cl.TextProcess->OnDrawClipboard();
 	}
 		break;
