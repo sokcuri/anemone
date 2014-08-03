@@ -108,6 +108,12 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 			// EDIT 내용을 읽음
 			int cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
+			if (Prev_Word != L"" && cch == Prev_Word.length())
+			{
+				Sleep(5);
+				continue;
+			}
+
 			wchar_t *buf = (wchar_t *)malloc((cch + 2) * 2);
 			if (buf == NULL)
 			{
@@ -115,9 +121,9 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				continue;
 			}
 			buf[0] = 0x00;
+
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
 			if (cch != 0 && buf[0] == 0x00) continue;
-
 			Current_Word = buf;
 			free(buf);
 
@@ -386,7 +392,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			}*/
 			Sleep(1);
 		}
-		Sleep(1);
+		Sleep(100);
 	}
 }
 /*
