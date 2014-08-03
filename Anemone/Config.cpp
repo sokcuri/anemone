@@ -162,6 +162,9 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetWindowMovePoint(_wtoi(buf));
 	ReadINI_Str(L"EZTRANS_PATH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetEzTransPath(buf);
+
+	ReadINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetReviewMax(_wtoi(buf));
 	return true;
 }
 
@@ -325,6 +328,9 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"WINDOW_MOVE_POINT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%s", GetEzTransPath());
 	WriteINI_Str(L"EZTRANS_PATH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
+	wsprintf(buf, L"%d", GetReviewMax());
+	WriteINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
 	Cl.FileWatch->TurnOn();
 	Cl.TextProcess->LoadDictionary();

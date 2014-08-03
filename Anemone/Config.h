@@ -89,6 +89,7 @@ private:
 	bool cfg_prev_search_num = true;
 	bool cfg_hook_monitor = false;
 	int cfg_hook_interval = 45;
+	int cfg_review_max = 300;
 
 public:
 	CConfig();
@@ -109,6 +110,9 @@ public:
 
 	bool SetWndRes(struct _wndinfo &wi);
 	bool GetWndRes(struct _wndinfo &wi);
+
+	DWORD GetReviewMax() { return cfg_review_max; }
+	void SetReviewMax(DWORD i) { cfg_review_max = i; }
 
 	bool GetHookMonitor() { return cfg_hook_monitor; }
 	void SetHookMonitor(bool b) { cfg_hook_monitor = b; }

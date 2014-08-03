@@ -1097,7 +1097,7 @@ bool CTextProcess::ProcessText(std::wstring &wContext)
 
 	viewLog.push_back(VL);
 
-	for (; viewLog.size() > 300;)
+	for (; viewLog.size() > Cl.Config->GetReviewMax();)
 	{
 		viewLog.pop_front();
 	}
