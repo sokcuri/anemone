@@ -6,16 +6,8 @@ std::vector<std::wstring> fileList;
 
 CFileWatch::CFileWatch()
 {
-	TurnOn();
-}
+	m_pThis = this;
 
-CFileWatch::~CFileWatch()
-{
-	TurnOff();
-}
-
-void CFileWatch::TurnOn()
-{
 	SECURITY_ATTRIBUTES ThreadAttributes;
 	ThreadAttributes.bInheritHandle = false;
 	ThreadAttributes.lpSecurityDescriptor = NULL;
@@ -28,9 +20,19 @@ void CFileWatch::TurnOn()
 	}
 }
 
-void CFileWatch::TurnOff()
+CFileWatch::~CFileWatch()
 {
 	TerminateThread(hWatchThread, 0);
+}
+
+void CFileWatch::TurnOn()
+{
+	bWatch = true;
+}
+
+void CFileWatch::TurnOff()
+{
+	bWatch = false;
 }
 
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
@@ -43,8 +45,8 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 	HANDLE hDir = CreateFile(Path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		0, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0);
-	CONST DWORD cbBuffer = 1024 * 1024;
-	BYTE* pBuffer = (PBYTE)malloc(cbBuffer);
+	CONST DWORD cbBuffer = 1024;
+	BYTE pBuffer[1024];
 	BOOL bWatchSubtree = FALSE;
 	DWORD dwNotifyFilter = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
 		FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE |
@@ -64,33 +66,35 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 			DWORD dwLastError = GetLastError();
 			break;
 		}
-
 		pfni = (FILE_NOTIFY_INFORMATION*)pBuffer;
 
-		do {
-			memcpy(temp, pfni->FileName, pfni->FileNameLength);
-			temp[pfni->FileNameLength / 2] = 0;
-			std::wstring filename(temp);
-			transform(filename.begin(), filename.end(), filename.begin(), tolower);
+		if (m_pThis->bWatch)
+		{
+			do {
+				memcpy(temp, pfni->FileName, pfni->FileNameLength);
+				temp[pfni->FileNameLength / 2] = 0;
+				std::wstring filename(temp);
+				transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-			if (fileList.begin() == fileList.end())
-			{
-				fileList.push_back(filename.c_str());
-			}
-
-			std::vector<std::wstring>::iterator it = fileList.begin();
-			for (; it != fileList.end(); it++)
-			{
-				if (it + 1 == fileList.end())
+				if (fileList.begin() == fileList.end())
 				{
 					fileList.push_back(filename.c_str());
-					break;
 				}
-				else if ((*it).compare(filename.c_str()) == 0) break;
-			}
 
-			pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
-		} while (pfni->NextEntryOffset > 0);
+				std::vector<std::wstring>::iterator it = fileList.begin();
+				for (; it != fileList.end(); it++)
+				{
+					if (it + 1 == fileList.end())
+					{
+						fileList.push_back(filename.c_str());
+						break;
+					}
+					else if ((*it).compare(filename.c_str()) == 0) break;
+				}
+
+				pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
+			} while (pfni->NextEntryOffset > 0);
+		}
 	}
 	return 0;
 }

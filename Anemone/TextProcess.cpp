@@ -1096,7 +1096,12 @@ bool CTextProcess::ProcessText(std::wstring &wContext)
 	_viewLog VL = _viewLog(wName.c_str(), wNameT.c_str(), wText.c_str(), wTextT.c_str());
 
 	viewLog.push_back(VL);
-	
+
+	for (; viewLog.size() > 300;)
+	{
+		viewLog.pop_front();
+	}
+
 	//MessageBox(0, viewLog[viewLog.size()-1].TextT, 0, 0);
 	viewLogNum = 0;
 	
@@ -1381,7 +1386,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		if ((n_jpword = WideCharToMultiByte(932, 0, wjpn, -1, NULL, NULL, NULL, NULL)) > 31)
 		{
-			//WriteLog(L"[UserDictRead] 오류 | 일어 단어의 길이는 15자 (30Byte)를 넘을 수 없습니다. 해당 단어는 무시됩니다. 현재 길이 : %dByte\n", n_jpword);
+			//WriteLog(L"[UserDictRead] 오류 | 일어 단어f의 길이는 15자 (30Byte)를 넘을 수 없습니다. 해당 단어는 무시됩니다. 현재 길이 : %dByte\n", n_jpword);
 			//WriteLog(L"[UserDictRead] 오류 | [%s:%d] : %s | %s | %s | %s\n", FindFileData.cFileName, nLine, wjpword_sjis, wkrword_euckr, wpart_of_speech, wattributes);
 			continue;
 		}

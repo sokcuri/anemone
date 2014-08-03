@@ -10,6 +10,8 @@ private:
 	static CFileWatch *m_pThis;
 	HANDLE hWatchThread;
 
+	bool bWatch = true;
+
 	DWORD _FileChangeNotifyThread(LPVOID lpParam);
 	MMRESULT _FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dwUser, DWORD dw1, DWORD d2);
 

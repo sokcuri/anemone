@@ -259,7 +259,7 @@ public:
 	wchar_t *TextT;
 };
 
-extern std::vector<_viewLog> viewLog;
+extern std::list<_viewLog> viewLog;
 extern int viewLogNum;
 
 struct _wndinfo

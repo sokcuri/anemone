@@ -34,7 +34,7 @@ UINT WM_TASKBARCHANGED;
 int nMenuType = 0;
 
 // 이전글/최근글 보기
-std::vector<_viewLog> viewLog;
+std::list<_viewLog> viewLog;
 int viewLogNum = 0;
 
 int IsActive = 0;
@@ -1006,32 +1006,54 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_TEXT_PREV:
 		{
-			int size = viewLog.size()-1;
+			std::list<_viewLog>::iterator iter;
+			int i, size;
+			
+			size = viewLog.size()-1;
+			i = 0;
 
 			if (size - viewLogNum - 1 < 0) break;
 			viewLogNum++;
 
-			Cl.TextRenderer->SetTextSet(
-				viewLog[size - viewLogNum].Name,
-				viewLog[size - viewLogNum].NameT,
-				viewLog[size - viewLogNum].Text,
-				viewLog[size - viewLogNum].TextT);
+			for (iter = viewLog.begin(); iter != viewLog.end(); iter++, i++)
+			{
+				if (i == size - viewLogNum)
+				{
+					Cl.TextRenderer->SetTextSet(
+						(*iter).Name,
+						(*iter).NameT,
+						(*iter).Text,
+						(*iter).TextT);
+					break;
+				}
+			}
 
 			Cl.TextRenderer->Paint();
 		}
 			break;
 		case ID_TEXT_NEXT:
 		{
-			int size = viewLog.size() - 1;
+			std::list<_viewLog>::iterator iter;
+			int i, size;
+			
+			size = viewLog.size() - 1;
+			i = 0;
 
 			if (viewLogNum - 1 < 0) break;
 			viewLogNum--;
 
-			Cl.TextRenderer->SetTextSet(
-				viewLog[size - viewLogNum].Name,
-				viewLog[size - viewLogNum].NameT,
-				viewLog[size - viewLogNum].Text,
-				viewLog[size - viewLogNum].TextT);
+			for (iter = viewLog.begin(); iter != viewLog.end(); iter++, i++)
+			{
+				if (i == size - viewLogNum)
+				{
+					Cl.TextRenderer->SetTextSet(
+						(*iter).Name,
+						(*iter).NameT,
+						(*iter).Text,
+						(*iter).TextT);
+					break;
+				}
+			}
 
 			Cl.TextRenderer->Paint();
 		}
