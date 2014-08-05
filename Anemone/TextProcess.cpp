@@ -60,6 +60,10 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 {
 	HWND hITH, hEdit, hThCombo;
 
+	std::wstring Prev_Word;
+	std::wstring Last_Word;
+	std::wstring Current_Word;
+
 	while (1)
 	{
 		hITH = 0;
@@ -90,10 +94,6 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 		//wchar_t *Prev_Word = 0;
 		//wchar_t *Last_Word = 0;
-
-		std::wstring Prev_Word;
-		std::wstring Last_Word;
-		std::wstring Current_Word;
 
 		int nStep = 0;
 		int nFStep = 0;
@@ -132,7 +132,6 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			// 0번 쓰레드는 번역하지 않는다
 			if (nCurThNum == 0)
 			{
-				Prev_Word = L"";
 				Sleep(5);
 				continue;
 			}
