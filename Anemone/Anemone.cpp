@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 994
+#define ANEMONE_VERSION 995
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -1860,7 +1860,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
 
-		SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"OnDrawClipboard");
+		//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"OnDrawClipboard");
 		//Cl.TextRenderer->Paint();
 		//Sleep(1);
 		Cl.TextProcess->OnDrawClipboard();

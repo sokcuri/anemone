@@ -1035,14 +1035,14 @@ bool CTextProcess::OnDrawClipboard()
 	// 클립보드 인식 길이가 넘어가면 버리기
 	if (wContext.length() > (unsigned int)Cl.Config->GetClipLength())
 	{
-		SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"Clip Max Exceed");
+		//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"Clip Max Exceed");
 		CloseClipboard();
 		return false;
 	}
 
-	SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"ProcText");
+	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"ProcText");
 	ProcessText(wContext);
-	SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"EndText");
+	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"EndText");
 	return true;
 }
 
