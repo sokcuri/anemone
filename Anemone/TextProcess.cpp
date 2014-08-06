@@ -175,6 +175,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					Last_Word = L"";
 					nLast_TickCount = 0;
 					nThNum = nCurThNum;
+					continue;
 				}
 			}
 
