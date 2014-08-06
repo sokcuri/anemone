@@ -782,6 +782,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Cl.Hotkey->RemoveHook();
 		Cl.Hotkey->InstallHook();
 
+		Cl.TextProcess->ResetWatchClip();
+
 		DEVMODE dmREG, dmCUR;
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
 		EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmREG);
@@ -886,7 +888,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				nExStyle &= ~WS_EX_TRANSPARENT;
 				SetWindowLong(hWnd, GWL_EXSTYLE, nExStyle);
 			}
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
 		case ID_TEMP_WINDOW_HIDE:
@@ -985,7 +988,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_WND_BORDER_MODE:
 			(Cl.Config->GetWndBorderMode() ? Cl.Config->SetWndBorderMode(false) : Cl.Config->SetWndBorderMode(true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
 		case ID_CLIPBOARD_SWITCH:
@@ -1000,7 +1004,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				Cl.TextProcess->EndWatchClip();
 			}
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
@@ -1028,7 +1033,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case ID_TEXT_NEXT:
@@ -1055,7 +1061,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case ID_OPENDIC:
@@ -1512,30 +1519,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_TEXTALIGN_LEFT:
 			Cl.Config->SetTextAlign(0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case ID_TEXTALIGN_MID:
 			Cl.Config->SetTextAlign(1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case ID_TEXTALIGN_RIGHT:
 			Cl.Config->SetTextAlign(2);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case ID_SEPERATE_NAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME) ? Cl.Config->SetTextSwitch(CFG_NAME, false) : Cl.Config->SetTextSwitch(CFG_NAME, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
 			break;
 		case ID_EXTERN_HOTKEY:
 			(Cl.Config->GetExternHotkey() ? Cl.Config->SetExternHotkey(false) : Cl.Config->SetExternHotkey(true));
 			break;
 		case ID_PRINT_ORGTEXT:
 			(Cl.Config->GetTextSwitch(CFG_ORG) ? Cl.Config->SetTextSwitch(CFG_ORG, false) : Cl.Config->SetTextSwitch(CFG_ORG, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case ID_PRINT_ORGNAME:
 			(Cl.Config->GetTextSwitch(CFG_NAME_ORG) ? Cl.Config->SetTextSwitch(CFG_NAME_ORG, false) : Cl.Config->SetTextSwitch(CFG_NAME_ORG, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 
 		case ID_TRANSTEXT_WNDMENU:
@@ -1580,7 +1593,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize - 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			PostMessage(hWnd, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
@@ -1590,7 +1604,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetTextSize(CFG_NAME, CFG_A, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_A, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, nTextSize + 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			PostMessage(hWnd, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
@@ -1680,7 +1695,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			SetWindowPos(hWnd, HWND_TOP, 0, 0, cx, cy, SWP_NOMOVE);
 
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 
@@ -1704,7 +1720,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_LOAD_CONFIG:
 		{
 			Cl.Config->LoadConfig();
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 			break;
@@ -1741,7 +1758,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_BACKGROUND_SWITCH:
 		{
 			(Cl.Config->GetBGSwitch() ? Cl.Config->SetBGSwitch(false) : Cl.Config->SetBGSwitch(true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case ID_HOOKER_MONITOR:
@@ -1754,7 +1772,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			Cl.TextProcess->OnDrawClipboardByHooker((wchar_t *)lParam);
 		}
-			break;
+			return 0;
 		case ID_ANEDIC_SITE:
 		{
 			ShellExecute(NULL, L"open", L"http://www.minori.kr/anemone_dic/", L"", L"", SW_SHOW);
@@ -1784,10 +1802,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_PAINT:
 	{
+		if (lParam == 1) Cl.TextRenderer->Paint();
 		//MessageBox(0, 0, 0, 0);
-		//Cl.TextRenderer->Paint();
+		//
 	}
-		break;
+		return 0;
 
 	// 트레이 아이콘 이벤트
 	case ID_TRAY_EVENT:
@@ -1832,18 +1851,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)prc);
 
 		// 크기 조정중에는 화면이 갱신되도록 한다
-		if (message == WM_SIZING) Cl.TextRenderer->Paint();
+		if (message == WM_SIZING) PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 	}
 		break;
 
 	// 클립보드 데이터가 들어왔을때
 	case WM_DRAWCLIPBOARD:
 	{
-
 		//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
 
+		SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"OnDrawClipboard");
 		//Cl.TextRenderer->Paint();
-		
+		//Sleep(1);
 		Cl.TextProcess->OnDrawClipboard();
 	}
 		break;
@@ -2184,7 +2203,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					}
 					
 					SetDlgItemTextW(hWnd, wmId, L"");
-					Cl.TextRenderer->Paint();
+					PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+					//Cl.TextRenderer->Paint();
 				}
 			}
 			break;
@@ -2205,7 +2225,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_NAME, CFG_B, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_B, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_B, nTextSize - 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case IDC_SETTING_OUTLINE1_SIZE_PLUS:
@@ -2214,7 +2235,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_NAME, CFG_B, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_B, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_B, nTextSize + 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		case IDC_SETTING_OUTLINE2_SIZE_MINUS:
 		{
@@ -2223,7 +2245,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_NAME, CFG_C, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_C, nTextSize - 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_C, nTextSize - 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case IDC_SETTING_OUTLINE2_SIZE_PLUS:
@@ -2232,20 +2255,24 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_NAME, CFG_C, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_ORG, CFG_C, nTextSize + 1);
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_C, nTextSize + 1);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case IDC_SETTING_NAME_SHADOW:
 			(Cl.Config->GetTextShadow(CFG_NAME) ? Cl.Config->SetTextShadow(CFG_NAME, false) : Cl.Config->SetTextShadow(CFG_NAME, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
 			break;
 		case IDC_SETTING_ORG_SHADOW:
 			(Cl.Config->GetTextShadow(CFG_ORG) ? Cl.Config->SetTextShadow(CFG_ORG, false) : Cl.Config->SetTextShadow(CFG_ORG, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case IDC_SETTING_TRANS_SHADOW:
 			(Cl.Config->GetTextShadow(CFG_TRANS) ? Cl.Config->SetTextShadow(CFG_TRANS, false) : Cl.Config->SetTextShadow(CFG_TRANS, true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			break;
 		case IDC_SETTING_NAME_FONT:
 		case IDC_SETTING_ORG_FONT:
@@ -2284,7 +2311,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 				Cl.Config->SetFontStyle(cfg_type, fontStyle);
 			}
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 			break;
 		case IDC_SETTING_UPDATE_NOTIFY:
@@ -2295,7 +2323,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_PREV_SEARCH_NUM:
 			(Cl.Config->GetPrevSearchNum() ? Cl.Config->SetPrevSearchNum(false) : Cl.Config->SetPrevSearchNum(true));
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			break;
 		case IDC_SETTING_HOOKER_MONITOR:
@@ -2455,7 +2484,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetBGColor(BGColor);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTSIZE_TRACKBAR))
 		{
@@ -2485,7 +2515,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_A, i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_OUTLINE1_SIZE_TRACKBAR))
 		{
@@ -2515,7 +2546,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_B, i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_OUTLINE2_SIZE_TRACKBAR))
 		{
@@ -2545,7 +2577,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextSize(CFG_TRANS, CFG_C, i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_X_TRACKBAR))
 		{
@@ -2571,7 +2604,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetShadowX(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_SHADOW_Y_TRACKBAR))
 		{
@@ -2597,7 +2631,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetShadowY(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_X_TRACKBAR))
 		{
@@ -2625,7 +2660,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextMarginX(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_Y_TRACKBAR))
 		{
@@ -2653,7 +2689,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextMarginY(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_TEXTMARGIN_NAME_TRACKBAR))
 		{
@@ -2681,7 +2718,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetTextMarginName(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_CLIP_TRACKBAR))
 		{
@@ -2709,7 +2747,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetClipLength(i*10);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 		else if ((HWND)lParam == GetDlgItem(hWnd, IDC_SETTING_WND_BORDER_BAR))
 		{
@@ -2737,7 +2776,8 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			Cl.Config->SetWndBorderSize(i);
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
-			Cl.TextRenderer->Paint();
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			//Cl.TextRenderer->Paint();
 		}
 	}
 	}
