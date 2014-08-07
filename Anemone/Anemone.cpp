@@ -3002,7 +3002,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDC_TRANSWIN_COPY:
 		{
 			int length = SendMessage(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), WM_GETTEXTLENGTH, 0, 0) + 1;
-			wchar_t *pStr = (wchar_t *)HeapAlloc(AneHeap, 0, sizeof(wchar_t) * (length + 1));
+			wchar_t *pStr = (wchar_t *)GlobalAlloc(0, sizeof(wchar_t) * (length + 1));
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
 
 			IsActive = 2;
@@ -3013,7 +3013,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			SetClipboardData(CF_UNICODETEXT, pStr);
 			CloseClipboard();
 
-			HeapFree(AneHeap, 0, pStr);
+			GlobalUnlock(pStr);
 		}
 			break;
 		case IDC_TRANSWIN_TRANSLATE:
