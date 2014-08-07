@@ -707,12 +707,13 @@ std::wstring CTextProcess::HangulEncode(const std::wstring &input)
 	std::wstring::const_iterator it = input.begin();
 	for (; it != input.end(); it++)
 	{
-		if (*it == L'@' ||
+		if (*it == L'@' || 
+			(*it >= 0x1D00 && *it <= 0x2FFF) ||
 			(*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
 			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
 			(*it >= 0xD7B0 && *it <= 0xD7FF))
 		{
-			swprintf_s(buf, L"+x%04X", *it);
+			swprintf_s(buf, L"+X%04X", *it);
 			output += buf;
 		}
 		else
@@ -738,7 +739,7 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 			continue;
 		}
 		else
-			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'x' &&
+			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'X' &&
 			((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) &&
 			((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
 			((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
