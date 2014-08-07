@@ -3219,7 +3219,6 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, FT->lpszOutputFileName, 255);
 			FT->StartTickCount = GetTickCount();
 			FT->WriteType = Cl.Config->GetFileTransOutput();
-			FT->WriteLineType = Cl.Config->GetFileTransOutputLine();
 
 			if (FT->lpszInputFileName[0] == NULL || FT->lpszOutputFileName[0] == NULL)
 			{
@@ -3261,13 +3260,15 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 			break;
 		case IDC_FILE_TRANSWIN_OUTPUT1:
-			//CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT1);
+			CheckRadioButton(hWnd, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT1);
 			Cl.Config->SetFileTransOutput(0);
 			break;
 		case IDC_FILE_TRANSWIN_OUTPUT2:
+			CheckRadioButton(hWnd, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT2);
 			Cl.Config->SetFileTransOutput(1);
 			break;
 		case IDC_FILE_TRANSWIN_OUTPUT3:
+			CheckRadioButton(hWnd, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT3);
 			Cl.Config->SetFileTransOutput(2);
 			break;
 		default:
@@ -4188,7 +4189,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 	for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)
 	{
-		if (FT->WriteType == 1)
+		if (FT->WriteType != 0)
 		{
 			// 마지막 라인이면 원문 뒤에 \r\n 추가
 			if (std::next(iter, 1) == list_org.end())
@@ -4201,7 +4202,9 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 			fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
 			fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-			if (FT->WriteLineType == 1) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+			
+			// 출력 설정이 원문/번역문 + 개행인 경우 개행 처리
+			if (FT->WriteType == 2) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
 		}
 		else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 	}

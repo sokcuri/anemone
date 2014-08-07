@@ -130,8 +130,8 @@ public:
 	int GetFileTransOutput() { return cfg_filetrans_output_type; }
 	void SetFileTransOutput(int i) { cfg_filetrans_output_type = i; }
 
-	int GetTransOutputLine() { return cfg_trans_output_type; }
-	void SetTransOutputLine(int i) { cfg_trans_output_type = i; }
+	int GetTransOutput() { return cfg_trans_output_type; }
+	void SetTransOutput(int i) { cfg_trans_output_type = i; }
 
 	int GetUpdateNotify() { return cfg_update_notify; }
 	void SetUpdateNotify(bool b) { cfg_update_notify = b; }

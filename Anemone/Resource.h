@@ -47,10 +47,10 @@
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_FILE_TRANSWIN_OUTPUT1       1005
 #define IDC_FILE_TRANSWIN_OUTPUT2       1006
-#define IDC_FILE_TRANSWIN_OUTPUT3       1007
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006
 #define IDC_SETTING_MAGNETIC_MINIMIZE   1006
+#define IDC_FILE_TRANSWIN_OUTPUT3       1007
 #define IDC_CHECK3                      1007
 #define IDC_SETTING_HIDEWIN             1007
 #define IDC_CHECK4                      1008
