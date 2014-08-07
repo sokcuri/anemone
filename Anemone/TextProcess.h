@@ -8,6 +8,7 @@ public:
 
 	void StartWatchClip();
 	void EndWatchClip();
+	void ResetWatchClip();
 	void StartHookMonitor();
 	void EndHookMonitor();
 	bool OnDrawClipboard();

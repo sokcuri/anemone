@@ -18,7 +18,8 @@ void CTextProcess::StartWatchClip()
 	{
 		IsActive = 3;
 		hWnds.Clip = SetClipboardViewer(hWnds.Main);
-		Cl.TextRenderer->Paint();
+		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+		//Cl.TextRenderer->Paint();
 		if (!Cl.Config->GetClipSwitch()) EndWatchClip();
 	}
 	else
@@ -31,6 +32,12 @@ void CTextProcess::StartWatchClip()
 void CTextProcess::EndWatchClip()
 {
 	ChangeClipboardChain(hWnds.Main, NULL);
+}
+
+void CTextProcess::ResetWatchClip()
+{
+	ChangeClipboardChain(hWnds.Main, NULL);
+	hWnds.Clip = SetClipboardViewer(hWnds.Main);
 }
 
 void CTextProcess::StartHookMonitor()
@@ -59,6 +66,10 @@ void CTextProcess::EndHookMonitor()
 DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 {
 	HWND hITH, hEdit, hThCombo;
+
+	std::wstring Prev_Word;
+	std::wstring Last_Word;
+	std::wstring Current_Word;
 
 	while (1)
 	{
@@ -91,10 +102,6 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 		//wchar_t *Prev_Word = 0;
 		//wchar_t *Last_Word = 0;
 
-		std::wstring Prev_Word;
-		std::wstring Last_Word;
-		std::wstring Current_Word;
-
 		int nStep = 0;
 		int nFStep = 0;
 		int nThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
@@ -123,7 +130,11 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			buf[0] = 0x00;
 
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
-			if (cch != 0 && buf[0] == 0x00) continue;
+			if (cch != 0 && buf[0] == 0x00)
+			{
+				Sleep(5);
+				continue;
+			}
 			Current_Word = buf;
 			free(buf);
 
@@ -132,7 +143,6 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			// 0번 쓰레드는 번역하지 않는다
 			if (nCurThNum == 0)
 			{
-				Prev_Word = L"";
 				Sleep(5);
 				continue;
 			}
@@ -165,6 +175,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					Last_Word = L"";
 					nLast_TickCount = 0;
 					nThNum = nCurThNum;
+					continue;
 				}
 			}
 
@@ -979,6 +990,7 @@ bool CTextProcess::OnDrawClipboard()
 	std::wstring wContext;
 
 
+
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
 	if (IsActive == 2)
 	{
@@ -1012,22 +1024,25 @@ bool CTextProcess::OnDrawClipboard()
 		//Cl.TextRenderer->Paint();
 		//MessageBox(0, L"Invaild Clipboard Data", 0, 0);
 		CloseClipboard();
-		Cl.TextProcess->EndWatchClip();
-		Cl.TextProcess->StartWatchClip();
+		Cl.TextProcess->ResetWatchClip();
 		return false;
 	}
 
 	wContext = (wchar_t*)GlobalLock(hClipData);
 	GlobalUnlock(hClipData);
+	CloseClipboard();
 
 	// 클립보드 인식 길이가 넘어가면 버리기
 	if (wContext.length() > (unsigned int)Cl.Config->GetClipLength())
 	{
+		//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"Clip Max Exceed");
 		CloseClipboard();
 		return false;
 	}
+
+	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"ProcText");
 	ProcessText(wContext);
-	CloseClipboard();
+	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"EndText");
 	return true;
 }
 
@@ -1106,7 +1121,7 @@ bool CTextProcess::ProcessText(std::wstring &wContext)
 	viewLogNum = 0;
 	
 	IsActive = true;
-	Cl.TextRenderer->Paint();
+	PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 
 	// 임시 창 숨김 상태일때 클립보드 요청이 들어오면 창을 다시 띄운다
 	if (Cl.Config->GetTempWinHide())
