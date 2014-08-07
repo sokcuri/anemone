@@ -248,7 +248,11 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (!Cl.Config->GetMagneticMode() &&
 			Cl.Config->GetWindowTopMost())
 		{
-			if (FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
+			DWORD dwProcessId;
+			GetWindowThreadProcessId(GetForegroundWindow(), &dwProcessId);
+
+			// 아네모네 프로세스에만 적용
+			if (GetCurrentProcessId() != dwProcessId && FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
 			{
 				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				//SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
