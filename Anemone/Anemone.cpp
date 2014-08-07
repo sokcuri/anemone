@@ -244,6 +244,17 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (!IsWindow(hWnds.Parent))
 			SendMessage(hWnds.Main, WM_COMMAND, ID_RESTORE_PARENT, 0);
 
+		// 아네모네 창이 항상 위로 오도록
+		if (!Cl.Config->GetMagneticMode() &&
+			Cl.Config->GetWindowTopMost())
+		{
+			if (FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
+			{
+				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				//SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			}
+		}
+
 		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		HWND CurFore = GetForegroundWindow();
@@ -326,17 +337,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 				UpdateWindow(hOtherWnd);
 			}
 
-		}
-		
-		// 아네모네 창이 항상 위로 오도록
-		if (!Cl.Config->GetMagneticMode() &&
-			Cl.Config->GetWindowTopMost())
-		{
-			if (FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
-			{
-				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-				SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			}
 		}
 
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
@@ -817,6 +817,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// 1초동안 자석모드를 일시 해제한다
 			MagnetWnd.IgnoreTick = GetTickCount() + 1000;
 		}
+
+		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 	}
 		break;
 	case WM_COMMAND:
