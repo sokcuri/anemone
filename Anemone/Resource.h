@@ -46,12 +46,13 @@
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_FILE_TRANSWIN_OUTPUT1       1005
+#define IDC_FILE_TRANSWIN_OUTPUT2       1006
+#define IDC_FILE_TRANSWIN_OUTPUT3       1007
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006
 #define IDC_SETTING_MAGNETIC_MINIMIZE   1006
 #define IDC_CHECK3                      1007
 #define IDC_SETTING_HIDEWIN             1007
-#define IDC_FILE_TRANSWIN_OUTPUT2       1007
 #define IDC_CHECK4                      1008
 #define IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD 1008
 #define IDC_CHECK5                      1009
@@ -335,7 +336,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         2005
+#define _APS_NEXT_CONTROL_VALUE         2007
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -3062,16 +3062,13 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	case WM_SHOWWINDOW:
 	{
 		SetForegroundWindow(hWnds.FileTrans);
-		if (Cl.Config->GetFileTransOutput() == 0)
-		{
-			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, true);
-			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT2, false);
-		}
+		if (Cl.Config->GetFileTransOutput() == 2)
+			CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT3);
+		else if (Cl.Config->GetFileTransOutput() == 1)
+			CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT2);
 		else
-		{
-			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, false);
-			CheckDlgButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT2, true);
-		}
+			CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT1);
+		
 	}
 		break;
 	case WM_COMMAND:
@@ -3182,6 +3179,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, FT->lpszOutputFileName, 255);
 			FT->StartTickCount = GetTickCount();
 			FT->WriteType = Cl.Config->GetFileTransOutput();
+			FT->WriteLineType = Cl.Config->GetFileTransOutputLine();
 
 			if (FT->lpszInputFileName[0] == NULL || FT->lpszOutputFileName[0] == NULL)
 			{
@@ -3223,10 +3221,14 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 			break;
 		case IDC_FILE_TRANSWIN_OUTPUT1:
+			//CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT1);
 			Cl.Config->SetFileTransOutput(0);
 			break;
 		case IDC_FILE_TRANSWIN_OUTPUT2:
 			Cl.Config->SetFileTransOutput(1);
+			break;
+		case IDC_FILE_TRANSWIN_OUTPUT3:
+			Cl.Config->SetFileTransOutput(2);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -4159,7 +4161,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 			fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
 			fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-			fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+			if (FT->WriteLineType == 1) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
 		}
 		else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 	}
