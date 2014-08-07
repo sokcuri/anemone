@@ -852,7 +852,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			GetWindowRect(hWnds.Main, &rect);
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SET_WNDRES, (LPARAM)&rect);
-
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 		}
 			break;
 		case ID_ABOUT:
