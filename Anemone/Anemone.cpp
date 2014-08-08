@@ -318,8 +318,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 		// 아네모네 창이 뜬 상태로 포커스를 잃으면 메뉴 소멸
 		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
 		{
-			CloseWindow(hMenuWnd);
 			ShowWindow(hMenuWnd, false);
+			CloseWindow(hMenuWnd);
 		}
 
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 바뀌거나
@@ -535,6 +535,8 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	CheckMenuItem(hmenuTrackPopup, ID_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_BACKGROUND_SWITCH, (Cl.Config->GetBGSwitch() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_TRANS, (IsWindow(hWnds.Trans) ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_FILETRANS, (IsWindow(hWnds.FileTrans) ? MF_CHECKED : MF_UNCHECKED));
 
 	CheckMenuRadioItem(hmenuTrackPopup, ID_TEMP_WINDOW_HIDE, ID_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? ID_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : ID_WINDOW_VISIBLE)), MF_BYCOMMAND);
 
@@ -1611,9 +1613,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
 			if (hMenuWnd)
 			{
-				CloseWindow(hMenuWnd);
 				ShowWindow(hMenuWnd, false);
-		}
+				CloseWindow(hMenuWnd);
+			}
 		}
 			break;
 		case ID_TEXTSIZE_MINUS:
@@ -3060,6 +3062,7 @@ LRESULT CALLBACK EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		pEdit = pEditProc[0];
 	else if (hwnd == GetDlgItem(hWnds.Trans, IDC_TRANSWIN_DEST))
 		pEdit = pEditProc[1];
+	else return 0;
 
 	return CallWindowProc(pEdit, hwnd, msg, wParam, lParam);
 }
