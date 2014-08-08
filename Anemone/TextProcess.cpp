@@ -655,6 +655,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	if (szBuff == NULL)
 	{
 		MessageBox(0, L"메모리 할당 실패", 0, 0);
+		LeaveCriticalSection(&cs);
 		return false;
 	}
 
@@ -682,6 +683,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	if (lpszBuff == NULL)
 	{
 		MessageBox(0, L"메모리 할당 실패", 0, 0);
+		LeaveCriticalSection(&cs);
 		return false;
 	}
 
@@ -929,7 +931,7 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 {
 	// 이름인식 최대길이
-	DWORD nNameLen = 10;
+	DWORD nNameLen = Cl.Config->GetNameMax();
 
 	/*
 	* [2013-12-13] 이름인식 정규식 by MYC Gamer
@@ -945,32 +947,21 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	std::wregex reg_front_r1, reg_front_r2, reg_front_r3, reg_front_r4, reg_front_r5;
 	std::wregex reg_tail_r1, reg_tail_r2, reg_tail_r3, reg_tail_r4, reg_tail_r5;
 	
-	if (Cl.Config->GetRepeatTextProc() > 0)
-	{
-		reg_front_r1.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
-		reg_front_r2.assign(L"^([^「。]+?)(?:[「](?:\\1)+|[」]\\1+|(?!([^」])\\1*[」])\\1*([「](.*」|[^」]+?)$))");
-		reg_front_r3.assign(L"^([^『。]+?)(?:[『](?:\\1)+|[』]\\1+|(?!([^』])\\1*[』])\\1*([『](.*』|[^』]+?)$))");
-		reg_front_r4.assign(L"^([^(。]+?)(?:[(](?:\\1)+|[)]\\1+|(?!([^)])\\1*[)])\\1*([(].*[)]))");
-		reg_front_r5.assign(L"^([^（。]+?)(?:[（](?:\\1)+|[）]\\1+|(?!([^）])\\1*[）])\\1*([（].*[）]))");
-		//rx_head5.assign(L"^([^「」『』（）()]+?)(?:[「『（(](?:\\1)+|[」』）)]\\1+|(?!([^」』）)])\\1*[」』）)])\\1*([「」『』（）()].*[）)]))");
-		//rx_name.assign(L"【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
-		//rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
-		//rx_name4.assign(L"^([「」『』（）()].*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
+	reg_front_r1.assign(L"^【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
+	reg_front_r2.assign(L"^(?=[^「」『』（）()])([^「]+?)()([「].*[」]|[「].*[^「」『』（）()])$");
+	reg_front_r3.assign(L"^(?=[^「」『』（）()])([^『]+?)()([『].*[』]|[『].*[^「」『』（）()])$");
+	reg_front_r4.assign(L"^(?=[^「」『』（）()])([^(]+?)()([(].*[)]|[(].*[^「」『』（）()])$");
+	reg_front_r5.assign(L"^(?=[^「」『』（）()])([^（]+?)()([（].*[）]|[（].*[^「」『』（）()])$");
+	//rx_head5.assign(L"^([^「」『』（）()]+?)(?:[「『（(](?:\\1)+|[」』）)]\\1+|(?!([^」』）)])\\1*[」』）)])\\1*([「」『』（）()].*[）)]))");
+	//rx_name.assign(L"【([^】]+?)(?:】(?:【\\1)+|】\\1+|(?!([^】])\\2*】)\\1*】)([^【】].*)");
+	//rx_name2.assign(L"^([^「」『』（）()]+?)(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|\\(.*\\)$|（.*）$)");
+	//rx_name4.assign(L"^([「」『』（）()].*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
 
-		reg_tail_r1.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
-		reg_tail_r2.assign(L"^([「].*[」]|[^「]+?[^「][」])([^「]+?)(?:[「](?:\\2)+|[」]\\2+|(?!([^」])\\2*[」])\\2*[^。])$");
-		reg_tail_r3.assign(L"^([『].*[』]|[^『]+?[^『][』])([^『]+?)(?:[『](?:\\2)+|[』]\\2+|(?!([^』])\\2*[』])\\2*[^。])$");
-		reg_tail_r4.assign(L"^([(].*[)])([^(]+?)(?:[(](?:\\2)+|[)]\\2+|(?!([^)])\\2*[)])\\2*[^。])");
-		reg_tail_r5.assign(L"^([（].*[）])([^（]+?)(?:[（](?:\\2)+|[）]\\2+|(?!([^）])\\2*[）])\\2*[^。])");
-	}
-	else
-	{
-		reg_front_r1.assign(L"^【((?:[^】]+$|(.+)))】([^【】]+?)$");
-		reg_front_r2.assign(L"^([^「」『』（）()]+?)()(「(?:[^」]+$|.+」$)|『(?:[^』]+$|.+』$)|[(（].*[)）]$)");
-
-		reg_tail_r1.assign(L"^([^【】]+?)【((?:[^】]+$|(.+)))】$");
-		reg_tail_r2.assign(L"^(「(?:[^」]+$|.+」)|『(?:[^』]+$|.+』)|[(（].*[)）])([^「」『』（）()]+?)$");
-	}
+	reg_tail_r1.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
+	reg_tail_r2.assign(L"^([「].*[」]|[^「」『』（）()]+?[^「][」])([^「]+?[^「」])$");
+	reg_tail_r3.assign(L"^([『].*[』]|[^「」『』（）()]+?[^『][』])([^『]+?[^『』])$");
+	reg_tail_r4.assign(L"^([(].*[)]|[^「」『』（）()]+?[^(][)])([^(]+?[^()])$");
+	reg_tail_r5.assign(L"^([（].*[）]|[^「」『』（）()]+?[^（][）])([^（]+?[^（）])$");
 
 	std::wsmatch m;
 
@@ -1036,13 +1027,6 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 				wName = replaceAll(wName, wTab, wEmpty);
 			}
 		}
-	}
-
-	// 이름인식 길이를 넘어서면 이름 X
-	if (wName.length() > 0 && nNameLen < wName.length())
-	{
-		wName = wEmpty;
-		wText = input;
 	}
 
 	if (nCode == 0) return wName;

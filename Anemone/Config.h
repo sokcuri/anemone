@@ -91,6 +91,7 @@ private:
 	bool cfg_hook_monitor = false;
 	int cfg_hook_interval = 100;
 	int cfg_review_max = 300;
+	int cfg_name_max = 20;
 
 public:
 	CConfig();
@@ -111,6 +112,9 @@ public:
 
 	bool SetWndRes(struct _wndinfo &wi);
 	bool GetWndRes(struct _wndinfo &wi);
+
+	DWORD GetNameMax() { return cfg_name_max; }
+	void SetNameMax(DWORD i) { cfg_name_max = i; }
 
 	DWORD GetReviewMax() { return cfg_review_max; }
 	void SetReviewMax(DWORD i) { cfg_review_max = i; }

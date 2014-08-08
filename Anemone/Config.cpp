@@ -74,6 +74,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_NAME, true) : SetTextSwitch(CFG_NAME, false);
 	ReadINI_Str(L"NAME_ORG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextSwitch(CFG_NAME_ORG, true) : SetTextSwitch(CFG_NAME_ORG, false);
+	ReadINI_Str(L"NAME_MAX_LENGTH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) SetNameMax(_wtoi(buf));
 	ReadINI_Str(L"NAME_SHADOW", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTextShadow(CFG_NAME, true) : SetTextShadow(CFG_NAME, false);
 	ReadINI_Str(L"NAME_FONT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -242,6 +244,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"NAME_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetTextSwitch(CFG_NAME_ORG) ? L"ON" : L"OFF"));
 	WriteINI_Str(L"NAME_ORG_SWITCH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wsprintf(buf, L"%d", GetNameMax());
+	WriteINI_Str(L"NAME_MAX_LENGTH", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetTextShadow(CFG_NAME) ? L"ON" : L"OFF"));
 	WriteINI_Str(L"NAME_SHADOW", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%s", GetTextFont(CFG_NAME));
