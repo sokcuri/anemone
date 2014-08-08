@@ -196,6 +196,8 @@ int APIENTRY _tWinMain(
 
 void CleanUp()
 {
+	RemoveMouseHook();
+
 	ShowWindow(hWnds.Main, false);
 	TerminateThread(MagnetWnd.hThread, 0);
 	Shell_NotifyIcon(NIM_DELETE, &niData);
@@ -268,8 +270,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 			{
 				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
 				hForeWnd = CurFore;
-				if (nMenuType == 1) SetWindowText(hMenuWnd, L"AnemoneTrayMenu");
-				else
+				//if (nMenuType == 1) SetWindowText(hMenuWnd, L"AnemoneTrayMenu");
+				//else if (nMenuType == 2)
 				{
 					SetWindowText(hMenuWnd, L"AnemoneMenu");
 
@@ -553,7 +555,7 @@ BOOL WINAPI OnContextMenu(HWND hwnd, int x, int y)
 
 	// 트레이 아이콘 메뉴를 열 때 메인 아네모네 메뉴가 떠 있다면 없앤다
 	// 이부분이 정확히는 아네모네 창에서 메뉴가 열렸는지를 확인하는 함수
-	if (PtInRect(&rc, pt)) nMenuType = 0;
+	if (PtInRect(&rc, pt)) nMenuType = 2;
 	else
 	{
 		SendMessage(hwnd, WM_COMMAND, ID_DESTROY_MENU, 0);
@@ -1500,7 +1502,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
-				hWnds.Trans = CreateDialog(hInst, MAKEINTRESOURCE(IDD_TRANSWIN), hWnd, TransWinProc);
+				hWnds.Trans = CreateDialog(hInst, MAKEINTRESOURCE(IDD_TRANSWIN), 0, TransWinProc);
 
 				GetWindowRect(hWnds.Trans, &rect);
 
