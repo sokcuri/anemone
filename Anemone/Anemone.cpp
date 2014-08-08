@@ -194,6 +194,29 @@ int APIENTRY _tWinMain(
 	return (int) msg.wParam;
 }
 
+HANDLE hMouseHookThread;
+DWORD WINAPI MouseHookThread(LPVOID lpParam)
+{
+	MSG msg;
+	HACCEL hAccelTable;
+
+	hAccelTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_ANEMONE));
+
+	// 로우레벨 마우스 후킹 설치
+	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
+
+	// 기본 메시지 루프입니다.
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	return (int)msg.wParam;
+}
+
 void CleanUp()
 {
 	RemoveMouseHook();
@@ -355,8 +378,15 @@ unsigned int WINAPI MagneticThread(void *arg)
 		{
 			if (FindWindowEx(0, GetForegroundWindow(), szWindowClass, 0))
 			{
-				SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-				SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				DWORD dwProcessId;
+				GetWindowThreadProcessId(GetForegroundWindow(), &dwProcessId);
+
+				// 아네모네 프로세스가 아닐떄에만
+				if (GetCurrentProcessId() != dwProcessId)
+				{
+					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				}
 			}
 		}
 
@@ -1956,7 +1986,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// 클립보드 데이터가 들어왔을때
 	case WM_DRAWCLIPBOARD:
 	{
-		//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
+		Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
+		Cl.TextRenderer->Paint();
+		Sleep(1000);
 
 		//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"OnDrawClipboard");
 		//Cl.TextRenderer->Paint();
@@ -3801,14 +3833,24 @@ LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 void InstallMouseHook()
 {
-	// 로우레벨 마우스 후킹 설치
-	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
+	SECURITY_ATTRIBUTES ThreadAttributes;
+	ThreadAttributes.bInheritHandle = false;
+	ThreadAttributes.lpSecurityDescriptor = NULL;
+	ThreadAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+
+	hMouseHookThread = CreateThread(&ThreadAttributes, 0, MouseHookThread, NULL, 0, NULL);
+	if (hMouseHookThread == NULL)
+	{
+		MessageBox(0, L"쓰레드 생성 작업을 실패했습니다.", 0, MB_ICONERROR);
+	}
 }
 
 void RemoveMouseHook()
 {
 	UnhookWindowsHookEx(m_hMouseHook);
 	m_hMouseHook = NULL;
+
+	TerminateProcess(hMouseHookThread, 0);
 }
 
 bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)

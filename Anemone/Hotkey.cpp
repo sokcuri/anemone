@@ -5,13 +5,47 @@ CHotkey *CHotkey::m_pThis = NULL;
 
 CHotkey::CHotkey()
 {
-	InstallHook();
-	LoadKeyMap();
+	m_pThis = this;
+
+	SECURITY_ATTRIBUTES ThreadAttributes;
+	ThreadAttributes.bInheritHandle = false;
+	ThreadAttributes.lpSecurityDescriptor = NULL;
+	ThreadAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+
+	hHotkeyThread = CreateThread(&ThreadAttributes, 0, HotkeyThread, NULL, 0, NULL);
+	if (hHotkeyThread == NULL)
+	{
+		MessageBox(0, L"쓰레드 생성 작업을 실패했습니다.", 0, MB_ICONERROR);
+	}
 }
 
 CHotkey::~CHotkey()
 {
 	RemoveHook();
+
+	TerminateProcess(hHotkeyThread, 0);
+}
+
+DWORD CHotkey::_HotkeyThread(LPVOID lpParam)
+{
+	MSG msg;
+	HACCEL hAccelTable;
+
+	hAccelTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_ANEMONE));
+
+	InstallHook();
+	LoadKeyMap();
+
+	// 기본 메시지 루프입니다.
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	return (int)msg.wParam;
 }
 
 bool CHotkey::LoadKeyMap()

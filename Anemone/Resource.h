@@ -330,10 +330,10 @@
 #define ID_32840                        32840
 #define ID_ANEMONE_32841                32841
 #define ID_ANEDIC_SITE                  32842
-#define ID_LBUTTONDOWN					32843
-#define ID_LBUTTONUP					32844
-#define ID_RBUTTONDOWN					32845
-#define ID_RBUTTONUP					32846
+#define ID_LBUTTONDOWN                  32843
+#define ID_LBUTTONUP                    32844
+#define ID_RBUTTONDOWN                  32845
+#define ID_RBUTTONUP                    32846
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

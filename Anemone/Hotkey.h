@@ -13,8 +13,16 @@ public:
 
 private:
 	static CHotkey *m_pThis;
+	HANDLE hHotkeyThread;
 	HHOOK m_hHook;
 
+	DWORD _HotkeyThread(LPVOID lpParam);
+
+	// Trampoline
+	static DWORD WINAPI HotkeyThread(LPVOID lpParam)
+	{
+		return m_pThis->_HotkeyThread(lpParam);
+	}
 	// Trampoline
 	static LRESULT CALLBACK _KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
 	{
