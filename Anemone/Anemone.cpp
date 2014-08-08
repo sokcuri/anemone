@@ -314,7 +314,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		}
 
 		// 아네모네 창이 뜬 상태로 포커스를 잃으면 메뉴 소멸
-		if ((hMenuWnd = FindWindowEx(0, hWnds.Parent, L"#32768", L"AnemoneMenu")))
+		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
 		{
 			CloseWindow(hMenuWnd);
 			ShowWindow(hMenuWnd, false);
