@@ -67,6 +67,7 @@ DWORD WINAPI		FileTransThread(LPVOID lpParam);
 void				CreateTrayIcon(HWND hWnd);
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
+CRITICAL_SECTION	cs;
 
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
@@ -112,6 +113,10 @@ int APIENTRY _tWinMain(
 	Cl.Config = new CConfig();
 	Cl.Config->LoadConfig();
 	Cl.Config->LoadWndConfig();
+
+	// CriticalSection
+	InitializeCriticalSection(&cs);
+
 	/*
 	std::wregex regex_field(L"^(\\d+)x(\\d+)=(\\d+)[|](\\d+)[|](\\d+)[|](\\d+)(\\s+)");
 	std::wstring str = L"123x456=789|123|456|781\r\n";
@@ -220,6 +225,7 @@ DWORD WINAPI MouseHookThread(LPVOID lpParam)
 void CleanUp()
 {
 	RemoveMouseHook();
+	DeleteCriticalSection(&cs);
 
 	ShowWindow(hWnds.Main, false);
 	TerminateThread(MagnetWnd.hThread, 0);
@@ -1986,10 +1992,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// 클립보드 데이터가 들어왔을때
 	case WM_DRAWCLIPBOARD:
 	{
-		Cl.TextRenderer->SetTextSet(L"", L"", L"", L"Clipboard_Input");
-		Cl.TextRenderer->Paint();
-		Sleep(1000);
-
 		//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"OnDrawClipboard");
 		//Cl.TextRenderer->Paint();
 		//Sleep(1);

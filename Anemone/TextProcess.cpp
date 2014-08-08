@@ -632,6 +632,7 @@ void CTextProcess::TranslateAbort()
 
 std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 {
+	EnterCriticalSection(&cs);
 	int nBufLen;
 	char *szBuff, *szBuff2;
 	wchar_t *lpszBuff;
@@ -696,6 +697,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	end = GetTickCount();
 
 	Elapsed_Prepare += (end - start);
+	LeaveCriticalSection(&cs);
 	return output;
 }
 

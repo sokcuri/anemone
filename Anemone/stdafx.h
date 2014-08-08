@@ -277,3 +277,5 @@ struct _wndinfo
 	int cy;
 };
 extern std::vector<_wndinfo> WndInfo;
+
+extern CRITICAL_SECTION cs;
