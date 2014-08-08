@@ -632,15 +632,14 @@ void CTextProcess::TranslateAbort()
 
 std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 {
-	EnterCriticalSection(&cs);
 	int nBufLen;
 	char *szBuff, *szBuff2;
 	wchar_t *lpszBuff;
 	std::wstring szContext, output;
 
 	int start, end;
-
 	start = GetTickCount();
+	EnterCriticalSection(&cs);
 
 	szContext = HangulEncode(input);
 
@@ -694,10 +693,10 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 
 	output = HangulDecode(output);
 
+	LeaveCriticalSection(&cs);
 	end = GetTickCount();
 
 	Elapsed_Prepare += (end - start);
-	LeaveCriticalSection(&cs);
 	return output;
 }
 
