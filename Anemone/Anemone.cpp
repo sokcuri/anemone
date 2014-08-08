@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 996
+#define ANEMONE_VERSION 997
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -4308,7 +4308,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	std::wstring::size_type nprev = 0;
 	std::wstring::size_type npos = -1;
 	std::list<std::wstring> list_org, list_trans, list;
-	std::wstring output;
+	std::wstring output, trans_str;
 	int i = 0, length = input.length();
 	std::wstring empty = L"Abort";
 
@@ -4387,7 +4387,42 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 			delete FT;
 			return -1;
 		}
-			output += Cl.TextProcess->eztrans_proc(*iter);
+
+		int nInput, nOutput;
+		int nPos, nPrev;
+
+		for (nPrev = 0, nPos = 0, nInput = 0; nPos != std::string::npos; nInput++)
+		{
+			nInput++;
+			nPos = (*iter).find(L"\n|:_", nPrev);
+			nPrev = nPos + 4;
+		}
+
+		for (int j = 0; j < 3; j++)
+		{
+			trans_str = Cl.TextProcess->eztrans_proc(*iter);
+
+			for (nPrev = 0, nPos = 0, nOutput = 0; nPos != std::string::npos; nOutput++)
+			{
+				nOutput++;
+				nPos = trans_str.find(L"\n|:_", nPrev);
+				nPrev = nPos + 4;
+			}
+
+			if (nInput == nOutput) break;
+		}
+		
+		if (nInput != nOutput)
+		{
+			nStatus = 0;
+			MessageBox(hDlg, L"번역 라인이 맞지 않습니다.", L"아네모네", MB_ICONERROR);
+			DestroyWindow(hDlg);
+			fclose(fpw);
+			delete FT;
+			return -1;
+		}
+		else
+			output += trans_str;
 
 		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_PROGRESS, (LPARAM)i+1);
 	}

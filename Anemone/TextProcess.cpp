@@ -463,7 +463,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 	std::wstring::size_type nprev = 0;
 	std::wstring::size_type npos = -1;
 	std::list<std::wstring> list, list_org, list_trans;
-	std::wstring output;
+	std::wstring output, trans_str;
 	int i = 0, length = input.length();
 	std::wstring empty = L"Abort";
 
@@ -544,7 +544,44 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 			return false;
 		}
 
-		output += eztrans_proc(*iter);
+		int nInput, nOutput;
+		int nPos, nPrev;
+
+		for (nPrev = 0, nPos = 0, nInput = 0; nPos != std::string::npos; nInput++)
+		{
+			nInput++;
+			nPos = (*iter).find(L"\n|:_", nPrev);
+			nPrev = nPos + 4;
+		}
+
+		for (int j = 0; j < 3; j++)
+		{
+			trans_str = Cl.TextProcess->eztrans_proc(*iter);
+
+			for (nPrev = 0, nPos = 0, nOutput = 0; nPos != std::string::npos; nOutput++)
+			{
+				nOutput++;
+				nPos = trans_str.find(L"\n|:_", nPrev);
+				nPrev = nPos + 4;
+			}
+
+			if (nInput == nOutput) break;
+		}
+
+		if (nInput != nOutput)
+		{
+			nStatus = 0;
+			std::wstringstream logstream;
+			logstream << L"번역 라인이 맞지 않습니다.\r\n오류로 번역이 중단되었습니다.";
+
+			proclog = logstream.str();
+			SendMessage(hWnd, WM_COMMAND, ID_TRANS_ABORT, (LPARAM)proclog.c_str());
+
+			std::wstring abort_msg = L"Abort";
+			return false;
+		}
+		else
+			output += trans_str;
 
 		std::wstringstream logstream;
 		logstream << L"번역중... (";
@@ -589,7 +626,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 		logstream << L"번역 도중 오류가 발생했습니다.";
 
 		proclog = logstream.str();
-		SendMessage(hWnd, WM_COMMAND, ID_TRANS_PROGRESS, (LPARAM)proclog.c_str());
+		SendMessage(hWnd, WM_COMMAND, ID_TRANS_ABORT, (LPARAM)proclog.c_str());
 		return false;
 	}
 
@@ -901,6 +938,26 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 		}
 	}
 
+	// 문자가 세번 반복될 때 처리
+	if (nResult == 0 && str.length() % 3 == 0)
+	{
+		index = str.length() / 3;
+
+		for (unsigned int i = 0; i < str.length(); i++, index++)
+		{
+			if (str[i] != str[index])
+			{
+				nResult = 0;
+				break;
+			}
+			else if (i + 1 == str.length() / 3)
+			{
+				nResult = 3;
+				break;
+			}
+		}
+	}
+
 	if (nResult == 1)
 	{
 		// 1234 12345
@@ -922,7 +979,7 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	}
 	else if (nResult == 3)
 	{
-		str = str.substr(str.length() / 2, str.length() / 2);
+		str = str.substr(0, str.length() / 3);
 	}
 
 	input = str;
