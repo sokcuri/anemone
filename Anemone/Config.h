@@ -91,7 +91,7 @@ private:
 	bool cfg_hook_monitor = false;
 	int cfg_hook_interval = 100;
 	int cfg_review_max = 300;
-	int cfg_name_max = 20;
+	int cfg_name_max = 12;
 
 public:
 	CConfig();

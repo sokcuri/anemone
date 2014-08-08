@@ -833,8 +833,9 @@ bool CTextProcess::DoubleTextFix(std::wstring &input)
 			// 4자 (중복 8자)도 안되면 문제가 있을 수 있음. 무조건 리턴
 			//if (i < 4 * 2) return false;
 
-			for (; i < text.size(); i++)
-				output += text[i];
+			//for (; i < text.size(); i++)
+			//	output += text[i];
+			return false;
 		}
 	}
 
@@ -930,9 +931,6 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 
 std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 {
-	// 이름인식 최대길이
-	DWORD nNameLen = Cl.Config->GetNameMax();
-
 	/*
 	* [2013-12-13] 이름인식 정규식 by MYC Gamer
 	* [2013-07-23] 이름인식 정규식 V2 (대사 끝에 붙어 있는 이름 인식, 일반 괄호 반복 인식)
@@ -1037,8 +1035,6 @@ bool CTextProcess::OnDrawClipboard()
 {
 	std::wstring wContext;
 
-
-
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
 	if (IsActive == 2)
 	{
@@ -1113,27 +1109,38 @@ bool CTextProcess::ProcessText(std::wstring &wContext)
 {
 	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContextT;
 
-	// 반복 처리
-	if (Cl.Config->GetRepeatTextProc() > 2)
-		DoubleSentenceFix(wContext);
-	if (Cl.Config->GetRepeatTextProc() > 1)
+
+	if (Cl.Config->GetRepeatTextProc() > 0)
+	{
 		DoubleTextFix(wContext);
+		DoubleSentenceFix(wContext);
+	}
 
-	// 이름 분리
 	wName = NameSplit(0, wContext);
-	if (Cl.Config->GetRepeatTextProc() > 2)
-		DoubleTextFix(wName);
-
-	// 대사 분리
 	wText = NameSplit(1, wContext);
-	if (Cl.Config->GetRepeatTextProc() > 1)
-		DoubleTextFix(wText);
 
-	// 이름이나 대사에 반복되는 부분 처리
+	if (Cl.Config->GetRepeatTextProc() > 1)
+	{
+		DoubleTextFix(wText);
+		DoubleSentenceFix(wText);
+	}
+	if (Cl.Config->GetRepeatTextProc() > 2)
+	{
+		DoubleTextFix(wName);
+	}
 	if (Cl.Config->GetRepeatTextProc() > 3)
 	{
 		DoubleSentenceFix(wName);
-		DoubleSentenceFix(wText);
+	}
+
+	// 이름 인식 범위를 넘어간 경우
+	if (wName.length() > Cl.Config->GetNameMax())
+	{
+		std::wstring temp = wName;
+		temp += wText;
+		
+		wName = L"";
+		wText = temp;
 	}
 
 	wContext = wName;

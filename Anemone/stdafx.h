@@ -81,6 +81,7 @@ struct _MagnetWnd
 	HANDLE hThread;
 	bool IsMagnet = false;
 	bool IsMinimize = false;
+	bool IsFirst = true;
 	HWND hWnd;
 	int res_x;
 	int res_y;

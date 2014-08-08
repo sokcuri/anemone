@@ -838,6 +838,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DISPLAYCHANGE:
 	{
+		// 자석모드 초기 실행시 요놈이 호출되는 현상이 있음
+		if (MagnetWnd.IsFirst)
+		{
+			MagnetWnd.IsFirst = false;
+			return 0;
+		}
+
 		Cl.Hotkey->RemoveHook();
 		Cl.Hotkey->InstallHook();
 
