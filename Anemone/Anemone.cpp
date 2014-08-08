@@ -845,6 +845,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 
+		if (IsActive == 0) return 0;
+
 		Cl.Hotkey->RemoveHook();
 		Cl.Hotkey->InstallHook();
 
