@@ -44,6 +44,9 @@ int Elapsed_Translate = 0;
 // 아네모네 윈도우 저장
 std::vector<_wndinfo> WndInfo;
 
+// 로우레벨 마우스 후킹
+HHOOK m_hMouseHook;
+
 ATOM				WindowClassRegister(HINSTANCE hInstance, wchar_t *szClassName, void *lpfnProc);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -55,59 +58,15 @@ INT_PTR CALLBACK	TransWinProgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	FileTransWinProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	BackLogProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK	MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam);
+void				InstallMouseHook();
+void				RemoveMouseHook();
 bool __stdcall		UpdateNotify(HWND hWnd, bool IsCurMsg);
 DWORD WINAPI		HttpSendRequestThread(LPVOID lpParam);
 DWORD WINAPI		FileTransThread(LPVOID lpParam);
 void				CreateTrayIcon(HWND hWnd);
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
-
-HHOOK m_hMouseHook;
-LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-	if (nCode == HC_ACTION)
-	{
-		POINT *lp = (POINT *)lParam;
-		POINT *pt = new POINT;
-
-		pt->x = lp->x;
-		pt->y = lp->y;
-
-		switch (wParam)
-		{
-		case WM_MOUSEMOVE:
-		{
-			//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"WM_MOUSEMOVE");
-			//PostMessage(hWnds.Main, WM_PAINT, 0, 1);
-		}
-			break;
-		case WM_LBUTTONDOWN:
-		{
-			PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONDOWN, (LPARAM)pt);
-		}
-			break;
-		case WM_LBUTTONUP:
-		{
-			PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONUP, (LPARAM)pt);
-		}
-			break;
-		case WM_RBUTTONDOWN:
-		{
-			PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONDOWN, (LPARAM)pt);
-		}
-			break;
-		case WM_RBUTTONUP:
-		{
-			PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONUP, (LPARAM)pt);
-		}
-			break;
-		}
-	}
-	return CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
-}
-
-
-
 
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
@@ -174,7 +133,7 @@ int APIENTRY _tWinMain(
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_ANEMONE));
 
 	// 로우레벨 마우스 후킹 설치
-	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
+	InstallMouseHook();
 
 	std::wstring szEnginePath;
 
@@ -355,8 +314,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 		}
 
 		// 아네모네 창이 뜬 상태로 포커스를 잃으면 메뉴 소멸
-		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")) ||
-			(hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneTrayMenu")))
+		if ((hMenuWnd = FindWindowEx(0, hWnds.Parent, L"#32768", L"AnemoneMenu")))
 		{
 			CloseWindow(hMenuWnd);
 			ShowWindow(hMenuWnd, false);
@@ -842,6 +800,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		Cl.Hotkey->RemoveHook();
 		Cl.Hotkey->InstallHook();
+
+		RemoveMouseHook();
+		InstallMouseHook();
 
 		Cl.TextProcess->ResetWatchClip();
 
@@ -1866,7 +1827,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 		case ID_LBUTTONDOWN:
-		case ID_RBUTTONUP:
+		case ID_RBUTTONDOWN:
 		{
 			POINT *pt = (POINT *)lParam;
 
@@ -1914,6 +1875,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 			break;
 		case ID_LBUTTONUP:
+		case ID_RBUTTONUP:
 		{
 			POINT *pt = (POINT *)lParam;
 
@@ -1922,23 +1884,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ws << L"/";
 			ws << pt->y;
 			ws << L" ";
-			ws << L"WM_LBUTTONUP";
-			Cl.TextRenderer->SetTextSet(L"", L"", L"", ws.str().c_str());
-			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
-
-			delete pt;
-		}
-			break;
-		case ID_RBUTTONDOWN:
-		{
-			POINT *pt = (POINT *)lParam;
-
-			std::wstringstream ws;
-			ws << pt->x;
-			ws << L"/";
-			ws << pt->y;
-			ws << L" ";
-			ws << L"WM_LBUTTONDOWN";
+			ws << L"WM_BUTTONDOWN";
 			Cl.TextRenderer->SetTextSet(L"", L"", L"", ws.str().c_str());
 			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 
@@ -3804,6 +3750,60 @@ INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	}
 	return 0;
+}
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	if (nCode == HC_ACTION)
+	{
+		POINT *lp = (POINT *)lParam;
+		POINT *pt = new POINT;
+
+		pt->x = lp->x;
+		pt->y = lp->y;
+
+		switch (wParam)
+		{
+		case WM_MOUSEMOVE:
+		{
+			//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"WM_MOUSEMOVE");
+			//PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+		}
+			break;
+		case WM_LBUTTONDOWN:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONDOWN, (LPARAM)pt);
+		}
+			break;
+		case WM_LBUTTONUP:
+		{
+			//PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONUP, (LPARAM)pt);
+		}
+			break;
+		case WM_RBUTTONDOWN:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONDOWN, (LPARAM)pt);
+		}
+			break;
+		case WM_RBUTTONUP:
+		{
+			//PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONUP, (LPARAM)pt);
+		}
+			break;
+		}
+	}
+	return CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
+}
+
+void InstallMouseHook()
+{
+	// 로우레벨 마우스 후킹 설치
+	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
+}
+
+void RemoveMouseHook()
+{
+	UnhookWindowsHookEx(m_hMouseHook);
+	m_hMouseHook = NULL;
 }
 
 bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
