@@ -240,6 +240,9 @@
 #define IDC_SETTING_HOOKER_MONITOR      2002
 #define IDC_EDIT4                       2004
 #define IDC_HOOKCFG_INTERVAL_EDIT       2004
+#define IDC_TRANSWIN_OUTPUT1            2007
+#define IDC_TRANSWIN_OUTPUT2            2008
+#define IDC_TRANSWIN_OUTPUT3            2009
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -339,7 +342,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
-#define _APS_NEXT_COMMAND_VALUE         32847
+#define _APS_NEXT_COMMAND_VALUE         32843
 #define _APS_NEXT_CONTROL_VALUE         2007
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

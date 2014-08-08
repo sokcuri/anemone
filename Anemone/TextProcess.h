@@ -15,7 +15,7 @@ public:
 	bool OnDrawClipboardByHooker(wchar_t *lpwszstr);
 	//std::wstring eztrans_mt_proc(std::wstring &input);
 	//unsigned int WINAPI ThreadFunction(void *arg);
-	std::wstring TranslateText(HWND hWnd, const std::wstring &input);
+	bool TranslateText(HWND hWnd, const std::wstring &input, int nOutputType);
 	void TranslateAbort();
 	std::wstring eztrans_proc(const std::wstring &input);
 	bool LoadDictionary();

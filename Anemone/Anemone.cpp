@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 995
+#define ANEMONE_VERSION 996
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -295,11 +295,10 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (!IsWindow(hWnds.Parent))
 			SendMessage(hWnds.Main, WM_COMMAND, ID_RESTORE_PARENT, 0);
 
-		
 		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		HWND CurFore = GetForegroundWindow();
-		
+
 		if (IsWindow(hMenuWnd))
 		{
 			DWORD dwProcessId;
@@ -314,7 +313,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				else
 				{
 					SetWindowText(hMenuWnd, L"AnemoneMenu");
-					
+
 					if (!(nExStyle_Menu & WS_EX_NOACTIVATE))
 					{
 						nExStyle_Menu |= WS_EX_NOACTIVATE;
@@ -329,7 +328,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				}
 			}
 		}
-		
+
 		// 자석모드 윈도우가 활성화되면 아네모네를 위로 띄움
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
@@ -879,6 +878,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// 1초동안 자석모드를 일시 해제한다
 			MagnetWnd.IgnoreTick = GetTickCount() + 1000;
 		}
+
+		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 	}
 		break;
 	case WM_COMMAND:
@@ -1649,7 +1650,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				CloseWindow(hMenuWnd);
 				ShowWindow(hMenuWnd, false);
-			}
+		}
 		}
 			break;
 		case ID_TEXTSIZE_MINUS:
@@ -3131,6 +3132,13 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			//assert(false);
 			return false;
 		}
+		if (Cl.Config->GetTransOutput() == 2)
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT3);
+		else if (Cl.Config->GetTransOutput() == 1)
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT2);
+		else
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT1);
+
 		SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_SRC));
 		SetForegroundWindow(hWnds.Trans);
 	}
@@ -3177,7 +3185,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			std::wstring original_context = pStr;
 			HeapFree(AneHeap, 0, pStr);
 
-			Cl.TextProcess->TranslateText(hWnd, original_context);
+			Cl.TextProcess->TranslateText(hWnd, original_context, Cl.Config->GetTransOutput());
 
 			SetFocus(GetDlgItem(hWnd, IDC_TRANSWIN_DEST));
 		}
@@ -3217,6 +3225,18 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			//EndDialog(hWnd, LOWORD(wParam));
 			DestroyWindow(hWnd);
 		}
+			break;
+		case IDC_TRANSWIN_OUTPUT1:
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT1);
+			Cl.Config->SetTransOutput(0);
+			break;
+		case IDC_TRANSWIN_OUTPUT2:
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT2);
+			Cl.Config->SetTransOutput(1);
+			break;
+		case IDC_TRANSWIN_OUTPUT3:
+			CheckRadioButton(hWnd, IDC_TRANSWIN_OUTPUT1, IDC_TRANSWIN_OUTPUT3, IDC_TRANSWIN_OUTPUT3);
+			Cl.Config->SetTransOutput(2);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -4245,17 +4265,22 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
 
+	std::wstring temp_str;
+
 	for (;; i++)
 	{
 		nprev = npos + 1;
 		npos = input.find(L"\n", nprev);
 		if (npos != std::string::npos)
 		{
-			list_org.push_back(input.substr(nprev, npos - nprev + 1));
+			temp_str = input.substr(nprev, npos - nprev + 1);
+			temp_str += L"|:_";
+			list_org.push_back(temp_str);
 		}
 		else
 		{
-			list_org.push_back(input.substr(nprev));
+			temp_str = input.substr(nprev);
+			list_org.push_back(temp_str);
 			break;
 		}
 	}
@@ -4319,19 +4344,32 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	*/
 	nStatus = 0;
 
-	for (;; i++)
+	npos = 0, nprev = 0;
+
+	for (iter = list_org.begin();; iter++, i++)
 	{
-		nprev = npos + 1;
-		npos = output.find(L"\n", nprev);
+		npos = output.find(L"\n|:_", nprev);
 		if (npos != std::string::npos)
 		{
+			if ((*iter).size() - 3 > 0) (*iter) = (*iter).substr(0, (*iter).size() - 3);
 			list_trans.push_back(output.substr(nprev, npos - nprev + 1));
+			nprev = npos + 4;
 		}
 		else
 		{
 			list_trans.push_back(output.substr(nprev));
 			break;
 		}
+	}
+
+	if (list_org.size() != list_trans.size())
+	{
+		nStatus = 0;
+		MessageBox(hDlg, L"번역 중 오류가 발생했습니다.", L"아네모네", MB_ICONERROR);
+		DestroyWindow(hDlg);
+		fclose(fpw);
+		delete FT;
+		return -1;
 	}
 
 	for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)

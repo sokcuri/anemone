@@ -151,18 +151,18 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			if (Prev_Word == L"")
 				Prev_Word = Current_Word;
 
-			// Clear 하거나 쓰레드 변경시 초기화
-			if (!bWait)
+			if (!bWait && (Current_Word.length() < Prev_Word.length()) || nCurThNum != nThNum)
 			{
-				if (Current_Word.length() < Prev_Word.length() || nCurThNum != nThNum)
-				{
-					bWait = true;
-					nLast_TickCount = GetTickCount();
-				}
+				bWait = true;
+				nThNum = nCurThNum;
+				nLast_TickCount = GetTickCount();
+				continue;
 			}
-			else // 1초간 기다렸다가 초기화
+
+			// Clear 하거나 쓰레드 변경시 초기화
+			if (bWait)
 			{
-				if (GetTickCount() - nLast_TickCount <= 1000)
+				if (GetTickCount() - nLast_TickCount <= 500)
 					continue;
 				else
 				{
@@ -174,7 +174,6 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					Prev_Word = Current_Word;
 					Last_Word = L"";
 					nLast_TickCount = 0;
-					nThNum = nCurThNum;
 					continue;
 				}
 			}
@@ -456,48 +455,55 @@ unsigned int WINAPI CTextProcess::ThreadFunction(void *arg)
 }
 */
 
-std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
+bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutputType)
 {
 	Elapsed_Prepare = 0;
 	Elapsed_Translate = 0;
 
 	std::wstring::size_type nprev = 0;
 	std::wstring::size_type npos = -1;
-	std::list<std::wstring> list;
+	std::list<std::wstring> list, list_org, list_trans;
 	std::wstring output;
 	int i = 0, length = input.length();
 	std::wstring empty = L"Abort";
 
-	if (nStatus != 0) return empty;
+	if (nStatus != 0) return false;
 	nStatus = 1;
+
+	std::list<std::wstring>::iterator iter, iter_trans;
+
+	std::wstring temp_str;
 
 	SendMessage(hWnd, WM_COMMAND, ID_TRANS_START, 0);
 
-	for (; ; i++)
+	for (;; i++)
 	{
 		nprev = npos + 1;
 		npos = input.find(L"\n", nprev);
 		if (npos != std::string::npos)
 		{
-			list.push_back(input.substr(nprev, npos - nprev + 1));
+			temp_str = input.substr(nprev, npos - nprev + 1);
+			temp_str += L"|:_";
+			list_org.push_back(temp_str);
 		}
 		else
 		{
-			list.push_back(input.substr(nprev));
+			temp_str = input.substr(nprev);
+			list_org.push_back(temp_str);
 			break;
 		}
 	}
 
-	std::list<std::wstring>::iterator iter;
-	if (Cl.Config->GetTransOneGo() && list.size() > 10)
+	unsigned int div = input.length() / 1024 + 1;
+
+	if (Cl.Config->GetTransOneGo() && list_org.size() > div)
 	{
 		std::wstring line;
-		std::list<std::wstring> list2 = list;
-		list.clear();
+		std::list<std::wstring> list2 = list_org;
 		int j = 1;
 		for (i = 1, iter = list2.begin(); iter != list2.end(); iter++, i++)
 		{
-			if ((float)i > (float)(list2.size() * j / 10))
+			if ((float)i > (float)(list2.size() * j / div))
 			{
 				list.push_back(line);
 				line = L"";
@@ -513,6 +519,10 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 			}
 
 		}
+	}
+	else
+	{
+		list = list_org;
 	}
 
 	for (i=0, iter = list.begin(); iter != list.end(); iter++, i++)
@@ -531,7 +541,7 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 			SendMessage(hWnd, WM_COMMAND, ID_TRANS_ABORT, (LPARAM)proclog.c_str());
 
 			std::wstring abort_msg = L"Abort";
-			return abort_msg;
+			return false;
 		}
 
 		output += eztrans_proc(*iter);
@@ -554,12 +564,64 @@ std::wstring CTextProcess::TranslateText(HWND hWnd, const std::wstring &input)
 		SendMessage(hWnd, WM_COMMAND, ID_TRANS_PROGRESS, (LPARAM)proclog.c_str());
 	}
 
+	npos = 0, nprev = 0;
+
+	for (iter = list_org.begin();; iter++, i++)
+	{
+		npos = output.find(L"\n|:_", nprev);
+		if (npos != std::string::npos)
+		{
+			if ((*iter).size() - 3 > 0) (*iter) = (*iter).substr(0, (*iter).size() - 3);
+			list_trans.push_back(output.substr(nprev, npos - nprev + 1));
+			nprev = npos + 4;
+		}
+		else
+		{
+			list_trans.push_back(output.substr(nprev));
+			break;
+		}
+	}
+
+
+	if (list_org.size() != list_trans.size())
+	{
+		std::wstringstream logstream;
+		logstream << L"번역 도중 오류가 발생했습니다.";
+
+		proclog = logstream.str();
+		SendMessage(hWnd, WM_COMMAND, ID_TRANS_PROGRESS, (LPARAM)proclog.c_str());
+		return false;
+	}
+
+	output = L"";
+
+	for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)
+	{
+		if (nOutputType != 0)
+		{
+			// 이 라인이 마지막 라인인 경우 원문에 \r\n을 붙여준다
+			if (std::next(iter, 1) == list_org.end())
+			{
+				output += (*iter);
+				output += L"\r\n";
+				output += (*iter_trans);
+			}
+			else
+			{
+				output += (*iter);
+				output += (*iter_trans);
+				if (nOutputType == 2) output += L"\r\n";
+			}
+		}
+		else output += (*iter_trans);
+	}
+
 	proclog = output;
 	SendMessage(hWnd, WM_COMMAND, ID_TRANS_COMPLETE, (LPARAM)proclog.c_str());
 
 	nStatus = 0;
 
-	return output;
+	return true;
 }
 
 void CTextProcess::TranslateAbort()
@@ -645,12 +707,13 @@ std::wstring CTextProcess::HangulEncode(const std::wstring &input)
 	std::wstring::const_iterator it = input.begin();
 	for (; it != input.end(); it++)
 	{
-		if (*it == L'@' ||
+		if (*it == L'@' || 
+			(*it >= 0x1D00 && *it <= 0x2FFF) ||
 			(*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
 			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
 			(*it >= 0xD7B0 && *it <= 0xD7FF))
 		{
-			swprintf_s(buf, L"+x%04X", *it);
+			swprintf_s(buf, L"+X%04X", *it);
 			output += buf;
 		}
 		else
@@ -676,7 +739,7 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 			continue;
 		}
 		else
-			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'x' &&
+			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'X' &&
 			((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) &&
 			((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
 			((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
