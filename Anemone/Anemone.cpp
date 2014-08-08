@@ -61,6 +61,54 @@ DWORD WINAPI		FileTransThread(LPVOID lpParam);
 void				CreateTrayIcon(HWND hWnd);
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
+
+HHOOK m_hMouseHook;
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	if (nCode == HC_ACTION)
+	{
+		POINT *lp = (POINT *)lParam;
+		POINT *pt = new POINT;
+
+		pt->x = lp->x;
+		pt->y = lp->y;
+
+		switch (wParam)
+		{
+		case WM_MOUSEMOVE:
+		{
+			//Cl.TextRenderer->SetTextSet(L"", L"", L"", L"WM_MOUSEMOVE");
+			//PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+		}
+			break;
+		case WM_LBUTTONDOWN:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONDOWN, (LPARAM)pt);
+		}
+			break;
+		case WM_LBUTTONUP:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_LBUTTONUP, (LPARAM)pt);
+		}
+			break;
+		case WM_RBUTTONDOWN:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONDOWN, (LPARAM)pt);
+		}
+			break;
+		case WM_RBUTTONUP:
+		{
+			PostMessage(hWnds.Main, WM_COMMAND, ID_RBUTTONUP, (LPARAM)pt);
+		}
+			break;
+		}
+	}
+	return CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
+}
+
+
+
+
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
 		__in_opt HINSTANCE hPrevInstance,
@@ -124,6 +172,9 @@ int APIENTRY _tWinMain(
 		return FALSE;
 	}
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_ANEMONE));
+
+	// 로우레벨 마우스 후킹 설치
+	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
 
 	std::wstring szEnginePath;
 
@@ -244,10 +295,11 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (!IsWindow(hWnds.Parent))
 			SendMessage(hWnds.Main, WM_COMMAND, ID_RESTORE_PARENT, 0);
 
+		
 		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
 		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
 		HWND CurFore = GetForegroundWindow();
-
+		
 		if (IsWindow(hMenuWnd))
 		{
 			DWORD dwProcessId;
@@ -262,7 +314,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				else
 				{
 					SetWindowText(hMenuWnd, L"AnemoneMenu");
-
+					
 					if (!(nExStyle_Menu & WS_EX_NOACTIVATE))
 					{
 						nExStyle_Menu |= WS_EX_NOACTIVATE;
@@ -277,7 +329,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 				}
 			}
 		}
-
+		
 		// 자석모드 윈도우가 활성화되면 아네모네를 위로 띄움
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
 		{
@@ -302,8 +354,18 @@ unsigned int WINAPI MagneticThread(void *arg)
 				}
 			}
 		}
+
+		// 아네모네 창이 뜬 상태로 포커스를 잃으면 메뉴 소멸
+		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")) ||
+			(hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneTrayMenu")))
+		{
+			CloseWindow(hMenuWnd);
+			ShowWindow(hMenuWnd, false);
+		}
+
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 바뀌거나
 		// 다른 메뉴창이 발견되면 아네모네 메뉴를 닫는다
+		/*
 		hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
 		HWND hOtherWnd = FindWindowEx(0, 0, L"#32768", L"");
 		
@@ -327,7 +389,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 			}
 
 		}
-		
+		*/
 		// 아네모네 창이 항상 위로 오도록
 		if (!Cl.Config->GetMagneticMode() &&
 			Cl.Config->GetWindowTopMost())
@@ -1583,7 +1645,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_DESTROY_MENU:
 		{
 			HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"AnemoneMenu");
-			if (hMenuWnd) CloseWindow((HWND)hMenuWnd);
+			if (hMenuWnd)
+			{
+				CloseWindow(hMenuWnd);
+				ShowWindow(hMenuWnd, false);
+			}
 		}
 			break;
 		case ID_TEXTSIZE_MINUS:
@@ -1797,6 +1863,87 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.Config->SetWndRes(wi);
 		}
 		break;
+
+		case ID_LBUTTONDOWN:
+		case ID_RBUTTONUP:
+		{
+			POINT *pt = (POINT *)lParam;
+
+			HWND hMenuWnd = NULL;
+			int i = 0;
+			while ((hMenuWnd = FindWindowEx(0, hMenuWnd, L"#32768", 0)) != NULL)
+			{
+				i++;
+				DWORD dwPID;
+				GetWindowThreadProcessId(hMenuWnd, &dwPID);
+
+				if (dwPID == GetCurrentProcessId())
+				{
+					if (IsWindow(hMenuWnd))
+					{
+						RECT rc;
+						GetWindowRect(hMenuWnd, &rc);
+
+						if (pt->x >= rc.left && pt->x <= rc.right &&
+							pt->y >= rc.top && pt->y <= rc.bottom)
+						{
+							delete pt;
+							return 0;
+						}
+					}
+				}
+			}
+
+			hMenuWnd = NULL;
+			while ((hMenuWnd = FindWindowEx(0, hMenuWnd, L"#32768", 0)) != NULL)
+			{
+				DWORD dwPID;
+				GetWindowThreadProcessId(hMenuWnd, &dwPID);
+
+				if (dwPID == GetCurrentProcessId())
+				{
+					if (IsWindow(hMenuWnd))
+					{
+						CloseWindow(hMenuWnd);
+					}
+				}
+			}
+			
+			delete pt;
+		}
+			break;
+		case ID_LBUTTONUP:
+		{
+			POINT *pt = (POINT *)lParam;
+
+			std::wstringstream ws;
+			ws << pt->x;
+			ws << L"/";
+			ws << pt->y;
+			ws << L" ";
+			ws << L"WM_LBUTTONUP";
+			Cl.TextRenderer->SetTextSet(L"", L"", L"", ws.str().c_str());
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+
+			delete pt;
+		}
+			break;
+		case ID_RBUTTONDOWN:
+		{
+			POINT *pt = (POINT *)lParam;
+
+			std::wstringstream ws;
+			ws << pt->x;
+			ws << L"/";
+			ws << pt->y;
+			ws << L" ";
+			ws << L"WM_LBUTTONDOWN";
+			Cl.TextRenderer->SetTextSet(L"", L"", L"", ws.str().c_str());
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+
+			delete pt;
+		}
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
