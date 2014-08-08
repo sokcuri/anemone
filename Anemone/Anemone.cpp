@@ -567,7 +567,7 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	// 각 메뉴 아이템의 체크 여부를 선택한다
 	CheckMenuItem(hmenuTrackPopup, ID_CLIPBOARD_SWITCH, (Cl.Config->GetClipSwitch() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_HOOKER_MONITOR, (Cl.Config->GetHookMonitor() ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_THROUGH_CLICK, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_TEMP_CLICK_THOUGH, (Cl.Config->GetClickThough() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_MAGNETIC_MODE, (Cl.Config->GetMagneticMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_BACKGROUND_SWITCH, (Cl.Config->GetBGSwitch() ? MF_CHECKED : MF_UNCHECKED));
@@ -4265,6 +4265,10 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 	HWND hDlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_FILE_TRANSWIN_PROG), hWnds.FileTrans, FileTransWinProgProc);
 	SetWindowLongPtr(hDlg, -8, (LONG)0);
+
+	// 닫기 버튼 비활성화
+	EnableMenuItem(GetSystemMenu(hDlg, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+
 	ShowWindow(hDlg, true);
 	int nLines;
 
