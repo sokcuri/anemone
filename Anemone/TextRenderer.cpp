@@ -150,6 +150,20 @@ bool CTextRenderer::Paint()
 
 	graphics.Clear(Color(0, 0, 0, 0));
 
+	// 테두리 표시 모드
+	if (Cl.Config->GetWndBorderMode())
+	{
+		nBorderWidth = Cl.Config->GetWndBorderSize() * 2;
+		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
+		BYTE BorderAlpha = (dwBorderClr >> 24) & 0xFF;
+
+		if (BorderAlpha == 0) BorderAlpha = 1;
+
+		Pen nBorderPen(Color(BorderAlpha, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr)& 0xFF), (Gdiplus::REAL)nBorderWidth);
+
+		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth - (nBorderWidth % 2) * 2, rect.bottom - rect.top - nBorderWidth - (nBorderWidth % 2) * 2));
+	}
+
 	//130091FB
 	bool bBGSwitch = Cl.Config->GetBGSwitch();
 	DWORD BGColor = Cl.Config->GetBGColor();
@@ -323,22 +337,6 @@ bool CTextRenderer::Paint()
 		if (bOrgSwitch)   pad_y += TextDraw(&graphics, (bNameSwitch ? GetText() : GetContext()), textAlign, fnOrg, fnOrgStyle, nOrgA, nOrgB, nOrgC, Color((dwOrgA >> 24) & 0xFF, (dwOrgA >> 16) & 0xFF, (dwOrgA >> 8) & 0xFF, (dwOrgA)& 0xFF), Color((dwOrgB >> 24) & 0xFF, (dwOrgB >> 16) & 0xFF, (dwOrgB >> 8) & 0xFF, (dwOrgB)& 0xFF), Color((dwOrgC >> 24) & 0xFF, (dwOrgC >> 16) & 0xFF, (dwOrgC >> 8) & 0xFF, (dwOrgC)& 0xFF), Color((dwOrgS >> 24) & 0xFF, (dwOrgS >> 16) & 0xFF, (dwOrgS >> 8) & 0xFF, (dwOrgS)& 0xFF), true, true, true, bOrgShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 		if (bTransSwitch) pad_y += TextDraw(&graphics, (bNameSwitch ? GetTextT() : GetContextT()), textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(20 + mar_x, pad_y + mar_y, width - 40 - mar_x, height + 300 - mar_y));
 	}
-
-
-	// 테두리 표시 모드
-	if (Cl.Config->GetWndBorderMode())
-	{
-		nBorderWidth = Cl.Config->GetWndBorderSize() * 2;
-		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
-		BYTE BorderAlpha = (dwBorderClr >> 24) & 0xFF;
-
-		if (BorderAlpha == 0) BorderAlpha = 1;
-
-		Pen nBorderPen(Color(BorderAlpha, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr)& 0xFF), (Gdiplus::REAL)nBorderWidth);
-
-		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth - (nBorderWidth % 2)*2, rect.bottom - rect.top - nBorderWidth - (nBorderWidth % 2)*2));
-	}
-
 
 	//Pen nBorderPen(Color(30, 0, 0, 0), (Gdiplus::REAL)nBorderWidth);
 	//graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
