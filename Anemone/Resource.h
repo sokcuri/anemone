@@ -46,6 +46,7 @@
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_FILE_TRANSWIN_OUTPUT1       1005
+#define IDC_TRANSWIN_NOTRANS_LINEFEED   1005
 #define IDC_FILE_TRANSWIN_OUTPUT2       1006
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006

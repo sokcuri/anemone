@@ -3119,6 +3119,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	case WM_SHOWWINDOW:
 	{
 		CheckDlgButton(hWnd, IDC_TRANSWIN_TRANS_ONEGO, Cl.Config->GetTransOneGo());
+		CheckDlgButton(hWnd, IDC_TRANSWIN_NOTRANS_LINEFEED, Cl.Config->GetTransNoTransLineFeed());
 
 		if (!(pEditProc[0] = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, IDC_TRANSWIN_SRC), GWL_WNDPROC, (LONG)&EditProc)) ||
 			!(pEditProc[1] = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, IDC_TRANSWIN_DEST), GWL_WNDPROC, (LONG)&EditProc)))
@@ -3205,6 +3206,11 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case IDC_TRANSWIN_TRANS_ONEGO:
 		{
 			(Cl.Config->GetTransOneGo() ? Cl.Config->SetTransOneGo(false) : Cl.Config->SetTransOneGo(true));
+		}
+			break;
+		case IDC_TRANSWIN_NOTRANS_LINEFEED:
+		{
+			(Cl.Config->GetTransNoTransLineFeed() ? Cl.Config->SetTransNoTransLineFeed(false) : Cl.Config->SetTransNoTransLineFeed(true));
 		}
 			break;
 		case IDOK:

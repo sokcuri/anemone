@@ -156,6 +156,10 @@ bool CConfig::LoadConfig()
 
 	ReadINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetUpdateNotify(true) : SetUpdateNotify(false);
+	ReadINI_Str(L"TRANS_BIND_SENTENCE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTransOneGo(true) : SetTransOneGo(false);
+	ReadINI_Str(L"TRANS_NOTRANS_LINEFEED", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTransNoTransLineFeed(true) : SetTransNoTransLineFeed(false);
 	ReadINI_Str(L"TRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTransOutput(_wtoi(buf));
 	ReadINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -326,6 +330,10 @@ bool CConfig::SaveConfig()
 
 	wcscpy(buf, (GetUpdateNotify() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wcscpy(buf, (GetTransOneGo() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"TRANS_BIND_SENTENCE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wcscpy(buf, (GetTransNoTransLineFeed() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"TRANS_NOTRANS_LINEFEED", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTransOutput());
 	WriteINI_Str(L"TRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetFileTransOutput());

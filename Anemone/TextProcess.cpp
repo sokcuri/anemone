@@ -643,6 +643,11 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 				output += L"\r\n";
 				output += (*iter_trans);
 			}
+			// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
+			else if (Cl.Config->GetTransNoTransLineFeed() && *iter_trans == L"\r\n")
+			{
+				output += (*iter);
+			}
 			else
 			{
 				output += (*iter);
