@@ -994,9 +994,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				ShowWindow(hWnd, true);
 
 				// 창이 뒤에 있으면 가려지므로 위로 띄운다
-				if (Cl.Config->GetWindowTopMost())
-					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-				else SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				if (MagnetWnd.IsMagnet == false || MagnetWnd.IsMagnet && MagnetWnd.IsMinimize)
+					(Cl.Config->GetWindowTopMost() ?
+					SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE) :
+					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE));
+				else
+				{
+					// 자석 모드인 경우 TOPMOST를 부여하고 원래 속성으로 복구시킨다
+					bool bMagnetTopMost = (GetWindowLong(MagnetWnd.hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST ? TRUE : FALSE);
+
+					(Cl.Config->GetWindowTopMost() ?
+						SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE) :
+						SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE));
+						
+					if (!bMagnetTopMost && Cl.Config->GetWindowTopMost())
+					{
+						SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+						SetWindowPos(MagnetWnd.hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					}
+				}
 			}
 		}
 			break;
