@@ -143,15 +143,15 @@ public:
 	void SetUpdateNotify(bool b) { cfg_update_notify = b; }
 
 	int GetReviseName() { return cfg_name_revise; }
-	void SetReviseName(bool b) { cfg_name_revise = b; }
+	void SetReviseName(bool b) { cfg_name_revise = b; } 
 
-	int GetTransOneGo() { return cfg_trans_onego; }
+	bool GetTransOneGo() { return cfg_trans_onego; }
 	void SetTransOneGo(bool b) { cfg_trans_onego = b; }
 
-	int GetFileTransNoTransLineFeed() { return cfg_filetrans_notrans_linefeed; }
+	bool GetFileTransNoTransLineFeed() { return cfg_filetrans_notrans_linefeed; }
 	void SetFileTransNoTransLineFeed(bool b) { cfg_filetrans_notrans_linefeed = b; }
 
-	int GetTransNoTransLineFeed() { return cfg_trans_notrans_linefeed; }
+	bool GetTransNoTransLineFeed() { return cfg_trans_notrans_linefeed; }
 	void SetTransNoTransLineFeed(bool b) { cfg_trans_notrans_linefeed = b; }
 
 	int GetTextMarginX() { return cfg_text_margin_x; }

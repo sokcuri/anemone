@@ -4486,7 +4486,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 		if (FT->WriteType != 0)
 		{
 			// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
-			if (FT->NoTransLineFeed && *iter_trans == L"\r\n" ||
+			if (FT->NoTransLineFeed && (*iter_trans == L"\n" || *iter_trans == L"\r\n") ||
 				std::next(iter, 1) == list_org.end() && *iter_trans == L"")
 			{
 				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
