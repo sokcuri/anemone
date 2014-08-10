@@ -531,7 +531,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 		list = list_org;
 	}
 
-	for (i=0, iter = list.begin(); iter != list.end(); iter++, i++)
+	for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
 	{
 		if (nStatus == 2)
 		{
@@ -559,6 +559,59 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 			nPos = (*iter).find(L"\n|:_", nPrev);
 			nPrev = nPos + 4;
 		}
+
+		trans_str = Cl.TextProcess->eztrans_proc(*iter);
+
+		for (nPrev = 0, nPos = 0, nOutput = 0; nPos != std::string::npos; nOutput++)
+		{
+			nOutput++;
+			nPos = trans_str.find(L"\n|:_", nPrev);
+			nPrev = nPos + 4;
+		}
+
+		// 묶은 것을 풀어서 재번역
+		if (nInput != nOutput)
+		{
+			std::wstring strOrg = (*iter);
+			std::wstring strRes;
+			npos = 0, nprev = 0;
+
+			do
+			{
+				npos = (*iter).find(L"\n|:_", nprev);
+				if (npos != std::string::npos)
+				{
+					strRes = (*iter).substr(nprev, npos - nprev + 4);
+					nprev = npos + 4;
+				}
+				else
+				{
+					strRes = (*iter).substr(nprev);
+					strRes += L"_|:_";
+				}
+
+				trans_str = Cl.TextProcess->eztrans_proc(strRes);
+
+				// 태그가 있었는데 없어진 경우 (에러)
+				if (strRes.find(L"\n|:_") != std::string::npos && trans_str.find(L"\n|:_") == std::string::npos)
+				{
+					output += L" \r\n|:_";
+				}
+				else if (strRes.find(L"_|:_") != std::string::npos && trans_str.find(L"_|:_") == std::string::npos)
+				{
+					output += L" ";
+				}
+				else if (strRes.find(L"_|:_") != std::string::npos)
+					output += strRes.substr(0, strRes.find(L"_|:_"));
+				else
+					output += trans_str;
+
+			}
+			while (npos != std::string::npos);
+		}
+		else output += trans_str;
+
+		/*
 
 		for (int j = 0; j < 3; j++)
 		{
@@ -588,7 +641,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 		}
 		else
 			output += trans_str;
-
+			*/
 		std::wstringstream logstream;
 		logstream << L"번역중... (";
 		logstream << i + 1;
@@ -630,6 +683,8 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 	{
 		std::wstringstream logstream;
 		logstream << L"번역 도중 오류가 발생했습니다.";
+
+		nStatus = 0;
 
 		proclog = logstream.str();
 		SendMessage(hWnd, WM_COMMAND, ID_TRANS_ABORT, (LPARAM)proclog.c_str());
