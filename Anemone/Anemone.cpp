@@ -539,11 +539,10 @@ unsigned int WINAPI MagneticThread(void *arg)
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 
-		// 메뉴 창이 아네모네 창에 가릴 경우 처리
+		// 아네모네 창이 포커스를 잃었을 때 메뉴가 뜨면 메뉴를 상단에 올린다
 		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
 		{
-			SetWindowPos(hWnds.Main, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-			//SetWindowPos(hMenuWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 		}
 
 		Sleep(1);
