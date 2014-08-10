@@ -756,18 +756,61 @@ std::wstring CTextProcess::HangulEncode(const std::wstring &input)
 	std::wstring::const_iterator it = input.begin();
 	for (; it != input.end(); it++)
 	{
-		if (*it == L'@' || 
-			(*it >= 0x1D00 && *it <= 0x2FFF) ||
+		if (*it == L'@' ||
+			(*it == L'') ||
 			(*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
 			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
 			(*it >= 0xD7B0 && *it <= 0xD7FF))
 		{
-			swprintf_s(buf, L"+X%04X", *it);
+			swprintf_s(buf, L"+x%04X", *it);
 			output += buf;
 		}
 		else
 		{
-			output += *it;
+			switch (*it)
+			{
+			case L'↔': case L'◁': case L'◀': case L'▷': case L'▶': case L'♤': case L'♠': case L'♡': case L'♥': case L'♧': \
+			case L'♣': case L'⊙': case L'◈': case L'▣': case L'◐': case L'◑': case L'▒': case L'▤': case L'▥': case L'▨': \
+			case L'▧': case L'▦': case L'▩': case L'♨': case L'☏': case L'☎': case L'☜': case L'☞': case L'↕': case L'↗': \
+			case L'↙': case L'↖': case L'↘': case L'♩': case L'♬': case L'㉿': case L'㈜': case L'㏇': case L'™': case L'㏂': \
+			case L'㏘': case L'＂': case L'＇': case L'∼': case L'ˇ': case L'˘': case L'˝': case L'¡': case L'˚': case L'˙': \
+			case L'˛': case L'¿': case L'ː': case L'∏': case L'￦': case L'℉': case L'€': case L'㎕': case L'㎖': case L'㎗': \
+			case L'ℓ': case L'㎘': case L'㎣': case L'㎤': case L'㎥': case L'㎦': case L'㎙': case L'㎚': case L'㎛': case L'㎟': \
+			case L'㎠': case L'㎢': case L'㏊': case L'㎍': case L'㏏': case L'㎈': case L'㎉': case L'㏈': case L'㎧': case L'㎨': \
+			case L'㎰': case L'㎱': case L'㎲': case L'㎳': case L'㎴': case L'㎵': case L'㎶': case L'㎷': case L'㎸': case L'㎀': \
+			case L'㎁': case L'㎂': case L'㎃': case L'㎄': case L'㎺': case L'㎻': case L'㎼': case L'㎽': case L'㎾': case L'㎿': \
+			case L'㎐': case L'㎑': case L'㎒': case L'㎓': case L'㎔': case L'Ω': case L'㏀': case L'㏁': case L'㎊': case L'㎋': \
+			case L'㎌': case L'㏖': case L'㏅': case L'㎭': case L'㎮': case L'㎯': case L'㏛': case L'㎩': case L'㎪': case L'㎫': \
+			case L'㎬': case L'㏝': case L'㏐': case L'㏓': case L'㏃': case L'㏉': case L'㏜': case L'㏆': case L'┒': case L'┑': \
+			case L'┚': case L'┙': case L'┖': case L'┕': case L'┎': case L'┍': case L'┞': case L'┟': case L'┡': case L'┢': \
+			case L'┦': case L'┧': case L'┪': case L'┭': case L'┮': case L'┵': case L'┶': case L'┹': case L'┺': case L'┽': \
+			case L'┾': case L'╀': case L'╁': case L'╃': case L'╄': case L'╅': case L'╆': case L'╇': case L'╈': case L'╉': \
+			case L'╊': case L'┱': case L'┲': case L'ⅰ': case L'ⅱ': case L'ⅲ': case L'ⅳ': case L'ⅴ': case L'ⅵ': case L'ⅶ': \
+			case L'ⅷ': case L'ⅸ': case L'ⅹ': case L'½': case L'⅓': case L'⅔': case L'¼': case L'¾': case L'⅛': case L'⅜': \
+			case L'⅝': case L'⅞': case L'ⁿ': case L'₁': case L'₂': case L'₃': case L'₄': case L'Ŋ': case L'đ': case L'Ħ': \
+			case L'Ĳ': case L'Ŀ': case L'Ł': case L'Œ': case L'Ŧ': case L'ħ': case L'ı': case L'ĳ': case L'ĸ': case L'ŀ': \
+			case L'ł': case L'œ': case L'ŧ': case L'ŋ': case L'ŉ': case L'㉠': case L'㉡': case L'㉢': case L'㉣': case L'㉤': \
+			case L'㉥': case L'㉦': case L'㉧': case L'㉨': case L'㉩': case L'㉪': case L'㉫': case L'㉬': case L'㉭': case L'㉮': \
+			case L'㉯': case L'㉰': case L'㉱': case L'㉲': case L'㉳': case L'㉴': case L'㉵': case L'㉶': case L'㉷': case L'㉸': \
+			case L'㉹': case L'㉺': case L'㉻': case L'㈀': case L'㈁': case L'㈂': case L'㈃': case L'㈄': case L'㈅': case L'㈆': \
+			case L'㈇': case L'㈈': case L'㈉': case L'㈊': case L'㈋': case L'㈌': case L'㈍': case L'㈎': case L'㈏': case L'㈐': \
+			case L'㈑': case L'㈒': case L'㈓': case L'㈔': case L'㈕': case L'㈖': case L'㈗': case L'㈘': case L'㈙': case L'㈚': \
+			case L'㈛': case L'ⓐ': case L'ⓑ': case L'ⓒ': case L'ⓓ': case L'ⓔ': case L'ⓕ': case L'ⓖ': case L'ⓗ': case L'ⓘ': \
+			case L'ⓙ': case L'ⓚ': case L'ⓛ': case L'ⓜ': case L'ⓝ': case L'ⓞ': case L'ⓟ': case L'ⓠ': case L'ⓡ': case L'ⓢ': \
+			case L'ⓣ': case L'ⓤ': case L'ⓥ': case L'ⓦ': case L'ⓧ': case L'ⓨ': case L'ⓩ': case L'①': case L'②': case L'③': \
+			case L'④': case L'⑤': case L'⑥': case L'⑦': case L'⑧': case L'⑨': case L'⑩': case L'⑪': case L'⑫': case L'⑬': \
+			case L'⑭': case L'⑮': case L'⒜': case L'⒝': case L'⒞': case L'⒟': case L'⒠': case L'⒡': case L'⒢': case L'⒣': \
+			case L'⒤': case L'⒥': case L'⒦': case L'⒧': case L'⒨': case L'⒩': case L'⒪': case L'⒫': case L'⒬': case L'⒭': \
+			case L'⒮': case L'⒯': case L'⒰': case L'⒱': case L'⒲': case L'⒳': case L'⒴': case L'⒵': case L'⑴': case L'⑵': \
+			case L'⑶': case L'⑷': case L'⑸': case L'⑹': case L'⑺': case L'⑻': case L'⑼': case L'⑽': case L'⑾': case L'⑿': \
+			case L'⒀': case L'⒁': case L'⒂':
+				swprintf_s(buf, L"+X%04X", *it);
+				output += buf;
+				break;
+			default:
+				output += *it;
+				break;
+			}
 		}
 	}
 
@@ -788,7 +831,7 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 			continue;
 		}
 		else
-			if (count + 5 < input.length() && *(it) == '+' && *(it + 1) == 'X' &&
+			if (count + 5 < input.length() && *(it) == '+' && (*(it + 1) == 'x' || *(it + 1) == 'X') &&
 			((*(it + 2) >= L'A' && *(it + 2) <= L'Z') || (*(it + 2) >= L'a' && *(it + 2) <= L'z') || (*(it + 2) >= L'0' && *(it + 2) <= L'9')) &&
 			((*(it + 3) >= L'A' && *(it + 3) <= L'Z') || (*(it + 3) >= L'a' && *(it + 3) <= L'z') || (*(it + 3) >= L'0' && *(it + 3) <= L'9')) &&
 			((*(it + 4) >= L'A' && *(it + 4) <= L'Z') || (*(it + 4) >= L'a' && *(it + 4) <= L'z') || (*(it + 4) >= L'0' && *(it + 4) <= L'9')) &&
@@ -807,6 +850,7 @@ std::wstring CTextProcess::HangulDecode(const std::wstring &input)
 		count += 5;
 
 		}
+
 		else
 		{
 			output += (*it);

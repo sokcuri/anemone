@@ -1550,7 +1550,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				hWnds.Trans = CreateDialog(hInst, MAKEINTRESOURCE(IDD_TRANSWIN), hWnd, TransWinProc);
 
-				EnableMenuItem(GetSystemMenu(hWnds.Trans, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+				//EnableMenuItem(GetSystemMenu(hWnds.Trans, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
 				GetWindowRect(hWnds.Trans, &rect);
 
