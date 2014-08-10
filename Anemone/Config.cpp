@@ -162,6 +162,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetTransNoTransLineFeed(true) : SetTransNoTransLineFeed(false);
 	ReadINI_Str(L"TRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetTransOutput(_wtoi(buf));
+	ReadINI_Str(L"FILETRANS_NOTRANS_LINEFEED", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetFileTransNoTransLineFeed(true) : SetFileTransNoTransLineFeed(false);
 	ReadINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetFileTransOutput(_wtoi(buf));
 	ReadINI_Str(L"ANEDIC_FORCEAPPLY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
@@ -336,6 +338,8 @@ bool CConfig::SaveConfig()
 	WriteINI_Str(L"TRANS_NOTRANS_LINEFEED", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetTransOutput());
 	WriteINI_Str(L"TRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wcscpy(buf, (GetFileTransNoTransLineFeed() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"FILETRANS_NOTRANS_LINEFEED", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wsprintf(buf, L"%d", GetFileTransOutput());
 	WriteINI_Str(L"FILETRANS_OUTPUT_TYPE", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetForceAneDic() ? L"ON" : L"OFF"));

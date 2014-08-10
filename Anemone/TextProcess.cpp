@@ -470,6 +470,9 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 	int i = 0, length = input.length();
 	std::wstring empty = L"Abort";
 
+	bool NoTransLineFeed = Cl.Config->GetTransNoTransLineFeed();
+	bool TransOneGo = Cl.Config->GetTransOneGo();
+
 	if (nStatus != 0) return false;
 	nStatus = 1;
 
@@ -499,7 +502,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 
 	unsigned int div = input.length() / 1024 + 1;
 
-	if (Cl.Config->GetTransOneGo() && list_org.size() > div)
+	if (TransOneGo && list_org.size() > div)
 	{
 		std::wstring line;
 		std::list<std::wstring> list2 = list_org;
@@ -640,7 +643,7 @@ bool CTextProcess::TranslateText(HWND hWnd, const std::wstring &input, int nOutp
 		if (nOutputType != 0)
 		{
 			// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
-			if (Cl.Config->GetTransNoTransLineFeed() && *iter_trans == L"\r\n" ||
+			if (NoTransLineFeed && *iter_trans == L"\r\n" ||
 				std::next(iter, 1) == list_org.end() && *iter_trans == L"" )
 			{
 				output += (*iter);

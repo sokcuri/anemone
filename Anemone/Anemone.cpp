@@ -3277,6 +3277,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		else
 			CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT1);
 		
+		CheckDlgButton(hWnd, IDC_FILE_TRANSWIN_NOTRANS_LINEFEED, Cl.Config->GetFileTransNoTransLineFeed());
 	}
 		break;
 	case WM_COMMAND:
@@ -3387,6 +3388,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, FT->lpszOutputFileName, 255);
 			FT->StartTickCount = GetTickCount();
 			FT->WriteType = Cl.Config->GetFileTransOutput();
+			FT->NoTransLineFeed = Cl.Config->GetFileTransNoTransLineFeed();
 
 			if (FT->lpszInputFileName[0] == NULL || FT->lpszOutputFileName[0] == NULL)
 			{
@@ -3438,6 +3440,9 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		case IDC_FILE_TRANSWIN_OUTPUT3:
 			CheckRadioButton(hWnd, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT3);
 			Cl.Config->SetFileTransOutput(2);
+			break;
+		case IDC_FILE_TRANSWIN_NOTRANS_LINEFEED:
+			(Cl.Config->GetFileTransNoTransLineFeed() ? Cl.Config->SetFileTransNoTransLineFeed(false) : Cl.Config->SetFileTransNoTransLineFeed(true));
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -4480,20 +4485,28 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 	{
 		if (FT->WriteType != 0)
 		{
-			// 마지막 라인이면 원문 뒤에 \r\n 추가
-			if (std::next(iter, 1) == list_org.end())
+			// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
+			if (FT->NoTransLineFeed && *iter_trans == L"\r\n" ||
+				std::next(iter, 1) == list_org.end() && *iter_trans == L"")
+			{
+				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+			}
+			// 이 라인이 마지막 라인인 경우 원문에 \r\n을 붙여준다
+			else if (std::next(iter, 1) == list_org.end())
 			{
 				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
 				fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
 				fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 				break;
 			}
+			else
+			{
+				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+				fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 
-			fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
-			fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-			
-			// 출력 설정이 원문/번역문 + 개행인 경우 개행 처리
-			if (FT->WriteType == 2) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+				// 출력 설정이 원문/번역문 + 개행인 경우 개행 처리
+				if (FT->WriteType == 2) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+			}
 		}
 		else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
 	}

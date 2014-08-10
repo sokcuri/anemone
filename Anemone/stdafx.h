@@ -163,6 +163,7 @@ typedef struct
 	wchar_t lpszInputFileName[260];
 	wchar_t lpszOutputFileName[260];
 	int WriteType;
+	bool NoTransLineFeed;
 	int StartTickCount;
 } FILETRANS;
 /*

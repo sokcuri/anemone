@@ -84,6 +84,7 @@ private:
 	int cfg_text_margin_name = 0;
 	bool cfg_trans_onego = true;
 	bool cfg_trans_notrans_linefeed = true;
+	bool cfg_filetrans_notrans_linefeed = false;
 	bool cfg_update_notify = true;
 	int cfg_trans_output_type = 0;
 	int cfg_filetrans_output_type = 2;
@@ -146,6 +147,9 @@ public:
 
 	int GetTransOneGo() { return cfg_trans_onego; }
 	void SetTransOneGo(bool b) { cfg_trans_onego = b; }
+
+	int GetFileTransNoTransLineFeed() { return cfg_filetrans_notrans_linefeed; }
+	void SetFileTransNoTransLineFeed(bool b) { cfg_filetrans_notrans_linefeed = b; }
 
 	int GetTransNoTransLineFeed() { return cfg_trans_notrans_linefeed; }
 	void SetTransNoTransLineFeed(bool b) { cfg_trans_notrans_linefeed = b; }
