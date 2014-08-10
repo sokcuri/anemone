@@ -453,6 +453,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 						{
 							Cl.Config->SetWindowVisible(true);
 							ShowWindow(hWnds.Main, true);
+							SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 						}
 
 						// 다음 최소화시 기능이 작동하도록 변수 초기화
