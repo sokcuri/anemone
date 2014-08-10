@@ -344,13 +344,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 			}
 		}
 
-		// 아네모네 창이 뜬 상태로 포커스를 잃으면 메뉴 소멸
-		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
-		{
-			ShowWindow(hMenuWnd, false);
-			CloseWindow(hMenuWnd);
-		}
-
 		// 메뉴를 연 상태에서 포커스가 다른 창으로 바뀌거나
 		// 다른 메뉴창이 발견되면 아네모네 메뉴를 닫는다
 		/*
@@ -390,8 +383,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 				// 아네모네 프로세스가 아닐떄에만
 				if (GetCurrentProcessId() != dwProcessId)
 				{
-					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				}
 			}
 		}
@@ -414,13 +407,13 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 					if (MagnetWnd.IsTopMost)
 					{
-						SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 						SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+						SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					}
 					else
 					{
-						SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 						SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+						SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					}
 
 				}
@@ -428,8 +421,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 				// 자석모드 부모창이 아네모네보다 앞에 있을 경우 아네모네를 땡겨준다
 				if (FindWindowEx(0, MagnetWnd.hWnd, szWindowClass, 0))
 				{
-					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 					SetWindowPos(hWnds.Main, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+					SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 				}
 
 				// 자석 부모창이 최소화되면 같이 최소화한다
@@ -543,6 +536,13 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
+
+		// 아네모네 창이 포커스를 잃었을 때 메뉴가 뜨면 메뉴를 상단에 올린다
+		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
+		{
+			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+		}
+
 		Sleep(1);
 	}
 	return 0;
