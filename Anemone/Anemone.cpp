@@ -37,7 +37,9 @@ int nMenuType = 0;
 std::list<_viewLog> viewLog;
 int viewLogNum = 0;
 
-int IsActive = 0;
+bool IsActive = 0;
+bool bClipIgnore = true;
+
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
 
@@ -838,15 +840,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DISPLAYCHANGE:
 	{
+		/*
 		// 자석모드 초기 실행시 요놈이 호출되는 현상이 있음
-		if (MagnetWnd.IsFirst)
+		if (MagnetWnd.IsFirst == 1)
 		{
-			MagnetWnd.IsFirst = false;
+			MagnetWnd.IsFirst = 2;
 			return 0;
 		}
-
-		if (IsActive == 0) return 0;
-
+		*/
 		Cl.Hotkey->RemoveHook();
 		Cl.Hotkey->InstallHook();
 
@@ -859,34 +860,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmCUR);
 		EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dmREG);
 
-		bool IsMagnet = Cl.Config->GetMagneticMode();
-		if (IsMagnet)
-		{
-			//SendMessage(hWnds.Main, WM_COMMAND, ID_MAGNETIC_MODE, 0);
-		}
 
 		_wndinfo wi;
 		wi.res_x = dmCUR.dmPelsWidth;
 		wi.res_y = dmCUR.dmPelsHeight;
 
+		bool IsMagnet = Cl.Config->GetMagneticMode();
+
 		if (Cl.Config->GetWndRes(wi))
 		{
-			Cl.Config->SetMagneticMode(true);
-
-			MagnetWnd.IsMagnet = false;
+			//Cl.TextRenderer->SetText(L"ABC");
+			//Cl.TextRenderer->Paint();
 			SetWindowPos(hWnds.Main, 0, wi.x, wi.y, wi.cx, wi.cy, SWP_NOZORDER);
 
-			// 자석 모드 사용 중에는 MagnetWnd의 diff_x, diff_y를 변경시켜야 부모창이 움직이면 초기화되지 않음
-			if (Cl.Config->GetMagneticMode())
+
+			/*
+			if (IsMagnet)
 			{
+				MagnetWnd.IsMagnet = false;
+
 				MagnetWnd.diff_x = wi.x - MagnetWnd.rect_x;
 				MagnetWnd.diff_y = wi.y - MagnetWnd.rect_y;
-			}
 
-			MagnetWnd.IsMagnet = true;
-
-			// 1초동안 자석모드를 일시 해제한다
-			MagnetWnd.IgnoreTick = GetTickCount() + 1000;
+				// 1초동안 자석모드를 일시 해제한다
+				MagnetWnd.IgnoreTick = GetTickCount() + 1000;
+			}*/
 		}
 
 		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
@@ -1052,6 +1050,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				MagnetWnd.IsMinimize = false;
 				MagnetWnd.IsTopMost = true;
 				MagnetWnd.IsMagnet = true;
+				if (MagnetWnd.IsFirst == 0) MagnetWnd.IsFirst = 1;
 			}
 			else
 			{
@@ -3157,7 +3156,7 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			wchar_t *pStr = (wchar_t *)GlobalAlloc(0, sizeof(wchar_t) * (length + 1));
 			GetDlgItemText(hWnd, IDC_TRANSWIN_DEST, pStr, length);
 
-			IsActive = 2;
+			bClipIgnore = true;
 
 			OpenClipboard(hWnds.Clip);
 			EmptyClipboard();

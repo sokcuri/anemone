@@ -14,19 +14,21 @@ CTextProcess::CTextProcess()
 
 void CTextProcess::StartWatchClip()
 {
-	if (IsActive == 0)
+	bClipIgnore = true;
+
+	if (IsActive == false)
 	{
-		IsActive = 3;
-		hWnds.Clip = SetClipboardViewer(hWnds.Main);
-		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
-		//Cl.TextRenderer->Paint();
-		if (!Cl.Config->GetClipSwitch()) EndWatchClip();
+		if (Cl.Config->GetClipSwitch())
+		{
+			hWnds.Clip = SetClipboardViewer(hWnds.Main);
+		}
 	}
 	else
 	{
-		IsActive = 2;
 		hWnds.Clip = SetClipboardViewer(hWnds.Main);
 	}
+
+	PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 }
 
 void CTextProcess::EndWatchClip()
@@ -37,6 +39,7 @@ void CTextProcess::EndWatchClip()
 void CTextProcess::ResetWatchClip()
 {
 	ChangeClipboardChain(hWnds.Main, NULL);
+	bClipIgnore = true;
 	hWnds.Clip = SetClipboardViewer(hWnds.Main);
 }
 
@@ -1099,14 +1102,9 @@ bool CTextProcess::OnDrawClipboard()
 	std::wstring wContext;
 
 	// 클립보드를 새로 등록했을 때 현재 저장되어 있는 클립보드 내용을 무시
-	if (IsActive == 2)
+	if (bClipIgnore)
 	{
-		IsActive = 1;
-		return 0;
-	}
-	else if (IsActive == 3)
-	{
-		IsActive = 0;
+		bClipIgnore = false;
 		return 0;
 	}
 

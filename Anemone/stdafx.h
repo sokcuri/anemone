@@ -73,7 +73,8 @@ struct _hWnds
 };
 extern _hWnds hWnds;
 extern HANDLE AneHeap;
-extern int IsActive;
+extern bool IsActive;
+extern bool bClipIgnore;
 
 // 자석 모드
 struct _MagnetWnd
@@ -81,7 +82,7 @@ struct _MagnetWnd
 	HANDLE hThread;
 	bool IsMagnet = false;
 	bool IsMinimize = false;
-	bool IsFirst = true;
+	int IsFirst = 1;
 	HWND hWnd;
 	int res_x;
 	int res_y;
