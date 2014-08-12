@@ -118,7 +118,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 
 			// EDIT 내용을 읽음
 			int cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
-			if (Prev_Word != L"" && cch == Prev_Word.length() || cch == 0)
+			if (Prev_Word != L"" && cch == Prev_Word.length())
 			{
 				Sleep(5);
 				continue;
@@ -133,7 +133,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			buf[0] = 0x00;
 
 			SendMessage(hEdit, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
-			if (buf[0] == 0x00)
+			if (cch != 0 && buf[0] == 0x00)
 			{
 				Sleep(5);
 				free(buf);
