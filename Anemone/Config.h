@@ -29,7 +29,7 @@ private:
 	DWORD cfg_wnd_border_color  = 0x80FFFFFF;
 
 	bool cfg_name_switch        = true;
-	bool cfg_name_revise        = true;
+	bool cfg_name_revise        = false;
 	bool cfg_name_org_switch    = true;
 	bool cfg_name_shadow        = true;
 	wchar_t cfg_name_font[255];
