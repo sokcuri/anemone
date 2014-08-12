@@ -34,8 +34,8 @@ private:
 	bool cfg_name_shadow        = true;
 	wchar_t cfg_name_font[255];
 	DWORD cfg_name_color_a      = 0xFFFFFFFF;
-	DWORD cfg_name_color_b      = 0xFFFF5E00;
-	DWORD cfg_name_color_c      = 0xFFFFA850;
+	DWORD cfg_name_color_b      = 0xFFEC3500;
+	DWORD cfg_name_color_c      = 0xFFF89700;
 	DWORD cfg_name_color_s      = 0x32000000;
 	int cfg_name_size_a         = 25;
 	int cfg_name_size_b         = 3;
@@ -58,8 +58,8 @@ private:
 	bool cfg_trans_shadow       = true;
 	wchar_t cfg_trans_font[255];
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
-	DWORD cfg_trans_color_b     = 0xFF4374D9;
-	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
+	DWORD cfg_trans_color_b     = 0xFF39477D;
+	DWORD cfg_trans_color_c     = 0xFF1BEDE8;
 	DWORD cfg_trans_color_s     = 0x32000000;
 	int cfg_trans_size_a        = 25;
 	int cfg_trans_size_b        = 3;
