@@ -187,12 +187,12 @@ bool CConfig::SaveConfig()
 
 	// 설정파일이 존재하지 않는 경우 UNICODE로 파일 생성
 	FILE *fp;
-	if (_wfopen_s(&fp, INIPath.c_str(), L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, INIPath.c_str(), L"rt,ccs=UNICODE") != 0)
 	{
-		if (_wfopen_s(&fp, INIPath.c_str(), L"wt,ccs=UTF-8") == 0)
+		if (_wfopen_s(&fp, INIPath.c_str(), L"wt,ccs=UNICODE") == 0)
 		{
 			fwrite(L"[CONFIG]", sizeof(wchar_t), 8, fp);
-			fclose(fp);
+			//fclose(fp);
 		}
 	}
 	fclose(fp);
