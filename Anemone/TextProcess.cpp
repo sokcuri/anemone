@@ -1166,7 +1166,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 		wName = wEmpty;
 		wText = input;
 
-		if (Cl.Config->GetReviseName())
+		if (Cl.Config->GetTextSwitch(CFG_NAME) && Cl.Config->GetReviseName())
 		{
 			// 【이름】
 			if (std::regex_match(input, m, reg_tail_r1))
