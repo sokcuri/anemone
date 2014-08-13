@@ -429,7 +429,7 @@ unsigned int WINAPI MagneticThread(void *arg)
 
 				// 자석 부모창이 최소화되면 같이 최소화한다
 				// 이 기능은 최소화 시점에서만 작동하므로 IsMinimizeOnce 변수로 컨트롤
-				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE)
+				if (GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_MINIMIZE || !(GetWindowLong(MagnetWnd.hWnd, GWL_STYLE) & WS_VISIBLE))
 				{
 					if (IsMinimizeOnce == false)
 					{
