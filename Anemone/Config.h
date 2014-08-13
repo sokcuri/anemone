@@ -58,7 +58,7 @@ private:
 	bool cfg_trans_shadow       = true;
 	wchar_t cfg_trans_font[255];
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
-	DWORD cfg_trans_color_b     = 0xFF39477D;
+	DWORD cfg_trans_color_b		= 0xFF0C54AB;
 	DWORD cfg_trans_color_c     = 0xFF1BEDE8;
 	DWORD cfg_trans_color_s     = 0x32000000;
 	int cfg_trans_size_a        = 25;
