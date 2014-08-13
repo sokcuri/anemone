@@ -302,10 +302,17 @@ bool CTextRenderer::Paint()
 		}
 	}
 
-	int mar_x = Cl.Config->GetTextMarginX();
-	int mar_y = Cl.Config->GetTextMarginY();
-	int mar_name = Cl.Config->GetTextMarginName();
+	int mar_x = 0;
+	int mar_y = 0;
+	int mar_name = 0;
 
+	// 이름 분리 표시를 사용 중일때만 이름 대사간 여백 설정 작동
+	if (Cl.Config->GetTextSwitch(CFG_NAME))
+	{
+		mar_x = Cl.Config->GetTextMarginX();
+		mar_y = Cl.Config->GetTextMarginY();
+		mar_name = Cl.Config->GetTextMarginName();
+	}
 	if (viewLogNum != 0 && Cl.Config->GetPrevSearchNum())
 	{
 		std::wstringstream wss;
