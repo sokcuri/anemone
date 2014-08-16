@@ -247,9 +247,65 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 					if (Current_Word[Prev_Word.length()] == 0x0D && Current_Word[Prev_Word.length() + 1] == 0x0A)
 						nShift = 4;
 
-					
 					wchar_t *text_buffer = (wchar_t *)Last_Word.c_str() + Prev_Word.length() + nShift;
-					
+					wchar_t *line_buffer;
+
+					for (DWORD i = 0, j = 0; i < wcslen(text_buffer); i++)
+					{
+						if (text_buffer[i] == 0x0D && text_buffer[i + 1] == 0x0A)
+						{
+							line_buffer = (wchar_t *)malloc((i - j + 1) * 2);
+							wcsncpy(line_buffer, text_buffer + j, i - j);
+							line_buffer[i - j] = 0x00;
+							
+							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, line_buffer);
+
+							if (Cl.Config->GetHookMonitor())
+								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)line_buffer);
+
+							free(line_buffer);
+
+							if (text_buffer[i + 2] == 0x0D && text_buffer[i + 3] == 0x0A) i += 2;
+							j = i + 2;
+							i++;
+						}
+
+						else if (text_buffer[i] == 0x0A)
+						{
+							line_buffer = (wchar_t *)malloc((i - j + 1) * 2);
+							wcsncpy(line_buffer, text_buffer + j, i - j);
+							line_buffer[i - j] = 0x00;
+
+							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, line_buffer);
+
+							if (Cl.Config->GetHookMonitor())
+								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)line_buffer);
+
+							free(line_buffer);
+
+
+							if (text_buffer[i + 1] == 0x0A) i++;
+							j = i + 1;
+						}
+
+						else if (i + 1 == wcslen(text_buffer))
+						{
+							line_buffer = (wchar_t *)malloc((i - j + 1 + 1) * 2);
+							wcsncpy(line_buffer, text_buffer + j, i - j + 1);
+							line_buffer[i - j + 1] = 0x00;
+
+							SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, line_buffer);
+
+							if (Cl.Config->GetHookMonitor())
+								SendMessage(hWnds.Main, WM_COMMAND, ID_HOOK_DRAWTEXT, (LPARAM)line_buffer);
+
+							free(line_buffer);
+
+							break;
+						}
+					}
+
+					/*
 					for (DWORD i = 0, j = 0; i < wcslen(text_buffer); i++)
 					{
 						if (i + 1 == wcslen(text_buffer))
@@ -291,7 +347,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 							i++;
 						}
 					}
-					
+					*/
 					
 					/*
 					SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_EDIT1, text_buffer);
@@ -1247,7 +1303,61 @@ bool CTextProcess::OnDrawClipboard()
 		CloseClipboard();
 		return false;
 	}
+	
+	wchar_t *text_buffer = (wchar_t *)wContext.c_str();
+	
+	/*
+	wchar_t *line_buffer;
+	std::wstring line;
+	for (DWORD i = 0, j = 0; i < wcslen(text_buffer); i++)
+	{
+		if (text_buffer[i] == 0x0D && text_buffer[i + 1] == 0x0A)
+		{
+			line_buffer = (wchar_t *)malloc((i - j + 1) * 2);
+			wcsncpy(line_buffer, text_buffer + j, i - j);
+			line_buffer[i - j] = 0x00;
 
+			line = line_buffer;
+			ProcessText(line);
+
+			free(line_buffer);
+
+			if (text_buffer[i + 2] == 0x0D && text_buffer[i + 3] == 0x0A) i += 2;
+			j = i + 2;
+			i++;
+		}
+
+		else if (text_buffer[i] == 0x0A)
+		{
+			line_buffer = (wchar_t *)malloc((i - j + 1) * 2);
+			wcsncpy(line_buffer, text_buffer + j, i - j);
+			line_buffer[i - j] = 0x00;
+
+			line = line_buffer;
+			ProcessText(line);
+
+			free(line_buffer);
+
+
+			if (text_buffer[i + 1] == 0x0A) i++;
+			j = i + 1;
+		}
+
+		else if (i + 1 == wcslen(text_buffer))
+		{
+			line_buffer = (wchar_t *)malloc((i - j + 1 + 1) * 2);
+			wcsncpy(line_buffer, text_buffer + j, i - j + 1);
+			line_buffer[i - j + 1] = 0x00;
+
+			line = line_buffer;
+			ProcessText(line);
+
+			free(line_buffer);
+
+			break;
+		}
+	}
+	*/
 	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"ProcText");
 	ProcessText(wContext);
 	//SetDlgItemText(hWnds.HookCfg, IDC_HOOKCFG_STATUS, L"EndText");
