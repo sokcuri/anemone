@@ -1057,15 +1057,15 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 
 	for (unsigned int i = 0; i < str.length(); i++, index++)
 	{
-		if (i == str.length() / 2)
-		{
-			nResult = 1;
-			break;
-		}
-
 		if (str[i] != str[index])
 		{
 			nResult = 0;
+			break;
+		}
+
+		if (i == str.length() / 2)
+		{
+			nResult = 1;
 			break;
 		}
 	}
@@ -1110,7 +1110,7 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	if (nResult == 0 && str.length() % 3 == 0)
 	{
 		index = str.length() / 3;
-
+		nResult = 3;
 		for (unsigned int i = 0; i < str.length(); i++, index++)
 		{
 			if (str[i] != str[index])
@@ -1120,14 +1120,14 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 			}
 			else if (i + 1 == str.length() / 3)
 			{
-				nResult = 3;
-				break;
+				index = 0;
 			}
 		}
 	}
 
 	if (nResult == 1)
 	{
+		MessageBox(0, L"1", 0, 0);
 		// 1234 12345
 		if (str.length() % 2 == 1)
 		{
@@ -1143,10 +1143,12 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	// 12345 1234
 	else if (nResult == 2)
 	{
+		MessageBox(0, L"2", 0, 0);
 		str = str.substr(0, str.length() / 2 + 1);
 	}
 	else if (nResult == 3)
 	{
+		MessageBox(0, L"3", 0, 0);
 		str = str.substr(0, str.length() / 3);
 	}
 
