@@ -1127,7 +1127,6 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 
 	if (nResult == 1)
 	{
-		MessageBox(0, L"1", 0, 0);
 		// 1234 12345
 		if (str.length() % 2 == 1)
 		{
@@ -1143,12 +1142,10 @@ bool CTextProcess::DoubleSentenceFix(std::wstring &input)
 	// 12345 1234
 	else if (nResult == 2)
 	{
-		MessageBox(0, L"2", 0, 0);
 		str = str.substr(0, str.length() / 2 + 1);
 	}
 	else if (nResult == 3)
 	{
-		MessageBox(0, L"3", 0, 0);
 		str = str.substr(0, str.length() / 3);
 	}
 
