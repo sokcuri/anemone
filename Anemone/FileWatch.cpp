@@ -70,23 +70,24 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 		if (m_pThis->bWatch)
 		{
+			std::vector<std::wstring> fileList_Temp;
 			do {
 				memcpy(temp, pfni->FileName, pfni->FileNameLength);
 				temp[pfni->FileNameLength / 2] = 0;
 				std::wstring filename(temp);
 				transform(filename.begin(), filename.end(), filename.begin(), tolower);
 
-				if (fileList.begin() == fileList.end())
+				if (fileList_Temp.begin() == fileList_Temp.end())
 				{
-					fileList.push_back(filename.c_str());
+					fileList_Temp.push_back(filename.c_str());
 				}
 
-				std::vector<std::wstring>::iterator it = fileList.begin();
-				for (; it != fileList.end(); it++)
+				std::vector<std::wstring>::iterator it = fileList_Temp.begin();
+				for (; it != fileList_Temp.end(); it++)
 				{
-					if (it + 1 == fileList.end())
+					if (it + 1 == fileList_Temp.end())
 					{
-						fileList.push_back(filename.c_str());
+						fileList_Temp.push_back(filename.c_str());
 						break;
 					}
 					else if ((*it).compare(filename.c_str()) == 0) break;
@@ -94,6 +95,8 @@ DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 
 				pfni = (FILE_NOTIFY_INFORMATION*)((PBYTE)pfni + pfni->NextEntryOffset);
 			} while (pfni->NextEntryOffset > 0);
+
+			fileList = fileList_Temp;
 		}
 	}
 	return 0;
@@ -109,8 +112,11 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 
 	if (fileList.begin() == fileList.end()) return 0;
 
-	std::vector<std::wstring>::iterator it = fileList.begin();
-	for (; it != fileList.end(); it++)
+	std::vector<std::wstring> fileList_Temp = fileList;
+	fileList.clear();
+
+	std::vector<std::wstring>::iterator it = fileList_Temp.begin();
+	for (; it != fileList_Temp.end(); it++)
 	{
 		if ((*it).compare(L"anemone.ini") == 0)
 		{
@@ -122,7 +128,6 @@ MMRESULT CFileWatch::_FileChangeNotifyProc(UINT m_nTimerID, UINT uiMsg, DWORD dw
 			c_anedic = true;
 		}
 	}
-	fileList.clear();
 	
 	// 감시 모드가 작동중일때 파일변경시
 	if (c_config == true)
