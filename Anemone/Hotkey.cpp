@@ -83,7 +83,7 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_DIVIDE, false, false, false, ID_TEMP_WINDOW_HIDE, true);
 
 	// 창 위치 리셋
-	RegKey(VK_NUMPAD5, true, false, false, ID_WINRESET);
+	RegKey(VK_NUMPAD5, false, false, true, ID_WINRESET);
 
 	// 창 이동
 	RegKey(VK_NUMPAD8, false, false, false, ID_WNDMOVE_TOP);

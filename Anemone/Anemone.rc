@@ -68,7 +68,7 @@ BEGIN
         BEGIN
             MENUITEM "창 이동\tNUM (8 2 4 6)",         ID_32801
             MENUITEM "창 크기 조절\tALT+NUM (8 2 4 6)",  ID_32840
-            MENUITEM "창 위치 리셋\tCTRL+NUM 5",         32832
+            MENUITEM "창 위치 리셋\tSHIFT+NUM 5",        32832
             MENUITEM SEPARATOR
             MENUITEM "글자 크기 줄이기\tNUM -",            ID_TEXTSIZE_MINUS
             MENUITEM "글자 크기 키우기\tNUM +",            ID_TEXTSIZE_PLUS
