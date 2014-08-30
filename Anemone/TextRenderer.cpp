@@ -176,7 +176,7 @@ bool CTextRenderer::Paint()
 	if (Cl.Config->GetWndBorderMode())
 	{
 		nBorderWidth = Cl.Config->GetWndBorderSize() * 2;
-		DWORD dwBorderColor = Cl.Config->GetWndBorderColor();
+		DWORD dwBorderColor = Cl.TextRenderer->dwBorderColor;
 		BYTE BorderAlpha = (dwBorderColor >> 24) & 0xFF;
 
 		if (BorderAlpha == 0) BorderAlpha = 1;
@@ -188,6 +188,7 @@ bool CTextRenderer::Paint()
 
 	//130091FB
 	bool bBGSwitch = Cl.Config->GetBGSwitch();
+	DWORD dwBGColor = Cl.TextRenderer->dwBGColor;
 	BYTE BGAlpha = (dwBGColor >> 24) & 0xFF;
 
 	// 창 배경 투명도를 0으로 주면 1로 강제변환
@@ -255,7 +256,12 @@ bool CTextRenderer::Paint()
 	int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
 	int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
 	int nNameC = Cl.Config->GetTextSize(CFG_NAME, CFG_C);
-	
+
+	DWORD dwNameA = Cl.TextRenderer->dwNameA;
+	DWORD dwNameB = Cl.TextRenderer->dwNameB;
+	DWORD dwNameC = Cl.TextRenderer->dwNameC;
+	DWORD dwNameS = Cl.TextRenderer->dwNameS;
+
 	bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
 	bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
 
@@ -266,6 +272,11 @@ bool CTextRenderer::Paint()
 	int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
 	int nOrgC = Cl.Config->GetTextSize(CFG_ORG, CFG_C);
 
+	DWORD dwOrgA = Cl.TextRenderer->dwOrgA;
+	DWORD dwOrgB = Cl.TextRenderer->dwOrgB;
+	DWORD dwOrgC = Cl.TextRenderer->dwOrgC;
+	DWORD dwOrgS = Cl.TextRenderer->dwOrgS;
+
 	bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
 	bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
 
@@ -275,6 +286,11 @@ bool CTextRenderer::Paint()
 	int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
 	int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
 	int nTransC = Cl.Config->GetTextSize(CFG_TRANS, CFG_C);
+
+	DWORD dwTransA = Cl.TextRenderer->dwTransA;
+	DWORD dwTransB = Cl.TextRenderer->dwTransB;
+	DWORD dwTransC = Cl.TextRenderer->dwTransC;
+	DWORD dwTransS = Cl.TextRenderer->dwTransS;
 
 	if (Cl.Config->GetTextSize(CFG_NAME, CFG_B) == 0)
 		dwNameB = dwNameB & 0xFFFFFF;
