@@ -50,6 +50,8 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 		return false;
 	}
 
+	Sleep(50);
+
 	std::wstring _szEngineDAT = szEnginePath + L"\\Dat";
 	std::string szEngineDAT(_szEngineDAT.length(), ' ');
 	std::copy(_szEngineDAT.begin(), _szEngineDAT.end(), szEngineDAT.begin());

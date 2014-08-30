@@ -10,8 +10,8 @@ private:
 
 	wchar_t cfg_eztrans_path[260];
 
-	int cfg_shadow_x            = 6;
-	int cfg_shadow_y            = 6;
+	int cfg_shadow_x            = 8;
+	int cfg_shadow_y            = 8;
 
 	int cfg_wnd_border_size     = 3;
 	bool cfg_wnd_border_mode    = true;
