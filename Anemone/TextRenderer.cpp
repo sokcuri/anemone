@@ -9,6 +9,7 @@ bool CTextRenderer::Init()
 {
 	GdiplusStartupInput gdiplusStartupInput;
 	if (GdiplusStartup(&m_gpToken, &gdiplusStartupInput, NULL) != Status(Ok)) return false;
+	SetTextColorFromConfig();
 	return true;
 }
 
@@ -93,6 +94,27 @@ int CTextRenderer::TextDraw(Graphics *graphics, const wchar_t *contextText, int 
 	return (int)(boundRect.Height);
 }
 
+void CTextRenderer::SetTextColorFromConfig()
+{
+	SetTextColor(CFG_NAME, CFG_A, Cl.Config->GetTextColor(CFG_NAME, CFG_A));
+	SetTextColor(CFG_NAME, CFG_B, Cl.Config->GetTextColor(CFG_NAME, CFG_B));
+	SetTextColor(CFG_NAME, CFG_C, Cl.Config->GetTextColor(CFG_NAME, CFG_C));
+	SetTextColor(CFG_NAME, CFG_S, Cl.Config->GetTextColor(CFG_NAME, CFG_S));
+
+	SetTextColor(CFG_ORG, CFG_A, Cl.Config->GetTextColor(CFG_ORG, CFG_A));
+	SetTextColor(CFG_ORG, CFG_B, Cl.Config->GetTextColor(CFG_ORG, CFG_B));
+	SetTextColor(CFG_ORG, CFG_C, Cl.Config->GetTextColor(CFG_ORG, CFG_C));
+	SetTextColor(CFG_ORG, CFG_S, Cl.Config->GetTextColor(CFG_ORG, CFG_S));
+
+	SetTextColor(CFG_TRANS, CFG_A, Cl.Config->GetTextColor(CFG_TRANS, CFG_A));
+	SetTextColor(CFG_TRANS, CFG_B, Cl.Config->GetTextColor(CFG_TRANS, CFG_B));
+	SetTextColor(CFG_TRANS, CFG_C, Cl.Config->GetTextColor(CFG_TRANS, CFG_C));
+	SetTextColor(CFG_TRANS, CFG_S, Cl.Config->GetTextColor(CFG_TRANS, CFG_S));
+
+	SetTextColor(CFG_BACKGROUND, 0, Cl.Config->GetBGColor());
+	SetTextColor(CFG_BORDER, 0, Cl.Config->GetWndBorderColor());
+}
+
 bool CTextRenderer::Paint()
 {
 	if (m_gpToken == NULL) return false;
@@ -154,30 +176,29 @@ bool CTextRenderer::Paint()
 	if (Cl.Config->GetWndBorderMode())
 	{
 		nBorderWidth = Cl.Config->GetWndBorderSize() * 2;
-		DWORD dwBorderClr = Cl.Config->GetWndBorderColor();
-		BYTE BorderAlpha = (dwBorderClr >> 24) & 0xFF;
+		DWORD dwBorderColor = Cl.Config->GetWndBorderColor();
+		BYTE BorderAlpha = (dwBorderColor >> 24) & 0xFF;
 
 		if (BorderAlpha == 0) BorderAlpha = 1;
 
-		Pen nBorderPen(Color(BorderAlpha, (dwBorderClr >> 16) & 0xFF, (dwBorderClr >> 8) & 0xFF, (dwBorderClr)& 0xFF), (Gdiplus::REAL)nBorderWidth);
+		Pen nBorderPen(Color(BorderAlpha, (dwBorderColor >> 16) & 0xFF, (dwBorderColor >> 8) & 0xFF, (dwBorderColor)& 0xFF), (Gdiplus::REAL)nBorderWidth);
 
 		graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth - (nBorderWidth % 2) * 2, rect.bottom - rect.top - nBorderWidth - (nBorderWidth % 2) * 2));
 	}
 
 	//130091FB
 	bool bBGSwitch = Cl.Config->GetBGSwitch();
-	DWORD BGColor = Cl.Config->GetBGColor();
-	BYTE BGAlpha = (BGColor >> 24) & 0xFF;
+	BYTE BGAlpha = (dwBGColor >> 24) & 0xFF;
 
 	// 창 배경 투명도를 0으로 주면 1로 강제변환
 	if (BGAlpha == 0) BGAlpha = 1;
 
-	SolidBrush BGbrush(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+	SolidBrush BGbrush(Color(BGAlpha, (dwBGColor >> 16) & 0xFF, (dwBGColor >> 8) & 0xFF, (dwBGColor)& 0xFF));
 
 	if (bBGSwitch) graphics.FillRectangle(&BGbrush, Rect((nBorderWidth), (nBorderWidth), rect.right - rect.left - (nBorderWidth * 2), rect.bottom - rect.top - (nBorderWidth * 2)));
 
 		//if (!IsActive && !bBGSwitch) graphics.Clear(Color(0, 0, 0, 0));
-		//else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (BGColor >> 16) & 0xFF, (BGColor >> 8) & 0xFF, (BGColor)& 0xFF));
+		//else if (bBGSwitch) graphics.Clear(Color(BGAlpha, (dwBGColor >> 16) & 0xFF, (dwBGColor >> 8) & 0xFF, (dwBGColor)& 0xFF));
 		//else graphics.Clear(Color(0, 0, 0, 0));
 
 	// 폰트가 사용가능한지 확인하고 불가할경우 대체폰트로 변경
@@ -234,12 +255,7 @@ bool CTextRenderer::Paint()
 	int nNameA = Cl.Config->GetTextSize(CFG_NAME, CFG_A);
 	int nNameB = Cl.Config->GetTextSize(CFG_NAME, CFG_B);
 	int nNameC = Cl.Config->GetTextSize(CFG_NAME, CFG_C);
-
-	DWORD dwNameA = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
-	DWORD dwNameB = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
-	DWORD dwNameC = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
-	DWORD dwNameS = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
-
+	
 	bool bOrgSwitch = Cl.Config->GetTextSwitch(CFG_ORG);
 	bool bOrgShadow = Cl.Config->GetTextShadow(CFG_ORG);
 
@@ -250,11 +266,6 @@ bool CTextRenderer::Paint()
 	int nOrgB = Cl.Config->GetTextSize(CFG_ORG, CFG_B);
 	int nOrgC = Cl.Config->GetTextSize(CFG_ORG, CFG_C);
 
-	DWORD dwOrgA = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
-	DWORD dwOrgB = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
-	DWORD dwOrgC = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
-	DWORD dwOrgS = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
-
 	bool bTransSwitch = Cl.Config->GetTextSwitch(CFG_TRANS);
 	bool bTransShadow = Cl.Config->GetTextShadow(CFG_TRANS);
 
@@ -264,11 +275,6 @@ bool CTextRenderer::Paint()
 	int nTransA = Cl.Config->GetTextSize(CFG_TRANS, CFG_A);
 	int nTransB = Cl.Config->GetTextSize(CFG_TRANS, CFG_B);
 	int nTransC = Cl.Config->GetTextSize(CFG_TRANS, CFG_C);
-
-	DWORD dwTransA = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
-	DWORD dwTransB = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
-	DWORD dwTransC = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
-	DWORD dwTransS = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
 
 	if (Cl.Config->GetTextSize(CFG_NAME, CFG_B) == 0)
 		dwNameB = dwNameB & 0xFFFFFF;
@@ -334,7 +340,7 @@ bool CTextRenderer::Paint()
 		//for (int i = 1; i <= 10; i++)
 		//	graphics.DrawLine(&pen, width / 10 * i * 2, 0, 0, height / 10 * i * 2);
 
-		TextDraw(&graphics, L"~아네모네 V1.00 베타 4h~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
+		TextDraw(&graphics, L"~아네모네 V1.00 베타 5~\r\nby 소쿠릿", textAlign, fnTrans, fnTransStyle, nTransA, nTransB, nTransC, Color((dwTransA >> 24) & 0xFF, (dwTransA >> 16) & 0xFF, (dwTransA >> 8) & 0xFF, (dwTransA)& 0xFF), Color((dwTransB >> 24) & 0xFF, (dwTransB >> 16) & 0xFF, (dwTransB >> 8) & 0xFF, (dwTransB)& 0xFF), Color((dwTransC >> 24) & 0xFF, (dwTransC >> 16) & 0xFF, (dwTransC >> 8) & 0xFF, (dwTransC)& 0xFF), Color((dwTransS >> 24) & 0xFF, (dwTransS >> 16) & 0xFF, (dwTransS >> 8) & 0xFF, (dwTransS)& 0xFF), true, true, true, bTransShadow, &Gdiplus::Rect(40, 40, width - 80, height + 300));
 
 		//if (!Cl.Config->GetWndBorderMode()) graphics.DrawRectangle(&nBorderPen, Rect((nBorderWidth / 2), (nBorderWidth / 2), rect.right - rect.left - nBorderWidth, rect.bottom - rect.top - nBorderWidth));
 	}

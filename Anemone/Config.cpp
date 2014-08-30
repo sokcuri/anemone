@@ -175,6 +175,12 @@ bool CConfig::LoadConfig()
 
 	ReadINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetReviewMax(_wtoi(buf));
+
+	// »ö ¼³Á¤
+	if (Cl.TextRenderer)
+	{
+		Cl.TextRenderer->SetTextColorFromConfig();
+	}
 	return true;
 }
 

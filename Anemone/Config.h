@@ -1,15 +1,4 @@
 #pragma once
-#define CFG_NAME 0
-#define CFG_ORG 1
-#define CFG_TRANS 2
-#define CFG_NAME_ORG 3
-
-#define CFG_A 0
-#define CFG_B 1
-#define CFG_C 2
-#define CFG_S 3
-#define CFG_ALL 4
-
 class CConfig
 {
 private:

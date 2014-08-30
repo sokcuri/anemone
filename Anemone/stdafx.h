@@ -7,6 +7,19 @@
 #define OEMRESOURCE
 #include "targetver.h"
 
+#define CFG_NAME 0
+#define CFG_ORG 1
+#define CFG_TRANS 2
+#define CFG_NAME_ORG 3
+#define CFG_BACKGROUND 4
+#define CFG_BORDER 5
+
+#define CFG_A 0
+#define CFG_B 1
+#define CFG_C 2
+#define CFG_S 3
+#define CFG_ALL 4
+
 #pragma warning(disable: 4244) // wstring-string 경고
 #pragma warning(disable: 4996) // wcscpy
 
@@ -99,13 +112,13 @@ extern _MagnetWnd MagnetWnd;
 // 클래스 모음
 struct _Class
 {
-	CTextRenderer *TextRenderer;
-	CTransEngine *TransEngine;
-	CTextProcess *TextProcess;
-	CHotkey *Hotkey;
-	CConfig *Config;
-	CFileWatch *FileWatch;
-	CRemocon *Remocon;
+	CTextRenderer *TextRenderer = 0;
+	CTransEngine *TransEngine = 0;
+	CTextProcess *TextProcess = 0;
+	CHotkey *Hotkey = 0;
+	CConfig *Config = 0;
+	CFileWatch *FileWatch = 0;
+	CRemocon *Remocon = 0;
 };
 extern _Class Cl;
 
@@ -283,3 +296,6 @@ extern std::vector<_wndinfo> WndInfo;
 
 extern CRITICAL_SECTION cs_trans;
 extern CRITICAL_SECTION cs_ezdic;
+
+extern int CCColorType;
+extern int CCColorN;

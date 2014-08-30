@@ -106,6 +106,48 @@ public:
 		SetContextT();
 	}
 
+	void SetTextColorFromConfig();
+
+	void SetTextColor(int type, int n, int c)
+	{
+		switch (type)
+		{
+		case CFG_NAME:
+		{
+			if (n == CFG_A) dwNameA = c;
+			else if (n == CFG_B) dwNameB = c;
+			else if (n == CFG_C) dwNameC = c;
+			else if (n == CFG_S) dwNameS = c;
+		}
+			break;
+		case CFG_ORG:
+		{
+			if (n == CFG_A) dwOrgA = c;
+			else if (n == CFG_B) dwOrgB = c;
+			else if (n == CFG_C) dwOrgC = c;
+			else if (n == CFG_S) dwOrgS = c;
+		}
+			break;
+		case CFG_TRANS:
+		{
+			if (n == CFG_A) dwTransA = c;
+			else if (n == CFG_B) dwTransB = c;
+			else if (n == CFG_C) dwTransC = c;
+			else if (n == CFG_S) dwTransS = c;
+		}
+			break;
+		case CFG_BACKGROUND:
+		{
+			dwBGColor = c;
+		}
+			break;
+		case CFG_BORDER:
+		{
+			dwBorderColor = c;
+		}
+			break;
+		}
+	}
 	//std::wstring *szName, *szNameT, *szText, *szTextT, *szContext, *szContextT;
 private:
 	ULONG_PTR m_gpToken;
@@ -122,5 +164,22 @@ private:
 	wchar_t szContext[2048];
 	wchar_t szContextT[2048];
 
+	DWORD dwNameA;
+	DWORD dwNameB;
+	DWORD dwNameC;
+	DWORD dwNameS;
+
+	DWORD dwOrgA;
+	DWORD dwOrgB;
+	DWORD dwOrgC;
+	DWORD dwOrgS;
+
+	DWORD dwTransA;
+	DWORD dwTransB;
+	DWORD dwTransC;
+	DWORD dwTransS;
+
+	DWORD dwBGColor;
+	DWORD dwBorderColor;
 };
 

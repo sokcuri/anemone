@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 997
+#define ANEMONE_VERSION 998
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -42,6 +42,9 @@ bool bClipIgnore = true;
 
 int Elapsed_Prepare = 0;
 int Elapsed_Translate = 0;
+
+int CCColorType = -1;
+int CCColorN = -1;
 
 // 아네모네 윈도우 저장
 std::vector<_wndinfo> WndInfo;
@@ -529,16 +532,17 @@ unsigned int WINAPI MagneticThread(void *arg)
 			// 자석 모드 상태를 사용중이 아님으로 돌림
 			MagnetWnd.IsMagnet = false;
 
+			SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
 			// 본래 설정대로 항상 위 설정 초기화
 			if (Cl.Config->GetWindowTopMost())
 			{
 				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-				SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 			else
 			{
 				SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-				SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
@@ -1178,17 +1182,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (Cl.Config->GetWindowTopMost())
 			{
-				SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Main, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Parent, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 			else
 			{
-				SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Main, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+				SetWindowPos(hWnds.Parent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 			}
 			break;
 		case ID_WINDOW_SETTING:
 		{
 			if (IsWindow(hWnds.Setting) == false)
 			{
+
+
 				RECT rect;
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
@@ -1196,6 +1204,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				Cl.Config->SaveWndConfig();
 				Cl.Config->SaveConfig();
 				hWnds.Setting = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SETTING), hWnds.Main, SettingProc);
+				
+				// 설정창에 항상 위 부여
+				SetWindowPos(hWnds.Setting, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 				GetWindowRect(hWnds.Setting, &rect);
 
@@ -2268,45 +2279,73 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				{
 				case IDC_SETTING_BACKGROUND_COLOR:
 					dwColor = Cl.Config->GetBGColor();
+					CCColorType = CFG_BACKGROUND;
+					CCColorN = -1;
 					break;
 				case IDC_SETTING_NAME_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_A);
+					CCColorType = CFG_NAME;
+					CCColorN = CFG_A;
 					break;
 				case IDC_SETTING_NAME_OUTLINE1:
 					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_B);
+					CCColorType = CFG_NAME;
+					CCColorN = CFG_B;
 					break;
 				case IDC_SETTING_NAME_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_C);
+					CCColorType = CFG_NAME;
+					CCColorN = CFG_C;
 					break;
 				case IDC_SETTING_NAME_SHADOW_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_NAME, CFG_S);
+					CCColorType = CFG_NAME;
+					CCColorN = CFG_S;
 					break;
 				case IDC_SETTING_ORG_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_A);
+					CCColorType = CFG_ORG;
+					CCColorN = CFG_A;
 					break;
 				case IDC_SETTING_ORG_OUTLINE1:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_B);
+					CCColorType = CFG_ORG;
+					CCColorN = CFG_B;
 					break;
 				case IDC_SETTING_ORG_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_C);
+					CCColorType = CFG_ORG;
+					CCColorN = CFG_C;
 					break;
 				case IDC_SETTING_ORG_SHADOW_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_ORG, CFG_S);
+					CCColorType = CFG_ORG;
+					CCColorN = CFG_S;
 					break;
 				case IDC_SETTING_TRANS_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_A);
+					CCColorType = CFG_TRANS;
+					CCColorN = CFG_A;
 					break;
 				case IDC_SETTING_TRANS_OUTLINE1:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_B);
+					CCColorType = CFG_TRANS;
+					CCColorN = CFG_B;
 					break;
 				case IDC_SETTING_TRANS_OUTLINE2:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_C);
+					CCColorType = CFG_TRANS;
+					CCColorN = CFG_C;
 					break;
 				case IDC_SETTING_TRANS_SHADOW_COLOR:
 					dwColor = Cl.Config->GetTextColor(CFG_TRANS, CFG_S);
+					CCColorType = CFG_TRANS;
+					CCColorN = CFG_S;
 					break;
 				case IDC_SETTING_WND_BORDER_COLOR:
 					dwColor = Cl.Config->GetWndBorderColor();
+					CCColorType = CFG_BORDER;
+					CCColorN = -1;
 					break;
 				}
 
@@ -2364,11 +2403,32 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 						Cl.Config->SetWndBorderColor(dw);
 						break;
 					}
-					
-					SetDlgItemTextW(hWnd, wmId, L"");
-					PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 					//Cl.TextRenderer->Paint();
 				}
+				CCColorType = -1;
+				CCColorN = -1;
+
+				// 색 설정
+				Cl.TextRenderer->SetTextColor(CFG_NAME, CFG_A, Cl.Config->GetTextColor(CFG_NAME, CFG_A));
+				Cl.TextRenderer->SetTextColor(CFG_NAME, CFG_B, Cl.Config->GetTextColor(CFG_NAME, CFG_B));
+				Cl.TextRenderer->SetTextColor(CFG_NAME, CFG_C, Cl.Config->GetTextColor(CFG_NAME, CFG_C));
+				Cl.TextRenderer->SetTextColor(CFG_NAME, CFG_S, Cl.Config->GetTextColor(CFG_NAME, CFG_S));
+
+				Cl.TextRenderer->SetTextColor(CFG_ORG, CFG_A, Cl.Config->GetTextColor(CFG_ORG, CFG_A));
+				Cl.TextRenderer->SetTextColor(CFG_ORG, CFG_B, Cl.Config->GetTextColor(CFG_ORG, CFG_B));
+				Cl.TextRenderer->SetTextColor(CFG_ORG, CFG_C, Cl.Config->GetTextColor(CFG_ORG, CFG_C));
+				Cl.TextRenderer->SetTextColor(CFG_ORG, CFG_S, Cl.Config->GetTextColor(CFG_ORG, CFG_S));
+
+				Cl.TextRenderer->SetTextColor(CFG_TRANS, CFG_A, Cl.Config->GetTextColor(CFG_TRANS, CFG_A));
+				Cl.TextRenderer->SetTextColor(CFG_TRANS, CFG_B, Cl.Config->GetTextColor(CFG_TRANS, CFG_B));
+				Cl.TextRenderer->SetTextColor(CFG_TRANS, CFG_C, Cl.Config->GetTextColor(CFG_TRANS, CFG_C));
+				Cl.TextRenderer->SetTextColor(CFG_TRANS, CFG_S, Cl.Config->GetTextColor(CFG_TRANS, CFG_S));
+
+				Cl.TextRenderer->SetTextColor(CFG_BACKGROUND, 0, Cl.Config->GetBGColor());
+				Cl.TextRenderer->SetTextColor(CFG_BORDER, 0, Cl.Config->GetWndBorderColor());
+				
+				SetDlgItemTextW(hWnd, wmId, L"");
+				PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 			}
 			break;
 		case IDC_SETTING_TEXTSIZE_MINUS:
@@ -2952,6 +3012,37 @@ UINT CALLBACK CCHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HFONT hFont;
 
 	switch (uMsg) {
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MOUSEMOVE:
+	{
+		// CCColorType 미지정시 텍스트 색상 지정 안함
+		if (CCColorType == -1) return 0;
+
+		DWORD dwColor = 0;
+		wchar_t buf[32];
+		GetDlgItemText(hDlg, IDC_COLORDLG_ALPHA_EDIT, buf, 5);
+		dwColor = (_wtoi(buf) & 0xFF) << 24;
+
+		GetDlgItemText(hDlg, 0x2C2, buf, 5);
+		dwColor |= (_wtoi(buf) & 0xFF) << 16;
+
+		GetDlgItemText(hDlg, 0x2C3, buf, 5);
+		dwColor |= (_wtoi(buf) & 0xFF) << 8;
+
+		GetDlgItemText(hDlg, 0x2C4, buf, 5);
+		dwColor |= (_wtoi(buf)& 0xFF);
+
+		Cl.TextRenderer->SetTextColor(CCColorType, CCColorN, dwColor);
+		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+		//wsprintf(buf, L"0x%08X", dwColor);
+		//MessageBox(0, buf, 0, 0);
+	}
+		break;
 	case WM_INITDIALOG:
 	{
 		RECT rect;
@@ -3033,6 +3124,25 @@ UINT CALLBACK CCHookProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		pCC->lCustData = i_AlphaInt;
 
+		// CCColorType 미지정시 텍스트 색상 지정 안함
+		if (CCColorType == -1) return 0;
+
+		DWORD dwColor = 0;
+		wchar_t buf[32];
+		GetDlgItemText(hDlg, IDC_COLORDLG_ALPHA_EDIT, buf, 5);
+		dwColor = (_wtoi(buf) & 0xFF) << 24;
+
+		GetDlgItemText(hDlg, 0x2C2, buf, 5);
+		dwColor |= (_wtoi(buf) & 0xFF) << 16;
+
+		GetDlgItemText(hDlg, 0x2C3, buf, 5);
+		dwColor |= (_wtoi(buf) & 0xFF) << 8;
+
+		GetDlgItemText(hDlg, 0x2C4, buf, 5);
+		dwColor |= (_wtoi(buf) & 0xFF);
+
+		Cl.TextRenderer->SetTextColor(CCColorType, CCColorN, dwColor);
+		PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 	}
 		break;
 	case WM_MOVING:
@@ -3576,15 +3686,11 @@ LRESULT CALLBACK ParentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	switch (message)
 	{
 	case WM_PAINT:
-		return 0;
 	case WM_NCDESTROY:
 	case WM_QUIT:
 	case WM_CLOSE:
 	case WM_DESTROY:
 	{
-		SetParent(hWnd, NULL);
-		return 1;
-		
 	}
 		break;
 	}
