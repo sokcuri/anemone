@@ -139,4 +139,5 @@ __declspec(naked) int CTransEngine::J2K_TranslateMMNT(int data0, char *krStr)
 CTransEngine::~CTransEngine()
 {
 	//DeleteCriticalSection(&CriticalSection);
+	Cl.TransEngine = 0;
 }

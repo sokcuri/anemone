@@ -14,6 +14,7 @@ CRemocon::CRemocon()
 CRemocon::~CRemocon()
 {
 	DestroyWindow(hWnds.Remocon);
+	Cl.Remocon = 0;
 }
 
 bool CRemocon::CreateInstance()

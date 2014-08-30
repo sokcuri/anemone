@@ -13,6 +13,7 @@ CConfig::CConfig()
 
 CConfig::~CConfig()
 {
+	Cl.Config = 0;
 }
 
 bool CConfig::LoadConfig()

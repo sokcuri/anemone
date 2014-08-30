@@ -398,4 +398,5 @@ CTextRenderer::~CTextRenderer()
 
 	GdiplusShutdown(m_gpToken);
 	m_gpToken = NULL;
+	Cl.TextRenderer = 0;
 }

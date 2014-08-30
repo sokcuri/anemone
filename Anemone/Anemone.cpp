@@ -2705,6 +2705,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			BGColor |= (Cl.Config->GetBGColor() & 0xFFFFFF);
 
 			Cl.Config->SetBGColor(BGColor);
+			if (Cl.TextRenderer) Cl.TextRenderer->SetTextColorFromConfig();
 
 			PostMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 

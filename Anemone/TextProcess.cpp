@@ -1820,4 +1820,5 @@ CTextProcess::~CTextProcess()
 	// 클립보드 감시 종료
 	EndWatchClip();
 	EndHookMonitor();
+	Cl.TextProcess = 0;
 }

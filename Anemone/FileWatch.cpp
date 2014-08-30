@@ -23,6 +23,7 @@ CFileWatch::CFileWatch()
 CFileWatch::~CFileWatch()
 {
 	TerminateThread(hWatchThread, 0);
+	Cl.FileWatch = 0;
 }
 
 void CFileWatch::TurnOn()
