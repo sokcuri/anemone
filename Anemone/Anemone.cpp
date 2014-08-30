@@ -69,7 +69,8 @@ DWORD WINAPI		FileTransThread(LPVOID lpParam);
 void				CreateTrayIcon(HWND hWnd);
 unsigned int WINAPI MagneticThread(void *arg);
 char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
-CRITICAL_SECTION	cs;
+CRITICAL_SECTION	cs_trans;
+CRITICAL_SECTION	cs_ezdic;
 
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
@@ -117,7 +118,8 @@ int APIENTRY _tWinMain(
 	Cl.Config->LoadWndConfig();
 
 	// CriticalSection
-	InitializeCriticalSection(&cs);
+	InitializeCriticalSection(&cs_trans);
+	InitializeCriticalSection(&cs_ezdic);
 
 	/*
 	std::wregex regex_field(L"^(\\d+)x(\\d+)=(\\d+)[|](\\d+)[|](\\d+)[|](\\d+)(\\s+)");
@@ -227,7 +229,6 @@ DWORD WINAPI MouseHookThread(LPVOID lpParam)
 void CleanUp()
 {
 	RemoveMouseHook();
-	DeleteCriticalSection(&cs);
 
 	ShowWindow(hWnds.Main, false);
 	TerminateThread(MagnetWnd.hThread, 0);
@@ -248,6 +249,9 @@ void CleanUp()
 	
 	// Heap 삭제
 	HeapDestroy(AneHeap);
+
+	DeleteCriticalSection(&cs_trans);
+	DeleteCriticalSection(&cs_ezdic);
 }
 
 void CreateTrayIcon(HWND hWnd)

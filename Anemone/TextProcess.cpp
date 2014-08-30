@@ -800,7 +800,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 
 	int start, end;
 	start = GetTickCount();
-	EnterCriticalSection(&cs);
+	EnterCriticalSection(&cs_trans);
 
 	szContext = HangulEncode(input);
 
@@ -816,7 +816,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	if (szBuff == NULL)
 	{
 		MessageBox(0, L"메모리 할당 실패", 0, 0);
-		LeaveCriticalSection(&cs);
+		LeaveCriticalSection(&cs_trans);
 		return false;
 	}
 
@@ -844,7 +844,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	if (lpszBuff == NULL)
 	{
 		MessageBox(0, L"메모리 할당 실패", 0, 0);
-		LeaveCriticalSection(&cs);
+		LeaveCriticalSection(&cs_trans);
 		return false;
 	}
 
@@ -856,7 +856,7 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 
 	output = HangulDecode(output);
 
-	LeaveCriticalSection(&cs);
+	LeaveCriticalSection(&cs_trans);
 	end = GetTickCount();
 
 	Elapsed_Prepare += (end - start);
@@ -1796,20 +1796,22 @@ bool CTextProcess::LoadDictionary()
 	GetLoadPath(AneDic, L"\\AneDic.txt");
 	GetEZTPath(DicJK, L"\\Dat\\UserDict.jk");
 
-	if (bLoadDic == true)
-	{
-		PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
-		return false;
-	}
+	//if (bLoadDic == true)
+	//{
+	//	PostMessage(hWnds.Main, WM_COMMAND, ID_LOAD_DICTIONARY, 0);
+	//	return false;
+	//}
 
-	bLoadDic = true;
+	EnterCriticalSection(&cs_trans);
+	//bLoadDic = true;
 	if (_LoadDic(AneDic.c_str()))
 	{
 		OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
 		Cl.TransEngine->J2K_ReloadUserDict();
 		_UnPatchUDic(DicJK.c_str(), offile);
 	}
-	bLoadDic = false;
+	LeaveCriticalSection(&cs_trans);
+	//bLoadDic = false;
 	return true;
 }
 

@@ -62,7 +62,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <CLRImageType>Default</CLRImageType>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>

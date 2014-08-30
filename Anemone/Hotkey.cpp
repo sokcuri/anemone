@@ -211,11 +211,11 @@ LRESULT CHotkey::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 					if ((*it).func == ID_EXTERN_HOTKEY ||
 						Cl.Config->GetExternHotkey() &&
-						((*it).Always == true && Cl.Config->GetTempWinHide()) ||
+						(((*it).Always == true && Cl.Config->GetTempWinHide()) ||
 						((*it).Always == true && Cl.Config->GetHideWinUnlockHotkey() != 2 ||
 						(!Cl.Config->GetWindowVisible() && ((*it).func == ID_WINDOW_VISIBLE || (*it).func == ID_TEMP_WINDOW_HIDE)) ||
 						Cl.Config->GetWindowVisible() ||
-						Cl.Config->GetHideWinUnlockHotkey() == 0))
+						Cl.Config->GetHideWinUnlockHotkey() == 0)))
 					{
 						SendMessage(hWnds.Main, WM_COMMAND, MAKELONG((*it).func, 0), 0);
 						SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);

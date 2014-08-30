@@ -21,8 +21,8 @@ private:
 
 	wchar_t cfg_eztrans_path[260];
 
-	int cfg_shadow_x            = 10;
-	int cfg_shadow_y            = 10;
+	int cfg_shadow_x            = 6;
+	int cfg_shadow_y            = 6;
 
 	int cfg_wnd_border_size     = 3;
 	bool cfg_wnd_border_mode    = true;
@@ -34,9 +34,9 @@ private:
 	bool cfg_name_shadow        = true;
 	wchar_t cfg_name_font[255];
 	DWORD cfg_name_color_a      = 0xFFFFFFFF;
-	DWORD cfg_name_color_b      = 0xFFEC3500;
-	DWORD cfg_name_color_c      = 0xFFF89700;
-	DWORD cfg_name_color_s      = 0x32000000;
+	DWORD cfg_name_color_b      = 0xFFFF5E00;
+	DWORD cfg_name_color_c      = 0xFFFFA648;
+	DWORD cfg_name_color_s      = 0x40000000;
 	int cfg_name_size_a         = 25;
 	int cfg_name_size_b         = 3;
 	int cfg_name_size_c         = 3;
@@ -47,8 +47,8 @@ private:
 	wchar_t cfg_org_font[255];
 	DWORD cfg_org_color_a       = 0xFFFFFFFF;
 	DWORD cfg_org_color_b       = 0xFFFF0000;
-	DWORD cfg_org_color_c       = 0xFFFBAAAA;
-	DWORD cfg_org_color_s       = 0x32000000;
+	DWORD cfg_org_color_c       = 0xFFFF7E7E;
+	DWORD cfg_org_color_s       = 0x40000000;
 	int cfg_org_size_a          = 25;
 	int cfg_org_size_b          = 3;
 	int cfg_org_size_c          = 3;
@@ -58,9 +58,9 @@ private:
 	bool cfg_trans_shadow       = true;
 	wchar_t cfg_trans_font[255];
 	DWORD cfg_trans_color_a     = 0xFFFFFFFF;
-	DWORD cfg_trans_color_b		= 0xFF0C54AB;
-	DWORD cfg_trans_color_c     = 0xFF1BEDE8;
-	DWORD cfg_trans_color_s     = 0x32000000;
+	DWORD cfg_trans_color_b		= 0xFF4374D9;
+	DWORD cfg_trans_color_c     = 0xFF5CD1E5;
+	DWORD cfg_trans_color_s     = 0x40000000;
 	int cfg_trans_size_a        = 25;
 	int cfg_trans_size_b        = 3;
 	int cfg_trans_size_c        = 3;

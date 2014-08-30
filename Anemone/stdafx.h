@@ -281,4 +281,5 @@ struct _wndinfo
 };
 extern std::vector<_wndinfo> WndInfo;
 
-extern CRITICAL_SECTION cs;
+extern CRITICAL_SECTION cs_trans;
+extern CRITICAL_SECTION cs_ezdic;
