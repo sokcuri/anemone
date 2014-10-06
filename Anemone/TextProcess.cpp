@@ -169,6 +169,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			buf[4] = 0x00;
 
 			nCurThNum = _wtoi(buf);
+			free(buf);
 			
 			/*
 
