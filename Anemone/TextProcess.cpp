@@ -112,19 +112,22 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 		bool bChanged = false;
 		bool bWait = false;
 
+		wchar_t *buf;
+		int cch;
+
 		while ( 1 )
 		{
 			if (GetWindowLong(hEdit, GWL_STYLE) != 0x50200144) break;
 
 			// EDIT 내용을 읽음
-			int cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
+			cch = SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0);
 			if (Prev_Word != L"" && cch == Prev_Word.length())
 			{
 				Sleep(5);
 				continue;
 			}
 
-			wchar_t *buf = (wchar_t *)malloc((cch + 2) * 2);
+			buf = (wchar_t *)malloc((cch + 2) * 2);
 			if (buf == NULL)
 			{
 				Sleep(5);
@@ -142,15 +145,43 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			Current_Word = buf;
 			free(buf);
 
+			/* 쓰레드 번호 얻어옴 */
+			int nCurThNum;
+
+			cch = SendMessage(hThCombo, WM_GETTEXTLENGTH, 0, 0);
+			buf = (wchar_t *)malloc((cch + 2) * 2);
+			if (buf == NULL)
+			{
+				Sleep(5);
+				continue;
+			}
+			buf[0] = 0x00;
+
+			SendMessage(hThCombo, WM_GETTEXT, (WPARAM)(cch + 1), (LPARAM)buf);
+
+			if (cch != 0 && buf[0] == 0x00)
+			{
+				Sleep(5);
+				free(buf);
+				continue;
+			}
+
+			buf[4] = 0x00;
+
+			nCurThNum = _wtoi(buf);
+			
+			/*
+
 			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
 
 			// 0번 쓰레드는 번역하지 않는다
 			if (nCurThNum == 0)
 			{
+				OutputDebugString(L"nCurThNum == 0");
 				Sleep(5);
 				continue;
 			}
-
+			*/
 			// 초기화
 			if (Prev_Word == L"")
 				Prev_Word = Current_Word;
@@ -1180,10 +1211,10 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	//rx_name4.assign(L"^([「」『』（）()].*[「」『』（）()])([^「」『』（）()]+?)(?:[「『（(](?:\\2)+|[」』）)]\\2+|(?!([^」』）)])\\2*[」』）)])\\2*)");
 
 	reg_tail_r1.assign(L"^(.*[^【】])【([^】]+?)(?:】(?:【\\2】|【\\2)+|】\\2+|(?!([^】])\\3*】)\\2*】)$");
-	reg_tail_r2.assign(L"^([「].*[」]|[^「」『』（）()]+?[^「][」])([^「]+?[^「」])$");
-	reg_tail_r3.assign(L"^([『].*[』]|[^「」『』（）()]+?[^『][』])([^『]+?[^『』])$");
-	reg_tail_r4.assign(L"^([(].*[)]|[^「」『』（）()]+?[^(][)])([^(]+?[^()])$");
-	reg_tail_r5.assign(L"^([（].*[）]|[^「」『』（）()]+?[^（][）])([^（]+?[^（）])$");
+	reg_tail_r2.assign(L"^([「].*[」]|[^「」『』（）()]+?[^「][」])([^「」]+?)$");
+	reg_tail_r3.assign(L"^([『].*[』]|[^「」『』（）()]+?[^『][』])([^『』]+?)$");
+	reg_tail_r4.assign(L"^([(].*[)]|[^「」『』（）()]+?[^(][)])([^()]+?)$");
+	reg_tail_r5.assign(L"^([（].*[）]|[^「」『』（）()]+?[^（][）])([^（）])$");
 
 	std::wsmatch m;
 
