@@ -174,7 +174,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 			/*
 
 			int nCurThNum = SendMessage(hThCombo, CB_GETCURSEL, 0, 0);
-
+			*/
 			// 0번 쓰레드는 번역하지 않는다
 			if (nCurThNum == 0)
 			{
@@ -182,7 +182,7 @@ DWORD CTextProcess::_HookMonitorProc(LPVOID lpParam)
 				Sleep(5);
 				continue;
 			}
-			*/
+			
 			// 초기화
 			if (Prev_Word == L"")
 				Prev_Word = Current_Word;
