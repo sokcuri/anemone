@@ -1215,7 +1215,7 @@ std::wstring CTextProcess::NameSplit(int nCode, std::wstring &input)
 	reg_tail_r2.assign(L"^([「].*[」]|[^「」『』（）()]+?[^「][」])([^「」]+?)$");
 	reg_tail_r3.assign(L"^([『].*[』]|[^「」『』（）()]+?[^『][』])([^『』]+?)$");
 	reg_tail_r4.assign(L"^([(].*[)]|[^「」『』（）()]+?[^(][)])([^()]+?)$");
-	reg_tail_r5.assign(L"^([（].*[）]|[^「」『』（）()]+?[^（][）])([^（）])$");
+	reg_tail_r5.assign(L"^([（].*[）]|[^「」『』（）()]+?[^（][）])([^（）]+?)$");
 
 	std::wsmatch m;
 
