@@ -842,50 +842,44 @@ std::wstring CTextProcess::eztrans_proc(const std::wstring &input)
 	szContext = replaceAll(szContext, L"きないでしょ", L"き@X@ないでしょ");
 	szContext = replaceAll(szContext, L"でき@X@ないでしょ", L"できないでしょ");
 
-	nBufLen = WideCharToMultiByte(932, 0, szContext.c_str(), -1, NULL, NULL, NULL, NULL);
-	szBuff = (char *)HeapAlloc(AneHeap, 0, (nBufLen + 2) * 2);
-
-	if (szBuff == NULL)
+	if (ehndSupport)
 	{
-		MessageBox(0, L"메모리 할당 실패", 0, 0);
-		LeaveCriticalSection(&cs_trans);
-		return false;
+		lpszBuff = (wchar_t *)Cl.TransEngine->J2K_TranslateMMNTW(0, (wchar_t *)szContext.c_str());
+		output = lpszBuff;
+		Cl.TransEngine->J2K_FreeMem(lpszBuff);
 	}
-
-	WideCharToMultiByte(932, 0, szContext.c_str(), -1, szBuff, nBufLen, NULL, NULL);
-
-	end = GetTickCount();
-
-	Elapsed_Prepare += (end - start);
-
-	start = GetTickCount();
-
-	szBuff2 = (char *)Cl.TransEngine->J2K_TranslateMMNT(0, szBuff);
-
-	end = GetTickCount();
-
-	Elapsed_Translate += (end - start);
-
-	start = GetTickCount();
-
-	HeapFree(AneHeap, 0, szBuff);
-
-	nBufLen = MultiByteToWideChar(949, 0, szBuff2, -1, NULL, NULL);
-	lpszBuff = (wchar_t *)HeapAlloc(AneHeap, 0, (nBufLen + 2) * 2);
-
-	if (lpszBuff == NULL)
+	else
 	{
-		MessageBox(0, L"메모리 할당 실패", 0, 0);
-		LeaveCriticalSection(&cs_trans);
-		return false;
+		nBufLen = WideCharToMultiByte(932, 0, szContext.c_str(), -1, NULL, NULL, NULL, NULL);
+		szBuff = (char *)HeapAlloc(AneHeap, 0, (nBufLen + 2) * 2);
+
+		if (szBuff == NULL)
+		{
+			MessageBox(0, L"메모리 할당 실패", 0, 0);
+			LeaveCriticalSection(&cs_trans);
+			return false;
+		}
+
+		WideCharToMultiByte(932, 0, szContext.c_str(), -1, szBuff, nBufLen, NULL, NULL);
+		szBuff2 = (char *)Cl.TransEngine->J2K_TranslateMMNT(0, szBuff);
+		HeapFree(AneHeap, 0, szBuff);
+
+		nBufLen = MultiByteToWideChar(949, 0, szBuff2, -1, NULL, NULL);
+		lpszBuff = (wchar_t *)HeapAlloc(AneHeap, 0, (nBufLen + 2) * 2);
+
+		if (lpszBuff == NULL)
+		{
+			MessageBox(0, L"메모리 할당 실패", 0, 0);
+			LeaveCriticalSection(&cs_trans);
+			return false;
+		}
+
+		MultiByteToWideChar(949, 0, szBuff2, -1, lpszBuff, nBufLen);
+
+		output = lpszBuff;
+		HeapFree(AneHeap, 0, lpszBuff);
+		Cl.TransEngine->J2K_FreeMem(szBuff2);
 	}
-
-	MultiByteToWideChar(949, 0, szBuff2, -1, lpszBuff, nBufLen);
-
-	output = lpszBuff;
-	HeapFree(AneHeap, 0, lpszBuff);
-	Cl.TransEngine->J2K_FreeMem(szBuff2);
-
 	output = HangulDecode(output);
 
 	LeaveCriticalSection(&cs_trans);

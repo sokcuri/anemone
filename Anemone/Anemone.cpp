@@ -46,6 +46,9 @@ int Elapsed_Translate = 0;
 int CCColorType = -1;
 int CCColorN = -1;
 
+// 엔드 서포트
+bool ehndSupport = false;
+
 // 아네모네 윈도우 저장
 std::vector<_wndinfo> WndInfo;
 

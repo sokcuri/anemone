@@ -26,6 +26,7 @@ public:
 	void J2K_TranslateMM();
 	void J2K_TranslateMMEx();;
 	int J2K_TranslateMMNT(int data0, char *krStr);
+	int J2K_TranslateMMNTW(int data0, wchar_t *krStr);
 private:
 	static int ezt_addr[20];
 	wchar_t EnginePath[MAX_PATH];

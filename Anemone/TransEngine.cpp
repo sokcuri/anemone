@@ -42,6 +42,7 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 	ezt_addr[16] = (int)GetProcAddress(hDLL, "J2K_TranslateMM");
 	ezt_addr[17] = (int)GetProcAddress(hDLL, "J2K_TranslateMMEx");
 	ezt_addr[18] = (int)GetProcAddress(hDLL, "J2K_TranslateMMNT");
+	ezt_addr[19] = (int)GetProcAddress(hDLL, "J2K_TranslateMMNTW");
 
 	for (int i = 0; i <= 18; i++)
 	if (!ezt_addr[i]) 
@@ -49,6 +50,8 @@ bool CTransEngine::Init(std::wstring &szEnginePath)
 		MessageBox(0, L"이지트랜스 번역 엔진 초기화 실패\r\n: 함수 정보 불러오기 실패", 0, MB_ICONERROR);
 		return false;
 	}
+
+	if (ezt_addr[19]) ehndSupport = true;
 
 	Sleep(50);
 
@@ -134,6 +137,11 @@ __declspec(naked) void CTransEngine::J2K_TranslateMMEx()
 __declspec(naked) int CTransEngine::J2K_TranslateMMNT(int data0, char *krStr)
 {
 	__asm JMP ezt_addr + (4 * 18)
+}
+
+__declspec(naked) int CTransEngine::J2K_TranslateMMNTW(int data0, wchar_t *krStr)
+{
+	__asm JMP ezt_addr + (4 * 19)
 }
 
 CTransEngine::~CTransEngine()

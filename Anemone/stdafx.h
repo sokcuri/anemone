@@ -299,3 +299,5 @@ extern CRITICAL_SECTION cs_ezdic;
 
 extern int CCColorType;
 extern int CCColorN;
+
+extern bool ehndSupport;
