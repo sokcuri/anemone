@@ -6,7 +6,7 @@ CTextProcess *CTextProcess::m_pThis = NULL;
 CTextProcess::CTextProcess()
 {
 	m_pThis = this;
-	LoadDictionary();
+	if (!ehndSupport) LoadDictionary();
 	StartWatchClip();
 	StartHookMonitor();
 }
@@ -1830,12 +1830,17 @@ bool CTextProcess::LoadDictionary()
 
 	EnterCriticalSection(&cs_trans);
 	//bLoadDic = true;
-	if (_LoadDic(AneDic.c_str()))
+	if (!ehndSupport)
 	{
-		OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
-		Cl.TransEngine->J2K_ReloadUserDict();
-		_UnPatchUDic(DicJK.c_str(), offile);
+		if (_LoadDic(AneDic.c_str()))
+		{
+			OLDFILEINFO *offile = (OLDFILEINFO *)_PatchUDic(DicJK.c_str());
+			Cl.TransEngine->J2K_ReloadUserDict();
+			_UnPatchUDic(DicJK.c_str(), offile);
+		}
 	}
+	else
+		Cl.TransEngine->J2K_ReloadUserDict();
 	LeaveCriticalSection(&cs_trans);
 	//bLoadDic = false;
 	return true;
