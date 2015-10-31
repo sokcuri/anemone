@@ -57,7 +57,7 @@ using namespace Gdiplus;
 // STL
 #include <string>
 #include <sstream>
-#include <hash_map>
+#include <list>
 
 // control
 #include <commctrl.h>
