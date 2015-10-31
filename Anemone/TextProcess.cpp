@@ -898,7 +898,7 @@ std::wstring CTextProcess::HangulEncode(const std::wstring &input)
 	for (; it != input.end(); it++)
 	{
 		if (*it == L'@' ||
-			(*it == L'') ||
+			(*it == '\0') ||
 			(*it >= 0x1100 && *it <= 0x11FF) || (*it >= 0x3130 && *it <= 0x318F) ||
 			(*it >= 0xA960 && *it <= 0xA97F) || (*it >= 0xAC00 && *it <= 0xD7AF) ||
 			(*it >= 0xD7B0 && *it <= 0xD7FF))
@@ -1729,7 +1729,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 		if (tab < 2) continue;
 
 		// 유효성 검사
-		if (wjpn[0] == L'') continue;
+		if (wjpn[0] == '\0') continue;
 		/*
 		// 우선 적용 단어인 경우
 		if (wpart[0] == L'2')
