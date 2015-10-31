@@ -1,5 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "TextProcess.h"
+#include "TextPreProcess.h"
 
 CTextProcess *CTextProcess::m_pThis = NULL;
 
@@ -1406,6 +1407,9 @@ bool CTextProcess::OnDrawClipboardByHooker(wchar_t *lpwszstr)
 
 bool CTextProcess::ProcessText(std::wstring &wContext)
 {
+	CTextPreProcess preProcess;
+	wContext = preProcess.PreProcessText(wContext);
+
 	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContextT;
 
 
