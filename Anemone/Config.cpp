@@ -185,9 +185,9 @@ bool CConfig::LoadConfig()
 	return true;
 }
 
-bool CConfig::SaveConfig()
+bool CConfig::SaveConfig(bool b)
 {
-	Cl.FileWatch->TurnOff();
+	if(!b) Cl.FileWatch->TurnOff();
 
 	std::wstring INIPath;
 	GetLoadPath(INIPath, L"\\anemone.ini");
@@ -359,8 +359,11 @@ bool CConfig::SaveConfig()
 	wsprintf(buf, L"%d", GetReviewMax());
 	WriteINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
-	Cl.FileWatch->TurnOn();
-	Cl.TextProcess->LoadDictionary();
+	if (!b)
+	{
+		Cl.FileWatch->TurnOn();
+		Cl.TextProcess->LoadDictionary();
+	}
 	return true;
 }
 

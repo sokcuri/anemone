@@ -89,7 +89,7 @@ public:
 	~CConfig();
 
 	bool LoadConfig();
-	bool SaveConfig();
+	bool SaveConfig(bool b = false);
 
 	bool LoadWndConfig();
 	bool SaveWndConfig();

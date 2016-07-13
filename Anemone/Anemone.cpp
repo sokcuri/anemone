@@ -5,7 +5,7 @@
 #include "Anemone.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1006
+#define ANEMONE_VERSION 1007
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -149,6 +149,9 @@ int APIENTRY _tWinMain(
 
 	// 로우레벨 마우스 후킹 설치
 	InstallMouseHook();
+
+	// 설정파일을 저장
+	Cl.Config->SaveConfig(true);
 
 	std::wstring szEnginePath;
 

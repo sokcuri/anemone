@@ -36,6 +36,11 @@ void CFileWatch::TurnOff()
 	bWatch = false;
 }
 
+bool CFileWatch::IsTurned()
+{
+	return bWatch;
+}
+
 DWORD CFileWatch::_FileChangeNotifyThread(LPVOID lpParam)
 {
 	HWND hwnd = (HWND)lpParam;

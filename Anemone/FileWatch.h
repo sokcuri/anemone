@@ -6,6 +6,7 @@ public:
 	~CFileWatch();
 	void TurnOn();
 	void TurnOff();
+	bool IsTurned();
 private:
 	static CFileWatch *m_pThis;
 	HANDLE hWatchThread;

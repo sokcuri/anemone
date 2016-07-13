@@ -76,20 +76,25 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <WholeProgramOptimization>
+      </WholeProgramOptimization>
       <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>false</OptimizeReferences>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
       <DataExecutionPrevention>false</DataExecutionPrevention>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <CLRUnmanagedCodeCheck>true</CLRUnmanagedCodeCheck>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
