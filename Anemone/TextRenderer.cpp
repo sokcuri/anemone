@@ -129,6 +129,13 @@ bool CTextRenderer::Paint()
 	int cx = GetSystemMetrics(SM_CXSCREEN);
 	int cy = GetSystemMetrics(SM_CYSCREEN);
 
+	// 창이 해상도보다 더 클때 예외처리
+	// 이 처리를 하지 않으면 화면 갱신이 되지 않음
+	int wx = rect.right - rect.left;
+	int wy = rect.bottom - rect.top;
+	cx = (cx < wx ? wx : cx);
+	cy = (cy < wy ? wy : cy);
+
 	int width = rect.right - rect.left;
 	int height = rect.bottom - rect.top;
 
@@ -140,7 +147,10 @@ bool CTextRenderer::Paint()
 	if (cx != hBitmap_X || cy != hBitmap_Y)
 	{
 		// hBitmap_X, hBitmap_Y가 0이 아니면 hBitmap 반환
-		if (hBitmap_X != 0 && hBitmap_Y != 0) DeleteObject(hBitmap);
+		if (hBitmap_X != 0 && hBitmap_Y != 0)
+		{
+			DeleteObject(hBitmap);
+		}
 
 		bmih.biSize = sizeof (BITMAPINFOHEADER);
 		bmih.biWidth = cx;
