@@ -7,7 +7,7 @@
 #include "SetDpiAware.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1010
+#define ANEMONE_VERSION 1011
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -3492,7 +3492,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		case IDC_FILE_TRANSWIN_LOAD_BROWSER:
 		{
 			OPENFILENAME ofn;
-			wchar_t szFile[260];
+			wchar_t szFile[100000];
 			szFile[0] = L'\0';
 
 			ZeroMemory(&ofn, sizeof(ofn));
@@ -3548,7 +3548,9 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 				if (!input_file_info.length())
 				{
 					std::wstring input_path = ofn.lpstrFile;
-					std::wstring output_path = input_path.substr(0, input_path.rfind(L'.')) + L"-번역.txt";
+					std::wstring directory = input_path.substr(0, input_path.rfind(L'\\'));
+					std::wstring filename = input_path.substr(input_path.rfind(L'\\') + 1);
+					std::wstring output_path = input_path.substr(0, input_path.rfind(L'\\')) + L"\\" + L"번역_" + filename.substr(0, filename.rfind(L'.')) + L".txt";
 
 					input_file_info = input_path;
 					output_file_info = output_path;
