@@ -45,6 +45,9 @@
 
 #include "Resource.h"
 
+// RichEdit
+#include <Richedit.h>
+
 // GDIPlus
 #include <GdiPlus.h>
 #pragma comment(lib,"GdiPlus.lib")
@@ -173,8 +176,10 @@ typedef struct
 
 typedef struct
 {
-	wchar_t lpszInputFileName[260];
-	wchar_t lpszOutputFileName[260];
+	std::vector<std::wstring> v_inputFiles;
+	std::vector<std::wstring> v_outputFiles;
+	std::vector<FILE *> v_fpw;
+	std::vector<FILE *> v_fpr;
 	int WriteType;
 	bool NoTransLineFeed;
 	int StartTickCount;

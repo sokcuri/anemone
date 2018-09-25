@@ -488,3 +488,24 @@ bool CConfig::SaveWndConfig()
 	fclose(fp);
 	return true;
 }
+
+bool CConfig::ClearWndConfig()
+{
+	FILE *fp;
+	std::wstring WndConfig;
+	int nLine = 0;
+
+	GetLoadPath(WndConfig, L"\\WndInfo.ini");
+
+	if (_wfopen_s(&fp, WndConfig.c_str(), L"wt,ccs=UTF-8") != 0)
+	{
+		MessageBox(0, L"열 수 없음", 0, 0);
+		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
+		return false;
+	}
+
+	WndInfo.clear();
+
+	fclose(fp);
+	return true;
+}

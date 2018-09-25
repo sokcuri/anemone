@@ -93,6 +93,7 @@ public:
 
 	bool LoadWndConfig();
 	bool SaveWndConfig();
+	bool ClearWndConfig();
 
 	wchar_t *GetEzTransPath() { return cfg_eztrans_path; }
 	void SetEzTransPath(wchar_t *str)

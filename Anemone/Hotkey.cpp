@@ -58,6 +58,8 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F7, false, false, false, ID_WND_BORDER_MODE);
 	RegKey(VK_F7, false, true, false, ID_BACKGROUND_SWITCH);
 
+	RegKey(VK_F9, false, false, false, ID_WINDOW_BACKLOG);
+
 	// 원문 문장/이름 출력
 	RegKey(VK_F8, false, false, false, ID_PRINT_ORGTEXT);
 	RegKey(VK_F8, false, true, false, ID_PRINT_ORGNAME);

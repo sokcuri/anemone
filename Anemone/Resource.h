@@ -36,6 +36,7 @@
 #define IDD_HOOKCFG                     137
 #define IDB_CLOSE                       139
 #define IDB_TEST                        140
+#define IDD_BACKLOG                     145
 #define ID_TERMINATE_ANEMONE            1001
 #define ID_TEMP_CLICK_THOUGH            1002
 #define ID_WND_BORDER_MODE              1003
@@ -43,17 +44,22 @@
 #define IDC_SETTING_TOPMOST             1004
 #define IDC_TRANSWIN_TRANS_ONEGO        1004
 #define IDC_HOOKCFG_TEXT_SIGNCUT        1004
+#define IDC_BACKLOG_LINEFEED            1004
 #define IDC_RADIO1                      1005
 #define IDC_SETTING_TEXTALIGN_LEFT      1005
 #define IDC_FILE_TRANSWIN_OUTPUT1       1005
 #define IDC_TRANSWIN_NOTRANS_LINEFEED   1005
+#define IDC_BACKLOG_RADIO_ORG           1005
 #define IDC_FILE_TRANSWIN_OUTPUT2       1006
 #define IDC_CHECK2                      1006
 #define IDC_SETTING_MAGNETIC_TOPMOST    1006
 #define IDC_SETTING_MAGNETIC_MINIMIZE   1006
+#define IDC_BACKLOG_RADIO_TRANS         1006
 #define IDC_FILE_TRANSWIN_OUTPUT3       1007
 #define IDC_CHECK3                      1007
 #define IDC_SETTING_HIDEWIN             1007
+#define IDC_RADIO5                      1007
+#define IDC_BACKLOG_RADIO_ALL           1007
 #define IDC_CHECK4                      1008
 #define IDC_SETTING_HIDEWIN_UNWATCH_CLIPBOARD 1008
 #define IDC_TRANSWIN_NOTRANS_LINEFEED2  1008
@@ -213,9 +219,13 @@
 #define IDC_FILE_TRANSPROG_NAME         1077
 #define IDC_SETTING_WND_BORDER_COLOR    1077
 #define IDC_FILE_TRANSPROG_LISTSIZE     1078
+#define IDC_FILE_TRANSPROG_TOTALCOUNT   1079
 #define IDC_HOOKCFG_LIST1               1079
+#define IDC_FILE_TRANSPROG_TOTALSIZE    1080
 #define IDC_HOOKCFG_LIST2               1080
+#define IDC_FILE_TRANSPROG_INDEX        1081
 #define IDC_HOOKCFG_STATUS              1081
+#define IDC_FILE_TRANSPROG_CURRENT      1082
 #define IDC_HOOKCFG_KEYBOX              1082
 #define IDC_HOOKCFG_ITH                 1083
 #define IDC_HOOKCFG_AGTH                1084
@@ -244,8 +254,12 @@
 #define IDC_EDIT4                       2004
 #define IDC_HOOKCFG_INTERVAL_EDIT       2004
 #define IDC_TRANSWIN_OUTPUT1            2007
+#define ID_BACKLOG_FONT_SETTING         2007
 #define IDC_TRANSWIN_OUTPUT2            2008
+#define ID_BACKLOG_CLEAR                2008
 #define IDC_TRANSWIN_OUTPUT3            2009
+#define IDC_RICHEDIT21                  2009
+#define IDC_BACKLOG_RICHEDIT            2009
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -286,9 +300,13 @@
 #define ID_32797                        32797
 #define ID_FILE_TRANSPROG_LISTSIZE      32798
 #define ID_32798                        32798
+#define ID_FILE_TRANSPROG_TOTALCOUNT    32799
 #define ID_32799                        32799
+#define ID_FILE_TRANSPROG_INDEX         32800
 #define ID_32800                        32800
+#define ID_FILE_TRANSPROG_TOTALSIZE     32801
 #define ID_32801                        32801
+#define ID_FILE_TRANSPROG_CURRENT       32802
 #define ID_32802                        32802
 #define ID_32803                        32803
 #define ID_32804                        32804
@@ -337,6 +355,7 @@
 #define ID_LBUTTONUP                    32844
 #define ID_RBUTTONDOWN                  32845
 #define ID_RBUTTONUP                    32846
+#define ID_WINDOW_RESET                 32847
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -344,9 +363,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        145
-#define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         2007
+#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_COMMAND_VALUE         32844
+#define _APS_NEXT_CONTROL_VALUE         2010
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

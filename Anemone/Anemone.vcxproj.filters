@@ -57,6 +57,12 @@
     <ClInclude Include="TextPreProcess.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="VersionHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SetDpiAware.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

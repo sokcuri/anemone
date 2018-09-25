@@ -3,9 +3,11 @@
 
 #include "stdafx.h"
 #include "Anemone.h"
+#include "VersionHelper.h"
+#include "SetDpiAware.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1007
+#define ANEMONE_VERSION 1010
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -78,6 +80,7 @@ char* __stdcall J2K_Translate_Web(int data0, const char *jpStr);
 CRITICAL_SECTION	cs_trans;
 CRITICAL_SECTION	cs_ezdic;
 
+
 int APIENTRY _tWinMain(
 		__in HINSTANCE hInstance,
 		__in_opt HINSTANCE hPrevInstance,
@@ -91,6 +94,8 @@ int APIENTRY _tWinMain(
 	MSG msg;
 	HACCEL hAccelTable;
 
+	SetProcessDpiAware();
+
 	// 전역 문자열을 초기화합니다.
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_ANEMONEWND, szWindowClass, MAX_LOADSTRING);
@@ -101,6 +106,9 @@ int APIENTRY _tWinMain(
 	WindowClassRegister(hInstance, szWindowClass, WndProc);
 	WindowClassRegister(hInstance, szParentClass, ParentWndProc);
 	WindowClassRegister(hInstance, szBackLogClass, BackLogProc);
+
+	// Load Richedit
+	LoadLibrary(TEXT("Riched20.dll"));
 
 	// 아네모네가 실행중인지 확인
 	if (FindWindow(szWindowClass, 0) || FindWindow(szParentClass, 0))
@@ -300,39 +308,8 @@ unsigned int WINAPI MagneticThread(void *arg)
 		if (!IsWindow(hWnds.Parent))
 			SendMessage(hWnds.Main, WM_COMMAND, ID_RESTORE_PARENT, 0);
 
-		// 아네모네 메뉴 창에 NOACTIVATE 속성 부여
-		HWND hMenuWnd = FindWindowEx(0, 0, L"#32768", L"");
-		HWND CurFore = GetForegroundWindow();
-
-		if (IsWindow(hMenuWnd))
-		{
-			DWORD dwProcessId;
-			GetWindowThreadProcessId(hMenuWnd, &dwProcessId);
-
-			// 아네모네 프로세스에만 적용
-			if (GetCurrentProcessId() == dwProcessId)
-			{
-				int nExStyle_Menu = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-				hForeWnd = CurFore;
-				//if (nMenuType == 1) SetWindowText(hMenuWnd, L"AnemoneTrayMenu");
-				//else if (nMenuType == 2)
-				{
-					SetWindowText(hMenuWnd, L"AnemoneMenu");
-
-					if (!(nExStyle_Menu & WS_EX_NOACTIVATE))
-					{
-						nExStyle_Menu |= WS_EX_NOACTIVATE;
-						SetWindowLong(hMenuWnd, GWL_EXSTYLE, nExStyle_Menu);
-
-						SetWindowLongPtr(hMenuWnd, -8, (LONG)hWnds.Parent);
-						SetWindowPos(hMenuWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-
-						InvalidateRect(hMenuWnd, NULL, TRUE);
-						UpdateWindow(hMenuWnd);
-					}
-				}
-			}
-		}
+		// 아네모네 메뉴창
+		HWND hMenuWnd = FindWindowEx(0, 0, 0, L"AnemoneV1ContextMenu");
 
 		// 자석모드 윈도우가 활성화되면 아네모네를 위로 띄움
 		if (IsWindow(MagnetWnd.hWnd) && MagnetWnd.IsMagnet)
@@ -554,12 +531,6 @@ unsigned int WINAPI MagneticThread(void *arg)
 			SendMessage(hWnds.Main, WM_COMMAND, ID_SETTING_CHECK, 0);
 		}
 
-		// 아네모네 창이 포커스를 잃었을 때 메뉴가 뜨면 메뉴를 상단에 올린다
-		if ((hMenuWnd = FindWindowEx(0, hWnds.Main, L"#32768", L"AnemoneMenu")))
-		{
-			SetWindowPos(hWnds.Parent, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-		}
-
 		Sleep(1);
 	}
 	return 0;
@@ -589,12 +560,40 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 	CheckMenuItem(hmenuTrackPopup, ID_WND_BORDER_MODE, (Cl.Config->GetWndBorderMode() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_BACKGROUND_SWITCH, (Cl.Config->GetBGSwitch() ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_TRANS, (IsWindow(hWnds.Trans) ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_BACKLOG, (IsWindow(hWnds.BackLog) ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hmenuTrackPopup, ID_WINDOW_FILETRANS, (IsWindow(hWnds.FileTrans) ? MF_CHECKED : MF_UNCHECKED));
 
 	CheckMenuRadioItem(hmenuTrackPopup, ID_TEMP_WINDOW_HIDE, ID_WINDOW_VISIBLE, (Cl.Config->GetTempWinHide() ? ID_TEMP_WINDOW_HIDE : (Cl.Config->GetWindowVisible() ? 0 : ID_WINDOW_VISIBLE)), MF_BYCOMMAND);
 
+	static HWND m_hWnd;
+	m_hWnd = hwnd;
+
+	HHOOK hCBTHook = SetWindowsHookEx(WH_CBT, [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT
+	{
+		if (nCode == HCBT_CREATEWND)
+		{
+			HWND m_hMenuWnd = (HWND)wParam;
+			WCHAR name[1024] = { 0 };
+			GetClassName(m_hMenuWnd, name, sizeof(name));
+
+			if (!wcscmp(name, L"#32768"))
+			{
+				int nExStyle_Menu = GetWindowLong(m_hMenuWnd, GWL_EXSTYLE);
+				SetWindowLong(m_hMenuWnd, GWL_EXSTYLE, nExStyle_Menu |= WS_EX_NOACTIVATE);
+				SetParent(m_hMenuWnd, m_hWnd);
+				SetWindowText(m_hMenuWnd, L"AnemoneV1ContextMenu");
+			}
+		}
+		return ::CallNextHookEx(0, nCode, wParam, lParam);
+	}, nullptr, GetWindowThreadProcessId(hwnd, NULL));
+	if (!hCBTHook)
+		MessageBox(0, L"CBTHook Error", 0, 0);
+
 	// 우클릭 메뉴 활성화
 	TrackPopupMenu(hmenuTrackPopup, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
+
+	// 윈도우 언훅
+	UnhookWindowsHookEx(hCBTHook);
 
 	// 메뉴 소멸
 	DestroyMenu(hmenu);
@@ -807,6 +806,36 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnds.Main);
    
    return TRUE;
+}
+
+void SetBackLogText(LPCWSTR Text)
+{
+	SetBackLogText(Text, RGB(0, 0, 0), RGB(255, 255, 255));
+}
+
+void SetBackLogText(LPCWSTR Text, COLORREF crText, COLORREF crBackground)
+{
+	CHARRANGE cr = { LONG_MAX, LONG_MAX };
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_EXSETSEL, 0, (LPARAM)&cr);
+
+	CHARFORMAT2 cf;
+	cf.cbSize = sizeof(CHARFORMAT2);
+	cf.dwMask = CFM_COLOR | CFM_BACKCOLOR | CFM_EFFECTS2 | CFM_FACE | CFM_SIZE;
+	cf.crTextColor = crText;
+	cf.crBackColor = crBackground;
+	cf.dwEffects = CFE_BOLD;
+
+	//int nLogFntSize = pConfig->GetConsoleFontSize();
+	cf.yHeight = 12 * 20;
+	wcscpy_s(cf.szFaceName, L"굴림");
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_REPLACESEL, TRUE, (LPARAM)Text);
+
+	// Scroll to end
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_SETSEL, 0, -1);
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_SETSEL, -1, -1);
+	SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), EM_SCROLLCARET, 0, 0);
 }
 
 //
@@ -1201,8 +1230,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (IsWindow(hWnds.Setting) == false)
 			{
-
-
 				RECT rect;
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
@@ -1229,33 +1256,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
+		break;
 		case ID_WINDOW_BACKLOG:
 		{
 			if (IsWindow(hWnds.BackLog) == false)
 			{
 				RECT rect;
 				GetWindowRect(hWnds.Main, &rect);
-				int width = rect.right - rect.left;
-				int height = rect.bottom - rect.top;
 				int cx = GetSystemMetrics(SM_CXSCREEN);
 				int cy = GetSystemMetrics(SM_CYSCREEN);
 
-				hWnds.BackLog = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, szBackLogClass, NULL, WS_BORDER,
-					CW_USEDEFAULT, 0, width, height,
-					hWnd, (HMENU)NULL, hInst, NULL);
+				hWnds.BackLog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_BACKLOG), hWnd, BackLogProc);
 
-				cx = GetSystemMetrics(SM_CXSCREEN);
-				cy = GetSystemMetrics(SM_CYSCREEN);
-				GetWindowRect(hWnds.BackLog, &rect);
-
-				SetWindowPos(hWnds.BackLog, 0, ((cx - (rect.right - rect.left)) / 2), ((cy - (rect.bottom - rect.top)) / 2), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-
-				//hWnds.BackLog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_BACKLOG), hWnds.Main, SettingProc);
+				SetWindowPos(hWnds.BackLog, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 				GetWindowRect(hWnds.BackLog, &rect);
-
 				SetWindowPos(hWnds.BackLog, 0, (cx - rect.right + rect.left) / 2, (cy - rect.bottom + rect.top) / 2, 0, 0, SWP_NOSIZE);
 				ShowWindow(hWnds.BackLog, 1);
+
+				std::list<_viewLog>::iterator iter;
+				int i, size;
+
+				size = viewLog.size() - 1;
+				i = 0;
+
+				if (size - viewLogNum - 1 < 0) break;
+				viewLogNum++;
+
+				for (iter = viewLog.begin(); iter != viewLog.end(); iter++, i++)
+				{
+					std::wstring str;
+					str += L"\r\n";
+					str += (*iter).Name;
+					str += (*iter).Text;
+					str += L"\r\n";
+					if ((*iter).Name[0] != L'\0')
+					{
+						str += L"【";
+						str += (*iter).NameT;
+						str += L"】";
+					}
+					str += (*iter).TextT;
+					str += L"\r\n";
+					SetBackLogText(str.c_str());
+				}
+
 			}
 			else
 			{
@@ -1889,9 +1934,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Cl.TextProcess->OnDrawClipboardByHooker((wchar_t *)lParam);
 		}
 			return 0;
-		case ID_ANEDIC_SITE:
+		case ID_WINDOW_RESET:
 		{
-			ShellExecute(NULL, L"open", L"http://www.minori.kr/anemone_dic/", L"", L"", SW_SHOW);
+			int sm_cx = GetSystemMetrics(SM_CXSCREEN);
+			int sm_cy = GetSystemMetrics(SM_CYSCREEN);
+
+			int cx = 500;
+			int cy = 200;
+
+			int x = (sm_cx - cx) / 2;
+			int y = (sm_cy - cy) / 2;
+
+			// 자석모드 해제
+			Cl.Config->SetMagneticMode(false);
+			MagnetWnd.hWnd = NULL;
+
+			MoveWindow(hWnds.Main, x, y, cx, cy, true);
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			Cl.Config->ClearWndConfig();
 		}
 			break;
 		case ID_SET_WNDRES:
@@ -1934,8 +1994,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						RECT rc;
 						GetWindowRect(hMenuWnd, &rc);
 
-						if (pt->x >= rc.left && pt->x <= rc.right &&
-							pt->y >= rc.top && pt->y <= rc.bottom)
+						if (PtInRect(&rc, (POINT)*pt))
 						{
 							delete pt;
 							return 0;
@@ -1944,6 +2003,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
+			//CloseWindow(FindWindowEx(0, 0, 0, L"AnemoneV1ContextMenu"));
 			hMenuWnd = NULL;
 			while ((hMenuWnd = FindWindowEx(0, hMenuWnd, L"#32768", 0)) != NULL)
 			{
@@ -2176,7 +2236,7 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case ID_SETTING_HOMEPAGE:
 		{
-			ShellExecute(NULL, L"open", L"http://www.eroha.net/", L"", L"", SW_SHOW);
+			ShellExecute(NULL, L"open", L"http://sokcuri.neko.kr/", L"", L"", SW_SHOW);
 		}
 			break;
 		case ID_SETTING_CLOSE:
@@ -3402,11 +3462,16 @@ INT_PTR CALLBACK TransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
+	static std::vector<std::wstring> inputFile;
+	static std::vector<std::wstring> outputFile;
 
 	switch (message)
 	{
 	case WM_SHOWWINDOW:
 	{
+		inputFile.clear();
+		outputFile.clear();
+
 		SetForegroundWindow(hWnds.FileTrans);
 		if (Cl.Config->GetFileTransOutput() == 2)
 			CheckRadioButton(hWnds.FileTrans, IDC_FILE_TRANSWIN_OUTPUT1, IDC_FILE_TRANSWIN_OUTPUT3, IDC_FILE_TRANSWIN_OUTPUT3);
@@ -3428,6 +3493,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		{
 			OPENFILENAME ofn;
 			wchar_t szFile[260];
+			szFile[0] = L'\0';
 
 			ZeroMemory(&ofn, sizeof(ofn));
 			ofn.lStructSize = sizeof(ofn);
@@ -3441,23 +3507,73 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			ofn.lpstrFileTitle = NULL;
 			ofn.nMaxFileTitle = 0;
 			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			ofn.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, szFile, 255);
+			if (inputFile.size())
+				wcscpy(szFile, inputFile[0].c_str());
 
 			if (GetOpenFileName(&ofn) == TRUE)
 			{
-				std::wstring saveFile = ofn.lpstrFile;
-				saveFile = saveFile.substr(0, saveFile.rfind(L'.'));
-				saveFile += L"-번역.txt";
+				inputFile.clear();
+				outputFile.clear();
 
-				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, ofn.lpstrFile);
-				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, saveFile.c_str());
+				std::wstring input_file_info;
+				std::wstring output_file_info;
+				wchar_t* str = ofn.lpstrFile;
+				std::wstring directory = str;
+				if (directory[directory.length() - 1] == L'\\')
+					directory.substr(0, directory.length() - 1);
+
+				str += (directory.length() + 1);
+				int filesNumber = 0;
+				while (*str) {
+					std::wstring filename = str;
+					std::wstring input_path = directory + L"\\" + filename;
+					std::wstring output_path = directory + L"\\번역_" + filename.substr(0, filename.rfind(L'.')) + L".txt";
+					inputFile.push_back(input_path);
+					outputFile.push_back(output_path);
+
+					if (input_file_info.length())
+					{
+						input_file_info += L", ";
+						output_file_info += L", ";
+					}
+					input_file_info += input_path;
+					output_file_info += output_path;
+
+					str += (filename.length() + 1);
+					filesNumber++;
+				}
+
+				if (!input_file_info.length())
+				{
+					std::wstring input_path = ofn.lpstrFile;
+					std::wstring output_path = input_path.substr(0, input_path.rfind(L'.')) + L"-번역.txt";
+
+					input_file_info = input_path;
+					output_file_info = output_path;
+
+					inputFile.push_back(input_path);
+					outputFile.push_back(output_path);
+					filesNumber++;
+				}
+				
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, input_file_info.c_str());
+				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, output_file_info.c_str());
+
+				if (filesNumber > 1)
+				{
+					EnableWindow(GetDlgItem(hWnd, IDC_FILE_TRANSWIN_SAVE_BROWSER), false);
+				}
+				else
+				{
+					EnableWindow(GetDlgItem(hWnd, IDC_FILE_TRANSWIN_SAVE_BROWSER), true);
+				}
 
 				FILE *fp;
 				wchar_t wstr[1024];
 
-				if (_wfopen_s(&fp, ofn.lpstrFile, L"rt,ccs=UTF-8") != 0)
+				if (_wfopen_s(&fp, inputFile[0].c_str(), L"rt,ccs=UTF-8") != 0)
 				{
 					SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_PREVIEW, L"! 파일을 열 수 없습니다.");
 					return false;
@@ -3482,6 +3598,11 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			break;
 		case IDC_FILE_TRANSWIN_SAVE_BROWSER:
 		{
+			if (inputFile.size() != 1)
+			{
+				return false;
+			}
+
 			OPENFILENAME ofn;
 			wchar_t szFile[260];
 
@@ -3513,6 +3634,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 				}
 				
 				SetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, saveFile.c_str());
+				outputFile[0] = saveFile;
 			}
 		}
 			break;
@@ -3522,13 +3644,14 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			DWORD    dwThreadID;
 
 			FILETRANS *FT = new FILETRANS;
-			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_LOAD, FT->lpszInputFileName, 255);
-			GetDlgItemText(hWnd, IDC_FILE_TRANSWIN_SAVE, FT->lpszOutputFileName, 255);
+			FT->v_inputFiles = inputFile;
+			FT->v_outputFiles = outputFile;
+
 			FT->StartTickCount = GetTickCount();
 			FT->WriteType = Cl.Config->GetFileTransOutput();
 			FT->NoTransLineFeed = Cl.Config->GetFileTransNoTransLineFeed();
 
-			if (FT->lpszInputFileName[0] == NULL || FT->lpszOutputFileName[0] == NULL)
+			if (!FT->v_inputFiles.size() || !FT->v_outputFiles.size())
 			{
 				MessageBox(hWnd, L"파일 위치를 선택해주세요", L"파일 경로 미지정", MB_ICONASTERISK);
 				delete FT;
@@ -3617,31 +3740,68 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		{
 		case ID_FILE_TRANSPROG_START:
 		{
-			wchar_t str[10];
+			wchar_t str[16];
 			_itow(lParam, str, 16);
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_STATUSADDR), str);
 		}
 			break;
 		case ID_FILE_TRANSPROG_LISTSIZE:
 		{
-			wchar_t str[10];
+			wchar_t str[16];
 			_itow(lParam, str, 10);
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_LISTSIZE), str);
 			SendMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_SETRANGE, 0, MAKELPARAM(0, lParam));
 			SendMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_SETSTEP, (WPARAM)1, 0);
 		}
-			break;
+		break;
+		case ID_FILE_TRANSPROG_TOTALSIZE:
+		{
+			wchar_t str[16];
+			_itow(lParam, str, 10);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TOTALSIZE), str);
+		}
+		break;
+		case ID_FILE_TRANSPROG_TOTALCOUNT:
+		{
+			wchar_t str[16];
+			_itow(lParam, str, 10);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TOTALCOUNT), str);
+		}
+		break;
+		case ID_FILE_TRANSPROG_INDEX:
+		{
+			wchar_t str[16];
+			_itow(lParam, str, 10);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_INDEX), str);
+		}
+		break;
+		case ID_FILE_TRANSPROG_CURRENT:
+		{
+			wchar_t str[16];
+			_itow(lParam, str, 10);
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_CURRENT), str);
+		}
+		break;
 		case ID_FILE_TRANSPROG_PROGRESS:
 		{
-			wchar_t str[10];
+			wchar_t str[16];
 			int i = lParam;
 			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_LISTSIZE), str, 8);
-
 			int size = _wtoi(str);
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_CURRENT), str, 8);
+			int curr = _wtoi(str);
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TOTALSIZE), str, 8);
+			int total = _wtoi(str);
+
 			std::wstringstream logstream;
 			logstream << i;
 			logstream << L"/";
 			logstream << size;
+			logstream << L"(";
+			logstream << curr;
+			logstream << L"/";
+			logstream << total;
+			logstream << L")";
 
 			PostMessage(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_BAR), PBM_STEPIT, 0, 0);
 			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TEXT), (LPCWSTR)logstream.str().c_str());
@@ -3654,7 +3814,21 @@ INT_PTR CALLBACK FileTransWinProgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			break;
 		case ID_FILE_TRANSPROG_NAME:
 		{
-			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_NAME), (LPCWSTR)lParam);
+			wchar_t str[16];
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_INDEX), str, 8);
+			int index = _wtoi(str);
+			GetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_TOTALCOUNT), str, 8);
+			int total = _wtoi(str);
+
+			std::wstringstream logstream;
+			logstream << (LPCWSTR)lParam;
+			logstream << L" ";
+			logstream << L"(";
+			logstream << index;
+			logstream << L"/";
+			logstream << total;
+			logstream << L")";
+			SetWindowText(GetDlgItem(hWnd, IDC_FILE_TRANSPROG_NAME), (LPCWSTR)logstream.str().c_str());
 		}
 			break;
 		case IDC_FILE_TRANSPROG_CANCEL:
@@ -3919,6 +4093,11 @@ INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		// 메뉴 선택을 구문 분석합니다.
 		switch (wmId)
 		{
+		case ID_BACKLOG_CLEAR:
+		{
+			SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), WM_SETTEXT, 0, 0);
+		}
+		break;
 		case IDOK:
 			DestroyWindow(hWnd);
 			break;
@@ -4404,307 +4583,359 @@ DWORD WINAPI HttpSendRequestThread(LPVOID lpParam)
 
 DWORD WINAPI FileTransThread(LPVOID lpParam)
 {
-	FILE *fpr, *fpw;
 	FILETRANS* FT;
 	FT = (FILETRANS*)lpParam;
-	wchar_t wstr[1024];
 
 	HWND hDlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_FILE_TRANSWIN_PROG), hWnds.FileTrans, FileTransWinProgProc);
 	SetWindowLongPtr(hDlg, -8, (LONG)0);
+
+	if (FT->v_inputFiles.size() != FT->v_outputFiles.size())
+	{
+		MessageBox(hDlg, L"FT->v_inputFiles.size() != FT->v_outputFiles.size()", L"아네모네", 0);
+		delete FT;
+		return false;
+	}
 
 	// 닫기 버튼 비활성화
 	EnableMenuItem(GetSystemMenu(hDlg, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
 	ShowWindow(hDlg, true);
-	int nLines;
 
-	if (_wfopen_s(&fpr, FT->lpszInputFileName, L"rt,ccs=UTF-8") != 0)
-	{
-		std::wstringstream wss;
-		wss << L"원문 파일이 존재하지 않거나 읽기 권한이 없습니다 :\r\n\r\n";
-		wss << FT->lpszOutputFileName;
-		MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
-		DestroyWindow(hDlg);
-		delete FT;
-		return false;
-	}
-
-	if (_wfopen_s(&fpw, FT->lpszOutputFileName, L"wt,ccs=UTF-8") != 0)
-	{
-		std::wstringstream wss;
-		wss << L"저장될 파일이 사용중이거나 쓰기 권한이 없습니다 :\r\n\r\n";
-		wss << FT->lpszOutputFileName;
-		MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
-		DestroyWindow(hDlg);
-		fclose(fpr);
-		delete FT;
-		return false;
-	}
-
-	std::wstring input;
-	for (nLines = 0; fgetws(wstr, 1000, fpr) != NULL; nLines++) {
-		input.append(wstr);
-		//input.append(L"\r\n");
-	}
-
-	fclose(fpr);
-	
-	std::wstringstream content;
-	std::wstring proclog;
-
-	Elapsed_Prepare = 0;
-	Elapsed_Translate = 0;
-
-	std::wstring::size_type nprev = 0;
-	std::wstring::size_type npos = -1;
-	std::list<std::wstring> list_org, list_trans, list;
-	std::wstring output, trans_str;
-	int i = 0, length = input.length();
-	std::wstring empty = L"Abort";
-
-	int nStatus = 1;
-	
-	std::list<std::wstring>::iterator iter, iter_trans;
-
-	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_START, (LPARAM)&nStatus);
-
-	std::wstring filename = FT->lpszInputFileName;
-	filename = filename.substr(filename.rfind(L"\\")+1);
-
-	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
-
-	std::wstring temp_str;
-
-	for (;; i++)
-	{
-		nprev = npos + 1;
-		npos = input.find(L"\n", nprev);
-		if (npos != std::string::npos)
+	auto FT_LoadFile = [&hDlg, &FT](std::wstring &inputFile, std::wstring &outputFile) -> std::pair<FILE *, FILE*> {
+		FILE *fpw, *fpr;
+		if (_wfopen_s(&fpr, inputFile.c_str(), L"rt,ccs=UTF-8") != 0)
 		{
-			temp_str = input.substr(nprev, npos - nprev + 1);
-			temp_str += L"|:_";
-			list_org.push_back(temp_str);
-		}
-		else
-		{
-			temp_str = input.substr(nprev);
-			list_org.push_back(temp_str);
-			break;
-		}
-	}
-
-	unsigned int div = input.length() / 1024 + 1;
-
-	if (list_org.size() > div)
-	{
-		std::wstring line;
-		std::list<std::wstring> list2 = list_org;
-		int j = 1;
-		for (i = 1, iter = list2.begin(); iter != list2.end(); iter++, i++)
-		{
-			if ((float)i > (float)(list2.size() * j / div))
-			{
-				list.push_back(line);
-				line = L"";
-				j++;
-			}
-
-			line += (*iter);
-
-			if (i == list2.size())
-			{
-				list.push_back(line);
-				line = L"";
-			}
-
-		}
-	}
-	else
-	{
-		list = list_org;
-	}
-
-	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
-
-	for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
-	{
-		if (nStatus == 2)
-		{
-			nStatus = 0;
-			MessageBox(hDlg, L"텍스트 번역을 중단했습니다.", L"아네모네", MB_ICONINFORMATION);
+			std::wstringstream wss;
+			wss << L"원문 파일이 존재하지 않거나 읽기 권한이 없습니다 :\r\n\r\n";
+			wss << inputFile;
+			MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
 			DestroyWindow(hDlg);
-			fclose(fpw);
-			delete FT;
-			return -1;
+			return std::make_pair(nullptr, nullptr);
 		}
 
-		int nInput, nOutput;
-		int nPos, nPrev;
-
-		for (nPrev = 0, nPos = 0, nInput = 0; nPos != std::string::npos; nInput++)
+		if (_wfopen_s(&fpw, outputFile.c_str(), L"wt,ccs=UTF-8") != 0)
 		{
-			nInput++;
-			nPos = (*iter).find(L"\n|:_", nPrev);
-			nPrev = nPos + 4;
+			std::wstringstream wss;
+			wss << L"저장될 파일이 사용중이거나 쓰기 권한이 없습니다 :\r\n\r\n";
+			wss << outputFile;
+			MessageBox(hDlg, wss.str().c_str(), L"아네모네", 0);
+			DestroyWindow(hDlg);
+			fclose(fpr);
+			return std::make_pair(nullptr, nullptr);
 		}
 
-		trans_str = Cl.TextProcess->eztrans_proc(*iter);
+		return std::make_pair(fpr, fpw);
+	};
 
-		for (nPrev = 0, nPos = 0, nOutput = 0; nPos != std::string::npos; nOutput++)
+	auto FT_CalculateLine = [&FT]() -> int
+	{
+		wchar_t str[1000];
+		int lines = 0;
+		for (auto fp : FT->v_fpr)
 		{
-			nOutput++;
-			nPos = trans_str.find(L"\n|:_", nPrev);
-			nPrev = nPos + 4;
-		}
-
-		// 묶은 것을 풀어서 재번역
-		if (nInput != nOutput)
-		{
-			std::wstring strOrg = (*iter);
-			std::wstring strRes;
-			npos = 0, nprev = 0;
-
-			do
+			for (int i = 0; fgetws(str, 1000, fp) != NULL; i++)
 			{
-				npos = (*iter).find(L"\n|:_", nprev);
-				if (npos != std::string::npos)
-				{
-					strRes = (*iter).substr(nprev, npos - nprev + 4);
-					nprev = npos + 4;
-				}
-				else
-				{
-					strRes = (*iter).substr(nprev);
-					strRes += L"_|:_";
-				}
-
-				trans_str = Cl.TextProcess->eztrans_proc(strRes);
-
-				// 태그가 있었는데 없어진 경우 (에러)
-				if (strRes.find(L"\n|:_") != std::string::npos && trans_str.find(L"\n|:_") == std::string::npos)
-				{
-					if ((*iter).find(L"\r\n"))
-						output += L" \r\n|:_";
-					else output += L" \n|:_";
-				}
-				else if (strRes.find(L"_|:_") != std::string::npos && trans_str.find(L"_|:_") == std::string::npos)
-				{
-					output += L" ";
-				}
-				else if (strRes.find(L"_|:_") != std::string::npos)
-					output += strRes.substr(0, strRes.find(L"_|:_"));
-				else
-					output += trans_str;
-
-			} while (npos != std::string::npos);
-		}
-		else output += trans_str;
-
-		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_PROGRESS, (LPARAM)i+1);
-	}
-	/*
-	std::wstringstream logstream;
-	logstream << list.size();
-	logstream << L"/";
-	logstream << list.size();
-
-	proclog = logstream.str();
-	PostMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_COMPLETE, (LPARAM)proclog.c_str());
-	*/
-	nStatus = 0;
-
-	npos = 0, nprev = 0;
-
-	for (iter = list_org.begin();; iter++, i++)
-	{
-		npos = output.find(L"\n|:_", nprev);
-		if (npos != std::string::npos)
-		{
-			if ((*iter).size() - 3 > 0) (*iter) = (*iter).substr(0, (*iter).size() - 3);
-			list_trans.push_back(output.substr(nprev, npos - nprev + 1));
-			nprev = npos + 4;
-		}
-		else
-		{
-			list_trans.push_back(output.substr(nprev));
-			break;
-		}
-	}
-
-	if (list_org.size() != list_trans.size())
-	{
-		nStatus = 0;
-		MessageBox(hDlg, L"번역 중 오류가 발생했습니다.", L"아네모네", MB_ICONERROR);
-		DestroyWindow(hDlg);
-		fclose(fpw);
-		delete FT;
-		return -1;
-	}
-
-	for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)
-	{
-		if (FT->WriteType != 0)
-		{
-			// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
-			if (FT->NoTransLineFeed && (*iter_trans == L"\n" || *iter_trans == L"\r\n") ||
-				std::next(iter, 1) == list_org.end() && *iter_trans == L"")
-			{
-				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+				lines++;
 			}
-			// 이 라인이 마지막 라인인 경우 원문에 \r\n을 붙여준다
-			else if (std::next(iter, 1) == list_org.end())
+		}
+
+		for (auto fp : FT->v_fpr)
+			fseek(fp, 0, SEEK_SET);
+
+		return lines;
+	};
+
+	auto FT_Translating = [&hDlg, &FT](int idx, int &g_curr) {
+		int nLines;
+		wchar_t wstr[1024];
+		auto fpr = FT->v_fpr[idx];
+		auto fpw = FT->v_fpw[idx];
+		std::wstring inputFileName = FT->v_inputFiles[idx];
+		std::wstring outputFileName = FT->v_outputFiles[idx];
+		std::wstring filename = inputFileName;
+		filename = filename.substr(filename.rfind(L"\\") + 1);
+
+		std::wstring input;
+		for (nLines = 0; fgetws(wstr, 1000, fpr) != NULL; nLines++) {
+			input.append(wstr);
+			//input.append(L"\r\n");
+		}
+
+		fclose(fpr);
+
+		std::wstringstream content;
+		std::wstring proclog;
+
+		Elapsed_Prepare = 0;
+		Elapsed_Translate = 0;
+
+		std::wstring::size_type nprev = 0;
+		std::wstring::size_type npos = -1;
+		std::list<std::wstring> list_org, list_trans, list;
+		std::wstring output, trans_str;
+		int i = 0, length = input.length();
+		std::wstring empty = L"Abort";
+
+		int nStatus = 1;
+
+		std::list<std::wstring>::iterator iter, iter_trans;
+
+		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_START, (LPARAM)&nStatus);
+
+		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_NAME, (LPARAM)filename.c_str());
+
+		std::wstring temp_str;
+
+		for (;; i++)
+		{
+			nprev = npos + 1;
+			npos = input.find(L"\n", nprev);
+			if (npos != std::string::npos)
 			{
-				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
-				fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
-				fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-				break;
+				temp_str = input.substr(nprev, npos - nprev + 1);
+				temp_str += L"|:_";
+				list_org.push_back(temp_str);
 			}
 			else
 			{
-				fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
-				fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-
-				// 출력 설정이 원문/번역문 + 개행인 경우 개행 처리
-				if (FT->WriteType == 2) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+				temp_str = input.substr(nprev);
+				list_org.push_back(temp_str);
+				break;
 			}
 		}
-		else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
-	}
-	/*
-	if (FT->WriteType == 1)
+
+		unsigned int div = input.length() / 1024 + 1;
+		std::vector<int> v_line_info;
+
+		if (list_org.size() > div)
+		{
+			std::wstring line;
+			std::list<std::wstring> list2 = list_org;
+			int j = 1;
+			int k = 0;
+			for (i = 1, iter = list2.begin(); iter != list2.end(); iter++, i++)
+			{
+				if ((float)i > (float)(list2.size() * j / div))
+				{
+					list.push_back(line);
+					line = L"";
+					j++;
+
+					v_line_info.push_back(k);
+					k = 0;
+				}
+
+				line += (*iter);
+				k++;
+
+				if (i == list2.size())
+				{
+					list.push_back(line);
+
+					line = L"";
+					v_line_info.push_back(k);
+				}
+
+			}
+		}
+		else
+		{
+			list = list_org;
+		}
+
+		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
+
+		for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
+		{
+			g_curr += v_line_info[i];
+
+			if (nStatus == 2)
+			{
+				nStatus = 0;
+				MessageBox(hDlg, L"텍스트 번역을 중단했습니다.", L"아네모네", MB_ICONINFORMATION);
+				return -1;
+			}
+
+			int nInput, nOutput;
+			int nPos, nPrev;
+
+			for (nPrev = 0, nPos = 0, nInput = 0; nPos != std::string::npos; nInput++)
+			{
+				nInput++;
+				nPos = (*iter).find(L"\n|:_", nPrev);
+				nPrev = nPos + 4;
+			}
+
+			trans_str = Cl.TextProcess->eztrans_proc(*iter);
+
+			for (nPrev = 0, nPos = 0, nOutput = 0; nPos != std::string::npos; nOutput++)
+			{
+				nOutput++;
+				nPos = trans_str.find(L"\n|:_", nPrev);
+				nPrev = nPos + 4;
+			}
+
+			// 묶은 것을 풀어서 재번역
+			if (nInput != nOutput)
+			{
+				std::wstring strOrg = (*iter);
+				std::wstring strRes;
+				npos = 0, nprev = 0;
+
+				do
+				{
+					npos = (*iter).find(L"\n|:_", nprev);
+					if (npos != std::string::npos)
+					{
+						strRes = (*iter).substr(nprev, npos - nprev + 4);
+						nprev = npos + 4;
+					}
+					else
+					{
+						strRes = (*iter).substr(nprev);
+						strRes += L"_|:_";
+					}
+
+					trans_str = Cl.TextProcess->eztrans_proc(strRes);
+
+					// 태그가 있었는데 없어진 경우 (에러)
+					if (strRes.find(L"\n|:_") != std::string::npos && trans_str.find(L"\n|:_") == std::string::npos)
+					{
+						if ((*iter).find(L"\r\n"))
+							output += L" \r\n|:_";
+						else output += L" \n|:_";
+					}
+					else if (strRes.find(L"_|:_") != std::string::npos && trans_str.find(L"_|:_") == std::string::npos)
+					{
+						output += L" ";
+					}
+					else if (strRes.find(L"_|:_") != std::string::npos)
+						output += strRes.substr(0, strRes.find(L"_|:_"));
+					else
+						output += trans_str;
+
+				} while (npos != std::string::npos);
+			}
+			else output += trans_str;
+
+			SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_PROGRESS, (LPARAM)i + 1);
+			SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_CURRENT, (LPARAM)g_curr + 1);
+		}
+
+		nStatus = 0;
+
+		npos = 0, nprev = 0;
+
+		for (iter = list_org.begin();; iter++, i++)
+		{
+			npos = output.find(L"\n|:_", nprev);
+			if (npos != std::string::npos)
+			{
+				if ((*iter).size() - 3 > 0) (*iter) = (*iter).substr(0, (*iter).size() - 3);
+				list_trans.push_back(output.substr(nprev, npos - nprev + 1));
+				nprev = npos + 4;
+			}
+			else
+			{
+				list_trans.push_back(output.substr(nprev));
+				break;
+			}
+		}
+
+		if (list_org.size() != list_trans.size())
+		{
+			nStatus = 0;
+			MessageBox(hDlg, L"번역 중 오류가 발생했습니다.", L"아네모네", MB_ICONERROR);
+			return -1;
+		}
+
+		for (iter = list_org.begin(), iter_trans = list_trans.begin(); iter != list_org.end(); iter++, iter_trans++)
+		{
+			if (FT->WriteType != 0)
+			{
+				// 개행만 있는 라인 번역 안함 옵션 선택시 개행만 넣어줌
+				if (FT->NoTransLineFeed && (*iter_trans == L"\n" || *iter_trans == L"\r\n") ||
+					std::next(iter, 1) == list_org.end() && *iter_trans == L"")
+				{
+					fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+				}
+				// 이 라인이 마지막 라인인 경우 원문에 \r\n을 붙여준다
+				else if (std::next(iter, 1) == list_org.end())
+				{
+					fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+					fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+					fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
+					break;
+				}
+				else
+				{
+					fwrite((*iter).c_str(), sizeof(wchar_t), wcslen((*iter).c_str()), fpw);
+					fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
+
+					// 출력 설정이 원문/번역문 + 개행인 경우 개행 처리
+					if (FT->WriteType == 2) fwrite(L"\r\n", sizeof(wchar_t), wcslen(L"\r\n"), fpw);
+				}
+			}
+			else fwrite((*iter_trans).c_str(), sizeof(wchar_t), wcslen((*iter_trans).c_str()), fpw);
+		}
+
+		fclose(fpw);
+		return 0;
+	};
+
+	auto FT_CleanUp = [&hDlg, &FT]()
 	{
-		output += (*iter);
-		output += L"\r\n\r\n";
+		for (FILE *fp : FT->v_fpr)
+		{
+			fclose(fp);
+		}
+		for (FILE *fp : FT->v_fpw)
+		{
+			fclose(fp);
+		}
+
+		delete FT;
+		DestroyWindow(hDlg);
+		return false;
+	};
+
+	// 우선 모든 입출력 파일의 핸들을 잡는다
+	for (size_t i = 0; i < FT->v_inputFiles.size(); i++)
+	{
+		auto ret = FT_LoadFile(FT->v_inputFiles[i], FT->v_outputFiles[i]);
+		if (ret.first == nullptr || ret.second == nullptr)
+		{
+			FT_CleanUp();
+			return false;
+		}
+		FT->v_fpr.push_back(ret.first);
+		FT->v_fpw.push_back(ret.second);
 	}
-	*/
-	//fwrite(output.c_str(), sizeof(wchar_t), wcslen(output.c_str()), fp);
-	fclose(fpw);
+	
+	// 전체 라인 세기
+	int totalLines = FT_CalculateLine();
+	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_TOTALCOUNT, (LPARAM)FT->v_fpr.size());
+	SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_TOTALSIZE, (LPARAM)totalLines);
+
+	// 전체 현재 라인 수
+	int g_curr = 0;
+
+	// 순차적으로 번역 진행
+	for (size_t idx = 0; idx < FT->v_inputFiles.size(); idx++)
+	{
+		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_INDEX, (LPARAM)idx + 1);
+
+		if (FT_Translating(idx, g_curr) != 0)
+		{
+			FT_CleanUp();
+			return false;
+		}
+	}
+
 	MessageBox(hDlg, L"번역을 완료했습니다", L"아네모네", MB_ICONINFORMATION);
 
-	/*
-	return output;
+	// CleanUp
+	FT_CleanUp();
 
-
-
-
-
-
-
-	for (int i = 0; fgetws(wstr, 1000, fp) != NULL; i++)
-	{
-		std::wstringstream textStr;
-		textStr << i;
-		textStr << L"/";
-		textStr << nLines;
-		SetDlgItemText(hDlg, IDC_FILE_TRANSPROG_TEXT, textStr.str().c_str());
-
-
-		if (i > 0) content.append(L"\r\n");
-		content.append(wstr);
-
-		if (i == 6) break;
-	}
-	*/
-	delete FT;
 	return 0; // 성공
 }

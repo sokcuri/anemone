@@ -1,6 +1,7 @@
 ﻿#include "StdAfx.h"
 #include "TextProcess.h"
 #include "TextPreProcess.h"
+#include "Anemone.h"
 
 CTextProcess *CTextProcess::m_pThis = NULL;
 
@@ -1469,6 +1470,22 @@ bool CTextProcess::ProcessText(std::wstring &wContext)
 	_viewLog VL = _viewLog(wName.c_str(), wNameT.c_str(), wText.c_str(), wTextT.c_str());
 
 	viewLog.push_back(VL);
+
+	std::wstring str;
+	str += L"\r\n";
+	str += wName;
+	str += wText;
+	str += L"\r\n";
+	if (wName.length())
+	{
+		str += L"【";
+		str += wNameT;
+		str += L"】";
+	}
+	str += wTextT;
+	str += L"\r\n";
+	SetBackLogText(str.c_str());
+
 
 	for (; viewLog.size() > Cl.Config->GetReviewMax();)
 	{
