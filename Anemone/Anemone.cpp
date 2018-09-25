@@ -4197,7 +4197,7 @@ bool __stdcall UpdateNotify(HWND hWnd, bool IsCurMsg)
 
 	HINTERNET hInternet = InternetOpenA("HTTPEX", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	HINTERNET hURL = InternetConnectA(hInternet, "docs.google.com", 80, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
-	HINTERNET hRequest = HttpOpenRequestA(hURL, "GET", "/document/d/1AiZgmm78sj1ZqVurKBNKBM5ZUiEUU8sAp6f2O2ZQCfM/pub", "HTTP/1.1", NULL, NULL, 0, INTERNET_FLAG_RELOAD);
+	HINTERNET hRequest = HttpOpenRequestA(hURL, "GET", "/document/d/e/2PACX-1vTiFz7N-liMGm59oVNNmfzNQS12NMqXYpGDR7UpxJPZpDqKL4ENQF_iccMGjlxqcLiYaFVMnn_2IdK-/pub", "HTTP/1.1", NULL, NULL, 0, INTERNET_FLAG_RELOAD);
 
 	HANDLE   hThread;
 	DWORD    dwThreadID;
