@@ -1369,6 +1369,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_TEXTEND_NAME, Cl.Config->GetReviseName());
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_MIDDLE_BRACKET_EXTRACT, Cl.Config->GetMiddleBracketRecognize());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_FORCE_ANEDIC, Cl.Config->GetForceAneDic());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_ANE_REMOCON, Cl.Config->GetRemoconMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_EXTERN_HOTKEY, Cl.Config->GetExternHotkey());
@@ -2301,6 +2302,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_TEXTEND_NAME:
 			(Cl.Config->GetReviseName() ? Cl.Config->SetReviseName(false) : Cl.Config->SetReviseName(true));
+			break;
+		case IDC_SETTING_MIDDLE_BRACKET_EXTRACT:
+			(Cl.Config->GetMiddleBracketRecognize() ? Cl.Config->SetMiddleBracketRecognize(false) : Cl.Config->SetMiddleBracketRecognize(true));
 			break;
 		case IDC_SETTING_FORCE_ANEDIC:
 			(Cl.Config->GetForceAneDic() ? Cl.Config->SetForceAneDic(false) : Cl.Config->SetForceAneDic(true));

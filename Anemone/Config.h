@@ -19,6 +19,7 @@ private:
 
 	bool cfg_name_switch        = true;
 	bool cfg_name_revise        = false;
+	bool cfg_name_middle_bracket = false;
 	bool cfg_name_org_switch    = true;
 	bool cfg_name_shadow        = true;
 	wchar_t cfg_name_font[255];
@@ -133,7 +134,10 @@ public:
 	void SetUpdateNotify(bool b) { cfg_update_notify = b; }
 
 	int GetReviseName() { return cfg_name_revise; }
-	void SetReviseName(bool b) { cfg_name_revise = b; } 
+	void SetReviseName(bool b) { cfg_name_revise = b; }
+
+	int GetMiddleBracketRecognize() { return cfg_name_middle_bracket; }
+	void SetMiddleBracketRecognize(bool b) { cfg_name_middle_bracket = b; }
 
 	bool GetTransOneGo() { return cfg_trans_onego; }
 	void SetTransOneGo(bool b) { cfg_trans_onego = b; }

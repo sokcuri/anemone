@@ -154,6 +154,8 @@ bool CConfig::LoadConfig()
 	if (buf[0] != NULL) SetRepeatTextProc((DWORD)wcstoul(buf, NULL, 16));
 	ReadINI_Str(L"NAME_END_FIX", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetReviseName(true) : SetReviseName(false);
+	ReadINI_Str(L"NAME_MIDDLE_BRACKET_FIX", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetMiddleBracketRecognize(true) : SetMiddleBracketRecognize(false);
 
 	ReadINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetUpdateNotify(true) : SetUpdateNotify(false);
@@ -336,6 +338,8 @@ bool CConfig::SaveConfig(bool b)
 	WriteINI_Str(L"REPEAT_TEXT_FIX", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	wcscpy(buf, (GetReviseName() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"NAME_END_FIX", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	wcscpy(buf, (GetMiddleBracketRecognize() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"NAME_MIDDLE_BRACKET_FIX", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 
 	wcscpy(buf, (GetUpdateNotify() ? L"ON" : L"OFF"));
 	WriteINI_Str(L"UPDATE_NOTIFY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());

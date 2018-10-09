@@ -89,6 +89,7 @@
 #define IDC_SETTING_FORCE_ANEDIC        1019
 #define IDC_CHECK16                     1020
 #define IDC_SETTING_ANE_REMOCON         1020
+#define IDC_SETTING_MIDDLE_BRACKET_EXTRACT 1087
 #define IDC_CHECK17                     1021
 #define IDC_SETTING_EXTERN_HOTKEY       1021
 #define IDC_                            1021

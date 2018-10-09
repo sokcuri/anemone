@@ -37,8 +37,11 @@ CTextPreProcess::~CTextPreProcess()
 
 }
 
-std::wstring CTextPreProcess::PreProcessText(const std::wstring &input)
+std::wstring CTextPreProcess::PreProcessText(const std::wstring &input, bool bForceOff)
 {
+	// 설정이 꺼져있으면 텍스트 중간에 이름이 있어도 무시한다
+	if (bForceOff) return input;
+
 	// Rule 0. 문장이 너무 짧으면 전처리기를 사용하지 않는다
 	const int LOWER_BOUND_FOR_PRE_PROCESS = 2;
 	if (input.empty() || input.length() <= LOWER_BOUND_FOR_PRE_PROCESS)

@@ -1409,7 +1409,7 @@ bool CTextProcess::OnDrawClipboardByHooker(wchar_t *lpwszstr)
 bool CTextProcess::ProcessText(std::wstring &wContext)
 {
 	CTextPreProcess preProcess;
-	wContext = preProcess.PreProcessText(wContext);
+	wContext = preProcess.PreProcessText(wContext, !Cl.Config->GetMiddleBracketRecognize());
 
 	std::wstring wName, wNameT, wNameR, wText, wTextT, wTextR, wContextT;
 

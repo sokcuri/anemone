@@ -8,5 +8,5 @@ public:
 	CTextPreProcess();
 	~CTextPreProcess();
 
-	std::wstring PreProcessText(const std::wstring &input);
+	std::wstring PreProcessText(const std::wstring &input, bool bForceOff = false);
 };
