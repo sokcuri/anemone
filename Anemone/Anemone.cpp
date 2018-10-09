@@ -7,7 +7,7 @@
 #include "SetDpiAware.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1011
+#define ANEMONE_VERSION 1012
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -229,7 +229,7 @@ DWORD WINAPI MouseHookThread(LPVOID lpParam)
 	hAccelTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_ANEMONE));
 
 	// 로우레벨 마우스 후킹 설치
-	m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
+	//m_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInst, NULL);
 
 	// 기본 메시지 루프입니다.
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -3529,7 +3529,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 				while (*str) {
 					std::wstring filename = str;
 					std::wstring input_path = directory + L"\\" + filename;
-					std::wstring output_path = directory + L"\\번역_" + filename.substr(0, filename.rfind(L'.')) + L".txt";
+					std::wstring output_path = directory + L"\\" + filename.substr(0, filename.rfind(L'.')) + L"_번역.txt";
 					inputFile.push_back(input_path);
 					outputFile.push_back(output_path);
 
@@ -3550,7 +3550,7 @@ INT_PTR CALLBACK FileTransWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 					std::wstring input_path = ofn.lpstrFile;
 					std::wstring directory = input_path.substr(0, input_path.rfind(L'\\'));
 					std::wstring filename = input_path.substr(input_path.rfind(L'\\') + 1);
-					std::wstring output_path = input_path.substr(0, input_path.rfind(L'\\')) + L"\\" + L"번역_" + filename.substr(0, filename.rfind(L'.')) + L".txt";
+					std::wstring output_path = input_path.substr(0, input_path.rfind(L'\\')) + L"\\" + filename.substr(0, filename.rfind(L'.')) + L"_번역" + L".txt";
 
 					input_file_info = input_path;
 					output_file_info = output_path;
