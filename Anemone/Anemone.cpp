@@ -4080,6 +4080,19 @@ INT_PTR CALLBACK HookCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	return 0;
 }
 
+std::wstring GetTimeString()
+{
+	time_t rawtime;
+	struct tm * timeinfo;
+	wchar_t buffer[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	wcsftime(buffer, sizeof(buffer), L"anetext-%Y-%m-%d_%H_%M_%S.txt", timeinfo);
+	return std::wstring(buffer);
+}
+
 INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -4102,6 +4115,48 @@ INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case ID_BACKLOG_CLEAR:
 		{
 			SendMessage(GetDlgItem(hWnds.BackLog, IDC_BACKLOG_RICHEDIT), WM_SETTEXT, 0, 0);
+		}
+		break;
+		case ID_BACKLOG_SAVEFILE:
+		{
+			wchar_t buff[2000];
+
+			GetDlgItemText(hWnds.BackLog, IDC_BACKLOG_RICHEDIT, buff, 2000);
+
+			OPENFILENAME ofn;
+			wchar_t szFile[260];
+			wcscpy_s(szFile, GetTimeString().c_str());
+
+			std::wstring path;
+			GetLoadPath(path, L"");
+
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = L"텍스트 파일\0*.TXT\0모든 파일\0*.*\0";
+			ofn.nFilterIndex = 0;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = NULL;
+			ofn.lpstrInitialDir = path.c_str();
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+			if (GetSaveFileName(&ofn) == TRUE)
+			{
+				FILE *fp;
+				if (_wfopen_s(&fp, ofn.lpstrFile, L"wt,ccs=UTF-8") == 0)
+				{
+					MessageBox(0, buff, 0, 0);
+					fwrite(buff, sizeof(wchar_t), wcslen(buff), fp);
+					fclose(fp);
+				}
+				else
+				{
+					MessageBox(hWnd, L"텍스트 파일을 저장할 수 없습니다.", L"알림", 0);
+				}
+			}
 		}
 		break;
 		case IDOK:

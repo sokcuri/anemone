@@ -89,7 +89,6 @@
 #define IDC_SETTING_FORCE_ANEDIC        1019
 #define IDC_CHECK16                     1020
 #define IDC_SETTING_ANE_REMOCON         1020
-#define IDC_SETTING_MIDDLE_BRACKET_EXTRACT 1087
 #define IDC_CHECK17                     1021
 #define IDC_SETTING_EXTERN_HOTKEY       1021
 #define IDC_                            1021
@@ -232,6 +231,7 @@
 #define IDC_HOOKCFG_AGTH                1084
 #define IDC_SETTING_PREV_SEARCH_NUM     1085
 #define IDC_SETTING_WND_BORDER_BAR      1086
+#define IDC_SETTING_MIDDLE_BRACKET_EXTRACT 1087
 #define ID_WINDOW_SETTING               1201
 #define ID_SETTING_CHECK                1202
 #define ID_TEXT_PREV                    1203
@@ -261,6 +261,7 @@
 #define IDC_TRANSWIN_OUTPUT3            2009
 #define IDC_RICHEDIT21                  2009
 #define IDC_BACKLOG_RICHEDIT            2009
+#define ID_BACKLOG_SAVEFILE             2010
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
