@@ -4751,7 +4751,7 @@ DWORD WINAPI FileTransThread(LPVOID lpParam)
 
 		SendMessage(hDlg, WM_COMMAND, ID_FILE_TRANSPROG_LISTSIZE, (LPARAM)list.size());
 
-		for (i = 0, iter = list.begin(); iter != list.end(); iter++, i++)
+		for (i = 0, iter = list.begin(); iter != list.end() && v_line_info.size() != 0; iter++, i++)
 		{
 			g_curr += v_line_info[i];
 
