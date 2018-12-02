@@ -178,6 +178,8 @@ bool CConfig::LoadConfig()
 
 	ReadINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	if (buf[0] != NULL) SetReviewMax(_wtoi(buf));
+	ReadINI_Str(L"USE_EXTERN_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+	if (buf[0] != NULL) (_wcsicmp(buf, L"OFF") != 0) ? SetExternHotkey(true) : SetExternHotkey(false);
 
 	// »ö ¼³Á¤
 	if (Cl.TextRenderer)
@@ -362,6 +364,9 @@ bool CConfig::SaveConfig(bool b)
 
 	wsprintf(buf, L"%d", GetReviewMax());
 	WriteINI_Str(L"REVIEW_MAX_COUNT", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
+
+	wcscpy(buf, (GetExternHotkey() ? L"ON" : L"OFF"));
+	WriteINI_Str(L"USE_EXTERN_HOTKEY", L"CONFIG", buf, (wchar_t*)INIPath.c_str());
 	
 	if (!b)
 	{

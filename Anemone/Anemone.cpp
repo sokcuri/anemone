@@ -7,7 +7,7 @@
 #include "SetDpiAware.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1012
+#define ANEMONE_VERSION 1013
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
