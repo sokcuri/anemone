@@ -4148,7 +4148,6 @@ INT_PTR CALLBACK BackLogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				FILE *fp;
 				if (_wfopen_s(&fp, ofn.lpstrFile, L"wt,ccs=UTF-8") == 0)
 				{
-					MessageBox(0, buff, 0, 0);
 					fwrite(buff, sizeof(wchar_t), wcslen(buff), fp);
 					fclose(fp);
 				}
