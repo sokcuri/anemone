@@ -1670,7 +1670,7 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 	// 사전 파일 읽기
 
-	if (_wfopen_s(&fp, dicFile, L"rt,ccs=UTF-8") != 0)
+	if (_wfopen_s(&fp, dicFile, L"rtS,ccs=UTF-8") != 0)
 	{
 		//MessageBox(0, L"사용자 사전을 열 수 없습니다", 0, 0);
 		return false;
@@ -1678,15 +1678,42 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 	nLine = 0;
 	AneDic.clear();
 
-	// 한줄씩 읽기
-	while (fgetws(wstr, 1000, fp) != NULL)
+	std::wstring line;
+	
+	fseek(fp, 0L, SEEK_END);
+	int sz = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+
+	wchar_t* buff = new wchar_t[sz * 2];
+	memset(buff, 0, sz * 2);
+
+	fread_s(buff, sz * 2, sizeof(wchar_t), sz, fp);
+
+	int prev = 0;
+	for (int i = 0; i <= wcslen(buff); i++)
 	{
-		int nLength = wcslen(wstr);
+		if (buff[i] == L'\r' && buff[i] == L'\n')
+		{
+			line = std::wstring(buff + prev, i - prev);
+			i++;
+			prev = i + 2;
+		}
+		else if (buff[i] == L'\r' || buff[i] == L'\n')
+		{
+			line = std::wstring(buff + prev, i - prev);
+			prev = i + 1;
+		}
+		else if (i == wcslen(buff))
+		{
+			line = std::wstring(buff + prev);
+		}
+
+		int nLength = wcslen(line.c_str());
 		int nBom = 0;
 		nLine++;
 
 		// 주석 처리
-		if (wstr[0] == L'/' && wstr[1] == L'/')
+		if (line[0] == L'/' && line[1] == L'/')
 		{
 			//fwprintf(out, L"[주석]\n");
 			continue;
@@ -1702,6 +1729,8 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 
 		for (int i = 0, prev = 0; i <= nLength; i++)
 		{
+			wchar_t c = line[i];
+			// OutputDebugString(line.substr(i, 1).c_str());
 			/*
 			// 탭을 여러개 넣었을 떄의 처리
 			if (i > 0 && wstr[i - 1] == L'\t' && wstr[i] == L'\t')
@@ -1710,38 +1739,38 @@ bool CTextProcess::_LoadDic(const wchar_t *dicFile)
 				continue;
 			}*/
 
-			// 탭을 만나거나 EOF를 만나면
-			if (wstr[i] == L'\t' || wstr[i] == L'\n' || (wstr[i - 1] == L'/' && wstr[i] == L'/') || i == nLength)
+			// 탭을 만나면
+			if (line[i] == L'\t' || i > 0 && (line[i - 1] == L'/' && line[i] == L'/') || i == nLength)
 			{
 				switch (tab)
 				{
 				case 0: // jpn
-					wcsncpy_s(wjpn, wstr, i);
+					wcsncpy_s(wjpn, line.c_str(), i);
 					tab++;
 					prev = i + 1;
 					break;
 
 				case 1: // kor
-					wcsncpy_s(wkor, wstr + prev, i - prev);
+					wcsncpy_s(wkor, line.c_str() + prev, i - prev);
 					tab++;
 					prev = i + 1;
 					break;
 
 				case 2: // part
-					wcsncpy_s(wpart, wstr + prev, i - prev);
+					wcsncpy_s(wpart, line.c_str() + prev, i - prev);
 					tab++;
 					prev = i + 1;
 					break;
 
 				case 3: // attr
-					wcsncpy_s(wattr, wstr + prev, i - prev);
+					wcsncpy_s(wattr, line.c_str() + prev, i - prev);
 					tab++;
 					prev = i + 1;
 					break;
 				}
 
 				// 주석을 만나면 종료
-				if (wstr[i - 1] == L'/' && wstr[i] == L'/') break;
+				if (i > 0 && line[i - 1] == L'/' && line[i] == L'/') break;
 
 			}
 		}
