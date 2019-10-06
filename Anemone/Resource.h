@@ -89,7 +89,6 @@
 #define IDC_SETTING_FORCE_ANEDIC        1019
 #define IDC_CHECK16                     1020
 #define IDC_SETTING_ANE_REMOCON         1020
-#define IDC_SETTING_PRINT_TRANSTEXT     3000
 #define IDC_CHECK17                     1021
 #define IDC_SETTING_EXTERN_HOTKEY       1021
 #define IDC_                            1021
@@ -264,6 +263,7 @@
 #define IDC_RICHEDIT21                  2009
 #define IDC_BACKLOG_RICHEDIT            2009
 #define ID_BACKLOG_SAVEFILE             2010
+#define IDC_SETTING_PRINT_TRANSTEXT     3000
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
