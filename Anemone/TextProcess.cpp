@@ -1330,9 +1330,14 @@ bool CTextProcess::OnDrawClipboard()
 		CloseClipboard();
 		return false;
 	}
-	
+	/*
 	wchar_t *text_buffer = (wchar_t *)wContext.c_str();
-	
+
+	_wfopen_s(&fpLog, L"text_log.txt", L"at,ccs=UTF-8");
+	fwrite(text_buffer, sizeof(wchar_t), wcslen(text_buffer), fpLog);
+	fwrite(L"\n", sizeof(wchar_t), 2, fpLog);
+	fclose(fpLog);
+	*/
 	/*
 	wchar_t *line_buffer;
 	std::wstring line;

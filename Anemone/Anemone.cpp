@@ -7,7 +7,7 @@
 #include "SetDpiAware.h"
 
 // 아네모네 버전
-#define ANEMONE_VERSION 1014
+#define ANEMONE_VERSION 1015
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -1325,6 +1325,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_USE_MAGNETIC, Cl.Config->GetMagneticMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_WND_BORDER_MODE, Cl.Config->GetWndBorderMode());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGTEXT, Cl.Config->GetTextSwitch(CFG_ORG));
+				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_TRANSTEXT, Cl.Config->GetTextSwitch(CFG_TRANS));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PRINT_ORGNAME, Cl.Config->GetTextSwitch(CFG_NAME_ORG));
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_PREV_SEARCH_NUM, Cl.Config->GetPrevSearchNum());
 				CheckDlgButton(hWnds.Setting, IDC_SETTING_SEPERATE_NAME, Cl.Config->GetTextSwitch(CFG_NAME));
@@ -1700,7 +1701,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_PRINT_ORGTEXT:
 			(Cl.Config->GetTextSwitch(CFG_ORG) ? Cl.Config->SetTextSwitch(CFG_ORG, false) : Cl.Config->SetTextSwitch(CFG_ORG, true));
-			PostMessage(hWnds.Main, WM_PAINT, 0, 1); 
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
+			//Cl.TextRenderer->Paint();
+			break;
+		case ID_PRINT_TRANSTEXT:
+			(Cl.Config->GetTextSwitch(CFG_TRANS) ? Cl.Config->SetTextSwitch(CFG_TRANS, false) : Cl.Config->SetTextSwitch(CFG_TRANS, true));
+			PostMessage(hWnds.Main, WM_PAINT, 0, 1);
 			//Cl.TextRenderer->Paint();
 			break;
 		case ID_PRINT_ORGNAME:
@@ -2273,6 +2279,9 @@ INT_PTR CALLBACK SettingProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			break;
 		case IDC_SETTING_PRINT_ORGTEXT:
 			SendMessage(hWnds.Main, WM_COMMAND, ID_PRINT_ORGTEXT, 0);
+			break;
+		case IDC_SETTING_PRINT_TRANSTEXT:
+			SendMessage(hWnds.Main, WM_COMMAND, ID_PRINT_TRANSTEXT, 0);
 			break;
 		case IDC_SETTING_PRINT_ORGNAME:
 			SendMessage(hWnds.Main, WM_COMMAND, ID_PRINT_ORGNAME, 0);

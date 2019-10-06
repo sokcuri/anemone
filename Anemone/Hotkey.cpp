@@ -64,6 +64,9 @@ bool CHotkey::LoadKeyMap()
 	RegKey(VK_F8, false, false, false, ID_PRINT_ORGTEXT);
 	RegKey(VK_F8, false, true, false, ID_PRINT_ORGNAME);
 
+	// 번역문 문장 출력
+	RegKey(VK_F8, false, false, true, ID_PRINT_TRANSTEXT);
+
 	// 이름 분리 표시
 	RegKey(VK_F8, true, false, false, ID_SEPERATE_NAME);
 

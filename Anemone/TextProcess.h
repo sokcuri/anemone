@@ -39,6 +39,8 @@ private:
 	void ApplyForceAneDic(std::wstring &input);
 	bool ProcessText(std::wstring &wContext);
 
+	FILE* fpLog;
+
 	HANDLE hHookMonitorThread;
 	DWORD WINAPI _HookMonitorProc(LPVOID lpParam);
 

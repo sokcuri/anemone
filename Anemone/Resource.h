@@ -89,6 +89,7 @@
 #define IDC_SETTING_FORCE_ANEDIC        1019
 #define IDC_CHECK16                     1020
 #define IDC_SETTING_ANE_REMOCON         1020
+#define IDC_SETTING_PRINT_TRANSTEXT     3000
 #define IDC_CHECK17                     1021
 #define IDC_SETTING_EXTERN_HOTKEY       1021
 #define IDC_                            1021
@@ -251,6 +252,7 @@
 #define ID_TRANS_ABORT                  1217
 #define ID_TRANS_ERROR                  1218
 #define ID_TRANS_START                  1219
+#define ID_PRINT_TRANSTEXT              1220
 #define IDC_SETTING_HOOKER_MONITOR      2002
 #define IDC_EDIT4                       2004
 #define IDC_HOOKCFG_INTERVAL_EDIT       2004
